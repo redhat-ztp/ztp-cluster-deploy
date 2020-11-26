@@ -1,0 +1,8 @@
+[all:vars]
+pull_secret_path=/path/to/pull-secret.json
+
+[provisioner]
+# host from where the installation is performed
+localhost ansible_connection=local
+
+
