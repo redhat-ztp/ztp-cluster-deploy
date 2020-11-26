@@ -1,0 +1,27 @@
+---
+- name: Configure cluster
+  block:
+    - name: Wait until hosts are ready
+      shell: "aicli list hosts | grep {{ cluster_name }} | grep 'pending-for-input' | wc -l"
+      register: hosts_number
+      until: hosts_number.stdout|int == 3
+      retries: 100
+      delay: 30
+
+    - name: Set API VIP
+      shell: "aicli update cluster -P api_vip={{ api_vip }} {{ cluster_name }}"
+
+    - name: Wait until cluster is ready to be installed
+      shell: "aicli list cluster | grep {{ cluster_name }} |  cut -d '|' -f4 | tr -d ' '"
+      register: cluster_ready
+      until: cluster_ready.stdout == "ready"
+      retries: 100
+      delay: 30
+
+    - name: Install cluster
+      shell: "aicli start cluster {{ cluster_name }}"
+
+
+  environment:
+    AI_URL: "{{ ai_url }}"
+

@@ -1,0 +1,37 @@
+---
+- name: Create temporary directory for script
+  tempfile:
+    state: directory
+  register: script_directory
+
+- name: Get the script to modify ISOs
+  get_url:
+      url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/inject_config_files.sh
+      dest: "{{ script_directory.path }}/inject_config_files.sh"
+
+- name: Get the script to generate ramdisk
+  get_url:
+      url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/ramdisk_generator.sh
+      dest: "{{ script_directory.path }}/ramdisk_generator.sh"
+
+- name: Get the script to extract ignition from ISO
+  get_url:
+      url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/extract_ignition_from_ai_iso.sh
+      dest: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh"
+
+- name: Extract the ignition file from the downloaded ISO
+  script:
+    chdir: "{{ script_directory.path }}"
+    cmd: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh {{ ai_iso_path }}/{{ cluster_name }}-day2.iso {{ http_server_path }}/{{ ignition_config_name }}"
+
+- name: Generate extra ramdisk
+  script:
+    chdir: "{{ script_directory.path }}"
+    cmd: "{{ script_directory.path }}/ramdisk_generator.sh {{ ramdisk_path }} {{ script_directory.path }}/extra_config.img"
+  when: ramdisk_path is defined
+
+- name: Produce the final iso
+  script:
+    chdir: "{{ script_directory.path }}"
+    cmd: "{{ script_directory.path }}/inject_config_files.sh {{ small_iso_path }} {{ final_iso_path }} {{ ignition_url }} {{ rootfs_url }} {% if kernel_arguments is defined %}'{{ kernel_arguments }}'{% else %}''{% endif %} {% if ramdisk_path is defined %}{{ script_directory.path }}/extra_config.img{% else %}''{%  endif %}"
+

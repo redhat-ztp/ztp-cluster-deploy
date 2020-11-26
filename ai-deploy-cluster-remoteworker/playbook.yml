@@ -1,0 +1,21 @@
+---
+- name: Deploy clusters with assisted installer
+  hosts: provisioner
+  roles:
+    - role: prepare-environment
+      tags: prepare-environment
+    - role: create-cluster
+      tags: create-cluster
+    - role: enroll-hosts
+      tags: enroll-hosts
+    - role: deploy-cluster
+      tags: deploy-cluster
+    - role: create-cluster-day2
+      tags: create-cluster-day2
+    - role: modify-iso-day2
+      tags: modify-iso-day2
+    - role: add-remote-worker
+      tags: add-remote-worker
+    - role: deploy-cluster-day2
+      tags: deploy-cluster-day2
+

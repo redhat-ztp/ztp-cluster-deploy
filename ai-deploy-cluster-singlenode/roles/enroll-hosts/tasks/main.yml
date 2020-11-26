@@ -1,0 +1,126 @@
+---
+- name: Remove previous vm file
+  file:
+    path: "/var/lib/libvirt/images/bootstrap_{{ cluster_name }}.iso"
+    state: absent
+  ignore_errors: true
+
+- name: Remove previous vm
+  community.libvirt.virt:
+    command: destroy
+    name: "bootstrap_{{ cluster_name }}"
+  ignore_errors: true
+
+- name: Undefine previous vm
+  community.libvirt.virt:
+    command: undefine
+    name: "bootstrap_{{ cluster_name }}"
+  ignore_errors: true
+
+- name: Create the qcow2 file
+  command: "qemu-img create -f qcow2 /var/lib/libvirt/images/bootstrap_{{ cluster_name }}.qcow2 10G"
+
+- name: Create bootstrap vm
+  community.libvirt.virt:
+    command: define
+    xml: "{{ lookup('template', '{{ role_path }}/templates/bootstrap-vm.xml') }}"
+    autostart: yes
+
+- name: Start bootstrap vm
+  community.libvirt.virt:
+    command: start
+    name: "bootstrap_{{ cluster_name }}"
+
+- name: Unmount SuperMicro ISO
+  uri:
+    url: "https://{{ bmc_address }}/redfish/v1/Managers/1/VM1/CfgCD/Actions/IsoConfig.UnMount"
+    user: "{{ bmc_user }}"
+    password: "{{ bmc_password }}"
+    method: POST
+    headers:
+      content-type: application/json
+      Accept: application/json
+    body: {}
+    body_format: json
+    validate_certs: no
+    force_basic_auth: yes
+    return_content: yes
+
+- name: Patching Host and Path for Mounting ISO
+  uri:
+    url: "https://{{ bmc_address }}/redfish/v1/Managers/1/VM1/CfgCD"
+    user: "{{ bmc_user }}"
+    password: "{{ bmc_password }}"
+    method: PATCH
+    headers:
+      content-type: application/json
+      Accept: application/json
+    body: "{\"Host\": \"{{ smb_host }}\", \"Path\": \"\\\\{{ smb_path }}\\\\coreos.iso\"}"
+    body_format: json
+    force_basic_auth: yes
+    validate_certs: no
+    return_content: yes
+
+- name: Mount SuperMicro ISO
+  uri:
+    url: "https://{{ bmc_address }}/redfish/v1/Managers/1/VM1/CfgCD/Actions/IsoConfig.Mount"
+    user: "{{ bmc_user }}"
+    password: "{{ bmc_password }}"
+    method: POST
+    headers:
+      content-type: application/json
+      Accept: application/json
+    body: {}
+    body_format: json
+    validate_certs: no
+    force_basic_auth: yes
+    return_content: yes
+
+- name: SuperMicro Power ON
+  community.general.redfish_command:
+    category: Systems
+    command: PowerOn
+    baseuri: "{{ bmc_address }}"
+    username: "{{ bmc_user }}"
+    password: "{{ bmc_password }}"
+
+- name: Set Boot for the SuperMicro
+  uri:
+    url: "https://{{ bmc_address }}/redfish/v1/Systems/1"
+    user: "{{ bmc_user }}"
+    password: "{{ bmc_password }}"
+    method: PATCH
+    headers:
+      content-type: application/json
+      Accept: application/json
+    body: '{"Boot":{"BootSourceOverrideEnabled":"Once","BootSourceOverrideTarget":"UsbCd"}}'
+    body_format: json
+    force_basic_auth: yes
+    validate_certs: no
+    return_content: yes
+
+- name: Restart the SuperMicro
+  uri:
+    url: "https://{{ bmc_address }}/redfish/v1/Systems/1/Actions/ComputerSystem.Reset"
+    user: "{{ bmc_user }}"
+    password: "{{ bmc_password }}"
+    method: POST
+    headers:
+      content-type: application/json
+      Accept: application/json
+    body: '{"ResetType": "ForceRestart"}'
+    body_format: json
+    force_basic_auth: yes
+    validate_certs: no
+    return_content: yes
+
+- name: Wait until hosts are ready in Assisted Installer
+  shell: "aicli list hosts | grep {{ cluster_name }} | grep 'pending-for-input' | wc -l"
+  register: hosts_ready
+  until: hosts_ready.stdout|int == 2
+  retries: 100
+  delay: 30
+  environment:
+    AI_URL: "{{ ai_url }}"
+
+

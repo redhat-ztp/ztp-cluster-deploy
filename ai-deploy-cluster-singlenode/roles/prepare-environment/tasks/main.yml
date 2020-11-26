@@ -1,0 +1,16 @@
+---
+- name: Create temporary directory for script
+  tempfile:
+    state: directory
+  register: script_directory
+
+- name: Get the script to create small ISO
+  get_url:
+      url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/generate_rhcos_iso.sh
+      dest: "{{ script_directory.path }}/generate_rhcos_iso.sh"
+
+- name: Create the small ISO and copy to desired path
+  script:
+    chdir: "{{ script_directory.path }}"
+    cmd: "{{ script_directory.path }}/generate_rhcos_iso.sh {{ small_iso_path }}"
+

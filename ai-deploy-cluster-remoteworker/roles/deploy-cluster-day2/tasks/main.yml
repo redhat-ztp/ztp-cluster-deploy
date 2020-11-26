@@ -1,0 +1,11 @@
+---
+- name: Configure cluster
+  block:
+    - name: Set API VIP
+      shell: "aicli update cluster -P api_vip={{ api_vip }} {{ cluster_name }}-day2"
+      
+    - name: Install cluster
+      shell: "aicli start cluster {{ cluster_name }}-day2"
+  environment:
+    AI_URL: "{{ ai_url }}"
+

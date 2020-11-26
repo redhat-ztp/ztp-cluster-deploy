@@ -1,0 +1,15 @@
+---
+- name: Deploy clusters with assisted installer
+  hosts: provisioner
+  roles:
+    - roles: prepare-environment
+      tags: prepare-environment
+    - role: create-cluster
+      tags: create-cluster
+    - role: modify-iso
+      tags: modify-iso
+    - role: enroll-hosts
+      tags: enroll-hosts
+    - role: deploy-cluster
+      tags: deploy-cluster
+
