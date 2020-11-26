@@ -1,0 +1,48 @@
+global
+    log         127.0.0.1 local2
+
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    maxconn     4000
+    user        {{ ansible_user }}
+    group       {{ ansible_user }}
+    daemon
+
+defaults
+    mode                    http
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 3000
+
+frontend http
+    bind *:80
+    mode tcp
+    default_backend http-main
+    option tcplog
+
+frontend https
+    bind *:443
+    mode tcp
+    default_backend https-main
+    option tcplog
+
+backend http-main
+    balance source
+    mode tcp
+    server ingress_vip {{ ingress_vip }}:80 check
+
+backend https-main
+    balance source
+    mode tcp
+    server ingress_vip {{ ingress_vip }}:443 check

@@ -1,0 +1,34 @@
+---
+- name: Create haproxy directory
+  file:
+    path: /opt/haproxy
+    state: directory
+    mode: '0755'
+
+- name: Generate haproxy cfg file
+  template:
+    src: "{{ role_path }}/templates/haproxy.cfg.j2"
+    dest: "/opt/haproxy/haproxy.cfg"
+
+- name: Create tmp directory for haproxy
+  tempfile:
+    state: directory
+  register: tempdiroutput
+
+- name: Set fact for tmp directory
+  set_fact:
+    tempdir: "{{ tempdiroutput.path }}"
+
+- name: Remove haproxy if it was present
+  containers.podman.podman_container:
+    name: haproxy_{{ cluster_name }}
+    state: absent
+
+- name: Start haproxy for the cluster
+  containers.podman.podman_container:
+    name: haproxy_{{ cluster_name }}
+    image: haproxy:1.7
+    network: host
+    volumes:
+      - "/opt/haproxy:/usr/local/etc/haproxy"
+      - "{{ tempdir }}:/var/lib/haproxy"

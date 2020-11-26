@@ -10,6 +10,8 @@
       tags: enroll-hosts
     - role: deploy-cluster
       tags: deploy-cluster
+    - role: expose-endpoints
+      tags: expose-endpoints
     - role: create-cluster-day2
       tags: create-cluster-day2
     - role: modify-iso-day2
