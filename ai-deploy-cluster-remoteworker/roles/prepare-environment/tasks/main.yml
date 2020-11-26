@@ -1,14 +1,37 @@
 ---
-- name: Install dependencies for haproxy
+- name: Install podman
   yum:
     name: podman
     state: present
 
-- name: Create haproxy directory
-  file:
-    path: /opt/haproxy
-    state: directory
-    mode: '0755'
+- name: check if aicli exists
+  stat:
+    path: /usr/local/bin/aicli
+  register: aicli_path
+
+- name: Install aicli if not present
+  block:
+    - name: Create temporary directory for aicli
+      tempfile:
+        state: directory
+      register: dockerfile_directory
+
+    - name: Install assisted service client
+      shell: |
+        curl https://raw.githubusercontent.com/openshift/assisted-service/master/Dockerfile.assisted-service > {{ dockerfile_directory.path }}/Dockerfile.assisted-service
+        podman build -t ocpmetal/assisted-service -f {{ dockerfile_directory.path }}/Dockerfile.assisted-service .
+        podman run -v $PWD:/here --rm ocpmetal/assisted-service:latest cp -r /clients/assisted-service-client-1.0.0.tar.gz /here
+        tar zxvf assisted-service-client-1.0.0.tar.gz
+        cd assisted-service-client-1.0.0
+        python3 setup.py install
+
+    - name: Install aicli
+      shell: |
+          git clone https://github.com/karmab/assisted-installer-cli {{ dockerfile_directory.path }}/assisted-installer-cli
+          pushd {{ dockerfile_directory.path }}/assisted-installer-cli
+          python3 setup.py install
+          popd
+  when: aicli_path.stat.exists == False
 
 - name: Create temporary directory for script
   tempfile:
