@@ -10,6 +10,10 @@
 
     - name: Set API VIP
       shell: "aicli update cluster -P api_vip={{ api_vip }} {{ cluster_name }}"
+      retries: 20
+      delay: 10
+      register: result
+      until: result.rc == 0
 
     - name: Wait until cluster is ready to be installed
       shell: "aicli list cluster | grep {{ cluster_name }} |  cut -d '|' -f4 | tr -d ' '"
