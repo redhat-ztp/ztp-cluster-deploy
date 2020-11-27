@@ -1,5 +1,6 @@
 [all:vars]
 pull_secret_path=/path/to/pull-secret.json
+kubeconfig_path=/path/to/kubeconfig
 
 [provisioner]
 # host from where the installation is performed
