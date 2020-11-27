@@ -42,7 +42,7 @@
       dest: "{{ acm_directory.path }}/acm/hub/secret.json"
 
   - name: Apply the content
-    command: oc apply -f hub
+    command: oc apply -k hub
     ignore_errors: true
     args:
       chdir: "{{ acm_directory.path }}/acm/"
