@@ -33,7 +33,7 @@
 
   - name: Clone manifests there
     git:
-      repo: https://github.com/redhat-ztp/ztp-ran-manifests
+      repo: https://github.com/redhat-ztp/ztp-acm-manifests
       dest: "{{ acm_directory.path }}"
 
   - name: Copy pull secret inside ACM content
