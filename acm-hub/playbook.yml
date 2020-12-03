@@ -39,7 +39,7 @@
   - name: Copy pull secret inside ACM content
     copy:
       src: "{{ pull_secret_path }}"
-      dest: "{{ acm_directory.path }}/acm_cluster/hub/secret.json"
+      dest: "{{ acm_directory.path }}/hub/secret.json"
 
   - name: Apply the content
     command: oc apply -k hub
@@ -48,11 +48,11 @@
     register: apply_result
     until: apply_result.rc == 0
     args:
-      chdir: "{{ acm_directory.path }}/acm_cluster/"
+      chdir: "{{ acm_directory.path }}/"
     environment:
       KUBECONFIG: "{{ kubeconfig_path }}"
 
   - name: Remove secret from tempdir
     file:
-      path: "{{ acm_directory.path }}/acm_cluster/hub/secret.json"
+      path: "{{ acm_directory.path }}/hub/secret.json"
       state: absent
