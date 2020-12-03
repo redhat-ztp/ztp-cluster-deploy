@@ -31,28 +31,22 @@
       state: directory
     register: acm_directory
 
-  - name: Clone manifests there
-    git:
-      repo: https://github.com/redhat-ztp/ztp-acm-manifests
-      dest: "{{ acm_directory.path }}"
+  - name: Extract the klusterlet definition from ACM
+    shell: "oc get secret/{{ cluster_name }}-import -n {{ cluster_name }} -o jsonpath={.data.crds\\\\.yaml} | base64 --decode > {{ acm_directory.path }}/crd.yaml"
+    environment:
+      KUBECONFIG: "{{ kubeconfig_hub_path }}"
 
-  - name: Copy ACM kubeconfig inside spoke content
-    copy:
-      src: "{{ kubeconfig_hub_path }}"
-      dest: "{{ acm_directory.path }}/spoke_cluster/kubeconfig"
+  - name: Extract the import command from ACM
+    shell: "oc get secret/{{ cluster_name }}-import -n {{ cluster_name }} -o jsonpath={.data.import\\\\.yaml} | base64 --decode > {{ acm_directory.path }}/import.yaml"
+    environment:
+      KUBECONFIG: "{{ kubeconfig_hub_path }}"
 
-  - name: Apply the content
-    command: oc apply -k spoke_cluster
-    retries: 10
-    delay: 30
-    register: apply_result
-    until: apply_result.rc == 0
-    args:
-      chdir: "{{ acm_directory.path }}/"
+  - name: Apply the klusterlet definition on the spoke
+    command: "oc apply -f {{ acm_directory.path }}/crd.yaml"
     environment:
       KUBECONFIG: "{{ kubeconfig_spoke_path }}"
 
-  - name: Remove kubeconfig from tempdir
-    file:
-      path: "{{ acm_directory.path }}/spoke_cluster/kubeconfig"
-      state: absent
+  - name: Apply the import definition on the spoke
+    command: "oc apply -f {{ acm_directory.path }}/import.yaml"
+    environment:
+      KUBECONFIG: "{{ kubeconfig_spoke_path }}"

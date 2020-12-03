@@ -1,6 +1,7 @@
 [all:vars]
 kubeconfig_spoke_path=/path/to/acm_spoke_kubeconfig
 kubeconfig_hub_path=/path/to/acm_hub_kubeconfig
+cluster_name=sample-du-cluster
 
 [provisioner]
 # host from where the installation is performed
