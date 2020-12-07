@@ -27,7 +27,7 @@
 - name: Start haproxy for the cluster
   containers.podman.podman_container:
     name: haproxy_{{ cluster_name }}
-    image: haproxy:1.7
+    image: docker.io/haproxy:1.7
     network: host
     volumes:
       - "/opt/haproxy:/usr/local/etc/haproxy"
