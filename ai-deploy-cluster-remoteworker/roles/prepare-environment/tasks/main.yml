@@ -4,6 +4,28 @@
     name: podman
     state: present
 
+- name: define racadm yum repo
+  yum_repository:
+    name: Racadm
+    baseurl: http://linux.dell.com/repo/hardware/dsu/os_dependent/RHEL8_64
+    gpgcheck: no
+    enabled: yes
+  when: bmc_type is Dell
+
+- name: install racadm and httpd
+  yum:
+    name:
+      - httpd
+      - openssl-devel
+      - srvadmin-idracadm7
+  when: bmc_type is Dell
+
+- name: Enable and start httpd
+  systemd:
+    name: httpd
+    enabled: yes
+    masked: no
+
 - name: check if aicli exists
   stat:
     path: /usr/local/bin/aicli
