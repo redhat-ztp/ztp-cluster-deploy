@@ -33,7 +33,7 @@
       until: result.rc == 0
 
     - name: Copy AI ISO to HTTP Server
-      shell: "cp {{ ai_iso_path }} {{ http_server_path }}"
+      shell: "cp {{ ai_iso_path }}/{{ cluster_name }}.iso {{ http_server_path }}"
   environment:
     AI_URL: "{{ ai_url }}"
 

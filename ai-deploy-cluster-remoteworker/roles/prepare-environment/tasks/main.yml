@@ -4,7 +4,7 @@
     name: podman
     state: present
 
-- name: httpd
+- name: install httpd
   yum:
     name:
       - httpd
@@ -22,13 +22,14 @@
     baseurl: http://linux.dell.com/repo/hardware/dsu/os_dependent/RHEL8_64
     gpgcheck: no
     enabled: yes
-  when: bmc_type is Dell
+    description: "Add repo"
+  when: bmc_type == "Dell"
 
-- name: install racadm and httpd
+- name: install racadm
   yum:
     name:
       - srvadmin-idracadm7
-  when: bmc_type is Dell
+  when: bmc_type == "Dell"
 
 - name: check if aicli exists
   stat:
