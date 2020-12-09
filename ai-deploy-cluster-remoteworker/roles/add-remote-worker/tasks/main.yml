@@ -13,6 +13,7 @@
     validate_certs: no
     force_basic_auth: yes
     return_content: yes
+    when: bmc_type is SuperMicro
 
 - name: Patching Host and Path for Mounting ISO
   uri:
@@ -28,6 +29,7 @@
     force_basic_auth: yes
     validate_certs: no
     return_content: yes
+    when: bmc_type is SuperMicro
 
 - name: Mount SuperMicro ISO
   uri:
@@ -43,6 +45,7 @@
     validate_certs: no
     force_basic_auth: yes
     return_content: yes
+    when: bmc_type is SuperMicro
 
 - name: SuperMicro Power ON
   community.general.redfish_command:
@@ -51,6 +54,7 @@
     baseuri: "{{ bmc_address }}"
     username: "{{ bmc_user }}"
     password: "{{ bmc_password }}"
+    when: bmc_type is SuperMicro
 
 - name: Set Boot for the SuperMicro
   uri:
@@ -66,6 +70,7 @@
     force_basic_auth: yes
     validate_certs: no
     return_content: yes
+    when: bmc_type is SuperMicro
 
 - name: Restart the SuperMicro
   uri:
@@ -81,6 +86,19 @@
     force_basic_auth: yes
     validate_certs: no
     return_content: yes
+    when: bmc_type is SuperMicro
+
+- name: template racadm
+  template:
+    src: template/racadm.sh
+    dest: /root/racadm.sh
+    owenr: root
+    mode: 700
+  when: bmc_type is Dell
+
+- name: run racadm
+  shell: /root/racadm.sh {{ bmc_user }} {{ bmc_password }} {{ bmc_address }} {{ smb_path }}
+  when: bmc_type is Dell
 
 - name: Wait until hosts are ready in Assisted Installer
   shell: "aicli list hosts | grep {{ cluster_name }}-day2 | grep 'insufficient' | wc -l"

@@ -17,6 +17,7 @@ ignition_config_name=ignition_config
 ramdisk_config_name=extra_ramdisk
 small_iso_path=/opt/cached_disconnected_images/small_iso.iso
 final_iso_path=/home/share/coreos.iso
+bmc_type=SuperMicro
 bmc_address=192.168.111.212
 bmc_user="ADMIN"
 bmc_password="ADMIN"
