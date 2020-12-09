@@ -18,12 +18,14 @@
 
     - name: Install assisted service client
       shell: |
-        curl https://raw.githubusercontent.com/openshift/assisted-service/master/Dockerfile.assisted-service > {{ dockerfile_directory.path }}/Dockerfile.assisted-service
-        podman build -t ocpmetal/assisted-service -f {{ dockerfile_directory.path }}/Dockerfile.assisted-service .
+        git clone https://github.com/openshift/assisted-service {{ dockerfile_directory.path }}/assisted-service
+        pushd {{ dockerfile_directory.path }}/assisted-service
+        podman build -t ocpmetal/assisted-service -f ./Dockerfile.assisted-service .
         podman run -v $PWD:/here --rm ocpmetal/assisted-service:latest cp -r /clients/assisted-service-client-1.0.0.tar.gz /here
         tar zxvf assisted-service-client-1.0.0.tar.gz
         cd assisted-service-client-1.0.0
         python3 setup.py install
+        popd
 
     - name: Install aicli
       shell: |
@@ -65,6 +67,7 @@
 
 - name: Clean the pod
   shell: "podman pod rm -f assisted-installer"
+  ignore_errors: yes
 
 - name: Start the assisted installer service
   shell: "make deploy-onprem"
