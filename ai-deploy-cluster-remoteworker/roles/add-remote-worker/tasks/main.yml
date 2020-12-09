@@ -97,7 +97,7 @@
   when: bmc_type is Dell
 
 - name: run racadm
-  shell: /root/racadm.sh {{ bmc_user }} {{ bmc_password }} {{ bmc_address }} {{ smb_path }}
+  shell: "/root/racadm.sh {{ bmc_user }} {{ bmc_password }} {{ bmc_address }} {{ smb_path }}"
   when: bmc_type is Dell
 
 - name: Wait until hosts are ready in Assisted Installer

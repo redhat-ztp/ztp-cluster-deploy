@@ -2,28 +2,39 @@
 
 pull_secret='xxx'
 
-ai_url="http://192.168.112.199:8080"
-cluster_name="test-aut"
-cluster_domain="cluster.testing"
-ingress_vip=192.168.112.195
-api_vip=192.168.112.196
 ssh_public_key="ssh-rsa xxx"
-ignition_url=http://192.168.112.199/ignition_config
-rootfs_url=http://192.168.112.199/rootfs.img
+
+# Default as httpd config
+http_server_path=/var/www/html
 kernel_arguments=""
 ramdisk_path=/opt/network-config
-http_server_path=/opt/cached_disconnected_images
+small_iso_path=/opt/cached_disconnected_images/small_iso.iso
+final_iso_path=/opt/cached_disconnected_images/coreos.iso
+ai_iso_path=/opt/cached_disconnected_images
 ignition_config_name=ignition_config
 ramdisk_config_name=extra_ramdisk
-small_iso_path=/opt/cached_disconnected_images/small_iso.iso
-final_iso_path=/home/share/coreos.iso
-bmc_type=SuperMicro
+
+ai_url="http://192.168.112.199:8080"
+ignition_url=http://192.168.112.199/ignition_config
+# You can set your own rootfs image and store it under the same IP as above.
+rootfs_url=https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/latest/rhcos-live-rootfs.x86_64.img
+
+# Make sure those IPs are not taken in your subnet
+ingress_vip=192.168.112.195
+api_vip=192.168.112.196
+
+cluster_name="test-aut"
+cluster_domain="cluster.testing"
+
+# bmc_type based on your HW it should be one of the following values [Dell, SuperMicro].
+# You can add more bmc_type however you will need to add the bmc implementation at add-remote-worker role.
+bmc_type=Dell
 bmc_address=192.168.111.212
 bmc_user="ADMIN"
 bmc_password="ADMIN"
+# Only use smb config with SuperMicro as it does not support HTTP server for ISO images hosts
 smb_host=192.168.111.1
 smb_path=share
-ai_iso_path=/opt/cached_disconnected_images
 bridge_name=nm-bridge
 
 [provisioner]

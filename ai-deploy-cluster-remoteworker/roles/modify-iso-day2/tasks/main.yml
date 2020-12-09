@@ -35,3 +35,6 @@
     chdir: "{{ script_directory.path }}"
     cmd: "{{ script_directory.path }}/inject_config_files.sh {{ small_iso_path }} {{ final_iso_path }} {{ ignition_url }} {{ rootfs_url }} {% if kernel_arguments is defined %}'{{ kernel_arguments }}'{% else %}''{% endif %} {% if ramdisk_path is defined %}{{ script_directory.path }}/extra_config.img{% else %}''{%  endif %}"
 
+- name: Copy final ISO to HTTP Server
+  shell: "cp {{ final_iso_path }} {{ http_server_path }}"
+

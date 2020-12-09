@@ -4,6 +4,18 @@
     name: podman
     state: present
 
+- name: httpd
+  yum:
+    name:
+      - httpd
+      - openssl-devel
+
+- name: Enable and start httpd
+  systemd:
+    name: httpd
+    enabled: yes
+    masked: no
+
 - name: define racadm yum repo
   yum_repository:
     name: Racadm
@@ -15,16 +27,8 @@
 - name: install racadm and httpd
   yum:
     name:
-      - httpd
-      - openssl-devel
       - srvadmin-idracadm7
   when: bmc_type is Dell
-
-- name: Enable and start httpd
-  systemd:
-    name: httpd
-    enabled: yes
-    masked: no
 
 - name: check if aicli exists
   stat:
@@ -46,7 +50,8 @@
         podman run -v $PWD:/here --rm ocpmetal/assisted-service:latest cp -r /clients/assisted-service-client-1.0.0.tar.gz /here
         tar zxvf assisted-service-client-1.0.0.tar.gz
         cd assisted-service-client-1.0.0
-        python3 setup.py install
+        # --prefix might need to changes to '/usr/local' based on your python setup.
+        python3 setup.py install --prefix=/usr
         popd
 
     - name: Install aicli
@@ -71,6 +76,7 @@
   script:
     chdir: "{{ script_directory.path }}"
     cmd: "{{ script_directory.path }}/generate_rhcos_iso.sh {{ small_iso_path }}"
+    cmd: "cp {{ small_iso_path }} {{ http_server_path }}"
 
 - name: Clone the assisted installer project
   git:

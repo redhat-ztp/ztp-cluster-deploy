@@ -31,6 +31,9 @@
       delay: 3
       register: result
       until: result.rc == 0
+
+    - name: Copy AI ISO to HTTP Server
+      shell: "cp {{ ai_iso_path }} {{ http_server_path }}"
   environment:
     AI_URL: "{{ ai_url }}"
 
