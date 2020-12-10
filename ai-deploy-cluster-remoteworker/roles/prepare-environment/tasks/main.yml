@@ -7,10 +7,11 @@
 - name: define racadm yum repo
   yum_repository:
     name: Racadm
+    description: "Dell dsu tools"
     baseurl: http://linux.dell.com/repo/hardware/dsu/os_dependent/RHEL8_64
     gpgcheck: no
     enabled: yes
-  when: bmc_type is Dell
+  when: bmc_type == "Dell"
 
 - name: install racadm and httpd
   yum:
@@ -18,7 +19,7 @@
       - httpd
       - openssl-devel
       - srvadmin-idracadm7
-  when: bmc_type is Dell
+  when: bmc_type == "Dell"
 
 - name: Enable and start httpd
   systemd:
