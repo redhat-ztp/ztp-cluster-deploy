@@ -5,9 +5,9 @@
     name: "{{ item }}_{{ cluster_name }}"
   ignore_errors: true
   with_items:
-    - master_0
     - master_1
     - master_2
+    - master_3
 
 - name: Undefine previous vm
   community.libvirt.virt:
@@ -15,31 +15,32 @@
     name: "{{ item }}_{{ cluster_name }}"
   ignore_errors: true
   with_items:
-    - master_0
     - master_1
     - master_2
-      
+    - master_3
+
 - name: Create the qcow2 file
   command: "qemu-img create -f qcow2 /var/lib/libvirt/images/{{ item }}_{{ cluster_name }}.qcow2 50G"
   with_items:
-    - master_0
     - master_1
     - master_2
-      
+    - master_3
+
 - name: Create vm
   community.libvirt.virt:
     command: define
     xml: "{{ lookup('template', '{{ role_path }}/templates/ai-vm.xml') }}"
     autostart: yes
   with_items:
-    - { name: "master_0", mac: "52:54:00:55:f3:31" }
-    - { name: "master_1", mac: "52:54:00:55:f3:32" }
-    - { name: "master_2", mac: "52:54:00:55:f3:33" }
+    - { name: "master_1", mac: "52:54:00:55:f3:31" }
+    - { name: "master_2", mac: "52:54:00:55:f3:32" }
+    - { name: "master_3", mac: "52:54:00:55:f3:33" }
+
 - name: Start vm
   community.libvirt.virt:
     command: start
     name: "{{ item }}_{{ cluster_name }}"
   with_items:
-    - master_0
     - master_1
     - master_2
+    - master_3
