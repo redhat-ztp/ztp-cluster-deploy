@@ -2,7 +2,7 @@ USER=$1
 PASSWORD=$2
 SERVER=$3
 ISO_PATH=$4
-ISO_URL="http://$(hostname -I | cut -f1 -d" " | xargs):8080$ISO_PATH"
+ISO_URL="http://$(hostname -I | cut -f2 -d" " | xargs)/$ISO_PATH"
 /opt/dell/srvadmin/bin/idracadm7 -r $SERVER -u $USER -p $PASSWORD remoteimage -s &&\
 /opt/dell/srvadmin/bin/idracadm7 -r $SERVER -u $USER -p $PASSWORD remoteimage -d &&\
 /opt/dell/srvadmin/bin/idracadm7 -r $SERVER -u $USER -p $PASSWORD remoteimage -c -l $ISO_URL &&\
