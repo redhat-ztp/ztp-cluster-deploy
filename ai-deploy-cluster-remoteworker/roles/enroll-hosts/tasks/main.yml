@@ -3,6 +3,7 @@
   community.libvirt.virt:
     command: destroy
     name: "{{ item }}_{{ cluster_name }}"
+    uri: {{ libvirt_uri }}
   ignore_errors: true
   with_items:
     - master_1
@@ -13,6 +14,7 @@
   community.libvirt.virt:
     command: undefine
     name: "{{ item }}_{{ cluster_name }}"
+    uri: {{ libvirt_uri }}
   ignore_errors: true
   with_items:
     - master_1
@@ -31,6 +33,7 @@
     command: define
     xml: "{{ lookup('template', '{{ role_path }}/templates/ai-vm.xml') }}"
     autostart: yes
+    uri: {{ libvirt_uri }}
   with_items:
     - { name: "master_1", mac: "52:54:00:55:f3:31" }
     - { name: "master_2", mac: "52:54:00:55:f3:32" }
@@ -40,6 +43,7 @@
   community.libvirt.virt:
     command: start
     name: "{{ item }}_{{ cluster_name }}"
+    uri: {{ libvirt_uri }}
   with_items:
     - master_1
     - master_2
