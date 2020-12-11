@@ -7,10 +7,11 @@
 - name: define racadm yum repo
   yum_repository:
     name: Racadm
+    description: "Dell dsu tools"
     baseurl: http://linux.dell.com/repo/hardware/dsu/os_dependent/RHEL8_64
     gpgcheck: no
     enabled: yes
-  when: bmc_type is Dell
+  when: bmc_type == "Dell"
 
 - name: install racadm and httpd
   yum:
@@ -18,13 +19,28 @@
       - httpd
       - openssl-devel
       - srvadmin-idracadm7
-  when: bmc_type is Dell
+  when: bmc_type == "Dell"
 
 - name: Enable and start httpd
   systemd:
     name: httpd
     enabled: yes
     masked: no
+
+- name: define racadm yum repo
+  yum_repository:
+    name: Racadm
+    baseurl: http://linux.dell.com/repo/hardware/dsu/os_dependent/RHEL8_64
+    gpgcheck: no
+    enabled: yes
+    description: "Add repo"
+  when: bmc_type == "Dell"
+
+- name: install racadm
+  yum:
+    name:
+      - srvadmin-idracadm7
+  when: bmc_type == "Dell"
 
 - name: check if aicli exists
   stat:
@@ -46,7 +62,8 @@
         podman run -v $PWD:/here --rm ocpmetal/assisted-service:latest cp -r /clients/assisted-service-client-1.0.0.tar.gz /here
         tar zxvf assisted-service-client-1.0.0.tar.gz
         cd assisted-service-client-1.0.0
-        python3 setup.py install
+        # --prefix might need to changes to '/usr/local' based on your python setup.
+        python3 setup.py install --prefix=/usr
         popd
 
     - name: Install aicli
@@ -71,6 +88,9 @@
   script:
     chdir: "{{ script_directory.path }}"
     cmd: "{{ script_directory.path }}/generate_rhcos_iso.sh {{ small_iso_path }}"
+
+- name: Copy small ISO to HTTP Server
+  shell: "cp {{ small_iso_path }} {{ http_server_path }}"
 
 - name: Clone the assisted installer project
   git:
