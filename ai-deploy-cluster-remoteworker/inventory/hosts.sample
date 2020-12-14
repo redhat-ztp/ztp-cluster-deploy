@@ -36,6 +36,7 @@ bmc_password="ADMIN"
 smb_host=192.168.111.1
 smb_path=share
 bridge_name=nm-bridge
+libvirt_uri="qemu:///system"
 
 [provisioner]
 # host from where the installation is performed
