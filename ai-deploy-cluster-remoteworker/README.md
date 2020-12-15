@@ -8,6 +8,7 @@ Requirements:
     - Ansibale modules: community.libvirt, containers.podman and containers.general
 
 Steps:
+
     1- git clone the ztp-cluster-deploy repo
 
     2- go to ai-deploly-cluster-remoteworker dir
