@@ -134,7 +134,7 @@ and Small ISO.
             csr-49ccv   10h     kubernetes.io/kube-apiserver-client-kubelet   system:serviceaccount:openshift-machine-config-operator:node-bootstrapper   Pending
             
 
-        Note: As you can see there are multipale operators need to be approved in order to finaliz the setup. Run the below command to approve all pending operators.
+        Note: As you can see there are multiple operators need to be approved in order to finalize the setup. Run the below command to approve all pending operators.
 
             $ oc get csr -o name | xargs oc adm certificate approve
 
