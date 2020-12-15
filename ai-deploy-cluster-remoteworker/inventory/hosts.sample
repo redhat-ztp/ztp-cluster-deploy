@@ -37,6 +37,7 @@ bmc_type=Dell
 bmc_address=192.168.111.212
 bmc_user="ADMIN"
 bmc_password="ADMIN"
+
 # Only use smb config with SuperMicro as it does not support HTTP server for ISO images hosts
 smb_host=192.168.111.1
 smb_path=share
@@ -48,6 +49,7 @@ libvirt_uri="qemu:///system"
 # host from where the installation is performed
 localhost ansible_connection=local
 
+# You can ignore this part if you have dhcp configured in your env.
 [master_vms]
 192.168.112.26
 192.168.112.27
