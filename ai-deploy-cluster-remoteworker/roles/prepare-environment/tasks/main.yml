@@ -4,22 +4,11 @@
     name: podman
     state: present
 
-- name: define racadm yum repo
-  yum_repository:
-    name: Racadm
-    description: "Dell dsu tools"
-    baseurl: http://linux.dell.com/repo/hardware/dsu/os_dependent/RHEL8_64
-    gpgcheck: no
-    enabled: yes
-  when: bmc_type == "Dell"
-
-- name: install racadm and httpd
+- name: install httpd
   yum:
     name:
       - httpd
       - openssl-devel
-      - srvadmin-idracadm7
-  when: bmc_type == "Dell"
 
 - name: Enable and start httpd
   systemd:

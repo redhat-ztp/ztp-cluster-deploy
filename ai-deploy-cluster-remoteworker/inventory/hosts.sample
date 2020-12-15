@@ -1,7 +1,9 @@
 [all:vars]
 
+# The pull_secret from https://cloud.redhat.com/openshift/install/crc/installer-provisioned
 pull_secret='xxx'
 
+# ssh key of the installer machine
 ssh_public_key="ssh-rsa xxx"
 
 # Default as httpd config
@@ -14,17 +16,20 @@ ai_iso_path=/opt/cached_disconnected_images
 ignition_config_name=ignition_config
 ramdisk_config_name=extra_ramdisk
 
-ai_url="http://192.168.112.199:8080"
-ignition_url=http://192.168.112.199/ignition_config
 # You can set your own rootfs image and store it under the same IP as above.
 rootfs_url=https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/latest/rhcos-live-rootfs.x86_64.img
 
-# Make sure those IPs are not taken in your subnet
-ingress_vip=192.168.112.195
-api_vip=192.168.112.196
+# should be same as the installer machine IP-address
+ai_url="http://192.168.112.199:8080"
+ignition_url=http://192.168.112.199/ignition_config
 
+# You will need to configure your env DNS server for the cluster_domain and cluster_name
 cluster_name="test-aut"
 cluster_domain="cluster.testing"
+
+# Make sure api_vip is mapped in your env DNS server to api.{cluster_name}.{cluster_domain} AND ingress_vip to apps.{cluster_name}.{cluster_domain}
+ingress_vip=192.168.112.195
+api_vip=192.168.112.196
 
 # bmc_type based on your HW it should be one of the following values [Dell, SuperMicro].
 # You can add more bmc_type however you will need to add the bmc implementation at add-remote-worker role.
