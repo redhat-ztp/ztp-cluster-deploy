@@ -5,7 +5,7 @@ Requirements:
 
 - Podman
 - Ansibale
-    - Ansibale modules: community.libvirt, containers.podman and containers.general
+    - Ansibale modules: community.libvirt, containers.podman and community.general
 
 The playbook needs to be executed in the BM node and config variables are in inventory/hosts.
 
