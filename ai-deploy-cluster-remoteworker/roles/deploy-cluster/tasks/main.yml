@@ -32,6 +32,12 @@
     - name: Install cluster
       shell: "aicli start cluster {{ cluster_name }}"
 
+    - name: Wait until cluster is installed
+      shell: "aicli list cluster | grep {{ cluster_name }} |  cut -d '|' -f4 | tr -d ' '"
+      register: cluster_ready
+      until: cluster_ready.stdout == "installed"
+      retries: 300
+      delay: 30
 
   environment:
     AI_URL: "{{ ai_url }}"
