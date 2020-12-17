@@ -35,6 +35,7 @@ bmc_password="ADMIN"
 # Only use smb config with SuperMicro as it does not support HTTP server for ISO images hosts
 smb_host=192.168.111.1
 smb_path=share
+smb_server_path=/path/to/samba/share # only if virtualmedia uses smb mounts
 bridge_name=nm-bridge
 libvirt_uri="qemu:///system"
 

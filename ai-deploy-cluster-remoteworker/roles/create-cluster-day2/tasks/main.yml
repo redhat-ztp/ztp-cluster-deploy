@@ -20,8 +20,6 @@
     - name: And download it
       shell: "aicli download iso {{ cluster_name }}-day2 -p {{ ai_iso_path }}"
 
-    - name: Copy AI ISO to HTTP Server
-      shell: "cp {{ ai_iso_path }}/{{ cluster_name }}-day2.iso {{ http_server_path }}"
   environment:
     AI_URL: "{{ ai_url }}"
 
