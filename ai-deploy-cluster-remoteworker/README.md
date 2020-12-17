@@ -4,14 +4,14 @@ and Small ISO.
 - Requirements:
 
     - Podman.
-    - Ansibale.
-        - Ansibale modules: community.libvirt, containers.podman and containers.general
+    - Ansible.
+        - Ansible modules: community.libvirt, containers.podman and community.general
 
 - Steps:
 
     1- git clone the ztp-cluster-deploy repo
 
-    2- go to ai-deploly-cluster-remoteworker dir
+    2- go to ai-deploy-cluster-remoteworker dir
 
     3- You need make a copy inventory/hosts.sample file and name it hosts under same directory.
 
