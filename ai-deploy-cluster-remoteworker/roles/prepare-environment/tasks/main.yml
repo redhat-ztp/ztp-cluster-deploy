@@ -89,9 +89,6 @@
     chdir: "{{ script_directory.path }}"
     cmd: "{{ script_directory.path }}/generate_rhcos_iso.sh {{ small_iso_path }}"
 
-- name: Copy small ISO to HTTP Server
-  shell: "cp {{ small_iso_path }} {{ http_server_path }}"
-
 - name: Clone the assisted installer project
   git:
     repo: 'https://github.com/openshift/assisted-service'
