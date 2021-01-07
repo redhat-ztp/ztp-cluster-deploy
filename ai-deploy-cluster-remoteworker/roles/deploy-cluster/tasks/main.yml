@@ -2,7 +2,7 @@
 - name: Configure cluster
   block:
     - name: Wait until hosts are ready
-      shell: "aicli list hosts | grep {{ cluster_name }} | grep 'pending-for-input\\|known' | wc -l"
+      shell: "aicli list hosts | grep {{ cluster_name }} | grep 'pending-for-input' | wc -l"
       register: hosts_number
       until: hosts_number.stdout|int == 3
       retries: 100
