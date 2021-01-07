@@ -25,13 +25,6 @@
     - name: Install cluster
       shell: "aicli start cluster {{ cluster_name }}"
 
-    - name: Update Hosts names
-      shell: "aicli update host $(aicli list hosts | grep {{ cluster_name }} | awk 'NR == {{ item }} {print $6}') -P hostname=master_{{ item }}.{{ cluster_name }}.{{ cluster_domain }}"
-      with_items:
-        - 1
-        - 2
-        - 3
-
     - name: Wait until cluster is installed
       shell: "aicli list cluster | grep {{ cluster_name }} |  cut -d '|' -f4 | tr -d ' '"
       register: cluster_ready
