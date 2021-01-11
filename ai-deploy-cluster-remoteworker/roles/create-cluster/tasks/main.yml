@@ -34,6 +34,7 @@
 
     - name: Copy AI ISO to HTTP Server
       shell: "cp {{ ai_iso_path }}/{{ cluster_name }}.iso {{ http_server_path }}"
+      ignore_errors: true
   environment:
     AI_URL: "{{ ai_url }}"
 
