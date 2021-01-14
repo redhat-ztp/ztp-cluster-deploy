@@ -27,7 +27,7 @@
 - name: Extract the ignition file from the downloaded ISO
   script:
     chdir: "{{ script_directory.path }}"
-    cmd: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh {{ ai_iso_path }}/{{ cluster_name }}-day2.iso {{ http_server_path }}/{{ ignition_config_name }}"
+    cmd: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh {{ ai_iso_path }}/{{ cluster_name }}-day2.iso {{ http_server_path }}/ignition"
 
 - name: Modify ISO for all the workers
   include_tasks: modify_iso_for_worker.yaml

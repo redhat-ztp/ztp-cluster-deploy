@@ -12,14 +12,13 @@ kernel_arguments=""
 ramdisk_path=/opt/network-config
 small_iso_path=/opt/cached_disconnected_images/small_iso.iso
 ai_iso_path=/opt/cached_disconnected_images
-ignition_config_name=ignition_config
 
 # You can set your own rootfs image and store it under the same IP as above.
 rootfs_url=https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/latest/rhcos-live-rootfs.x86_64.img
 
 # should be same as the installer machine IP-address
 ai_url="http://192.168.112.199:8080"
-ignition_url=http://192.168.112.199/ignition_config
+ignition_url=http://192.168.112.199/
 
 # You will need to configure your env DNS server for the cluster_domain and cluster_name
 cluster_name="test-aut"
@@ -38,4 +37,5 @@ need_racadm=true
 localhost ansible_connection=local
 
 [worker_nodes]
-worker-0.test-aut.cluster-testing bmc_type=SuperMicro bmc_address=192.168.111.212 bmc_user="ADMIN" bmc_password="ADMIN" smb_host=192.168.111.1 smb_path=share smb_server_path=/home/share ramdisk_path=/opt/network-config kernel_arguments="" final_iso_path=/home/share/
+worker-0.test-aut.cluster-testing bmc_type=SuperMicro bmc_address=192.168.111.212 bmc_user="ADMIN" bmc_password="ADMIN" smb_host=192.168.111.1 smb_path=share smb_server_path=/home/share ramdisk_path=/opt/network-config kernel_arguments="" final_iso_path=/home/share/ ignition_name=worker0
+worker-1 bmc_type=Dell bmc_address=10.16.231.121 bmc_user="usr" bmc_password="pwd" ramdisk_path=/opt/network-config kernel_arguments="" final_iso_path=/opt/cached_disconnected_images ignition_name=worker-0
