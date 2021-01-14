@@ -16,8 +16,8 @@
       tags: create-cluster-day2
     - role: modify-iso-day2
       tags: modify-iso-day2
-    - role: add-remote-worker
-      tags: add-remote-worker
+    - role: add-remote-workers
+      tags: add-remote-workers
     - role: deploy-cluster-day2
       tags: deploy-cluster-day2
 
