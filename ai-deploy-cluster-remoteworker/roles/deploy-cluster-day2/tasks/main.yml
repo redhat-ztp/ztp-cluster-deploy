@@ -6,6 +6,7 @@
 
     - name: Update host to copy the network
       shell: "aicli update host $(aicli list hosts | grep {{ cluster_name }} | grep {{ item }} | awk '{print $6}') -P extra_args=[--copy-network]"
+      when: hostvars[item].ramdisk_path is defined
       with_items: "{{ groups['worker_nodes'] }}"
 
     - name: Install cluster

@@ -9,7 +9,6 @@ ssh_public_key="ssh-rsa xxx"
 # Default as httpd config
 http_server_path=/var/www/html
 kernel_arguments=""
-ramdisk_path=/opt/network-config
 small_iso_path=/opt/cached_disconnected_images/small_iso.iso
 ai_iso_path=/opt/cached_disconnected_images
 
