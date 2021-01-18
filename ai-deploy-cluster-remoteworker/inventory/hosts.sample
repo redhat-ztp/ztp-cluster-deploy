@@ -16,7 +16,8 @@ rootfs_url=https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/
 
 # should be same as the installer machine IP-address
 ai_url="http://192.168.112.199:8080"
-ignition_url=http://192.168.112.199/
+ignition_url="http://192.168.112.199"
+iso_url="http://192.168.112.199"
 
 # You will need to configure your env DNS server for the cluster_domain and cluster_name
 cluster_name="test-aut"
