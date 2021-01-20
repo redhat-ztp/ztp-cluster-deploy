@@ -1,0 +1,15 @@
+---
+- name: Enroll all remote workers
+  include_tasks: add_remote_worker.yaml
+  with_items: "{{ groups['worker_nodes'] }}"
+
+- name: Wait until hosts are ready in Assisted Installer
+  shell: "aicli list hosts | grep {{ cluster_name }}-day2 | grep 'insufficient\\|known' | wc -l"
+  register: hosts_ready
+  until: hosts_ready.stdout|int == 1
+  retries: 100
+  delay: 30
+  environment:
+    AI_URL: "{{ ai_url }}"
+
+
