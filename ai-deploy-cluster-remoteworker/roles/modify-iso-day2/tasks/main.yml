@@ -32,4 +32,3 @@
 - name: Modify ISO for all the workers
   include_tasks: modify_iso_for_worker.yaml
   with_items: "{{ groups['worker_nodes'] }}"
-
