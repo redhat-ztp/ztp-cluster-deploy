@@ -48,7 +48,7 @@
         git clone https://github.com/openshift/assisted-service {{ dockerfile_directory.path }}/assisted-service
         pushd {{ dockerfile_directory.path }}/assisted-service
         podman build -t ocpmetal/assisted-service -f ./Dockerfile.assisted-service .
-        podman run -v $PWD:/here --rm ocpmetal/assisted-service:latest cp -r /clients/assisted-service-client-1.0.0.tar.gz /here
+        podman run -v $PWD:/here:Z --rm ocpmetal/assisted-service:latest cp -r /clients/assisted-service-client-1.0.0.tar.gz /here
         tar zxvf assisted-service-client-1.0.0.tar.gz
         cd assisted-service-client-1.0.0
         # --prefix might need to changes to '/usr/local' based on your python setup.
