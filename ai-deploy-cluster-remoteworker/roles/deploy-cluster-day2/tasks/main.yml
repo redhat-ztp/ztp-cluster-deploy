@@ -1,9 +1,6 @@
 ---
 - name: Configure cluster
   block:
-    - name: Set API VIP
-      shell: "aicli update cluster -P api_vip={{ api_vip }} {{ cluster_name }}-day2"
-
     - name: Update host to copy the network
       shell: "aicli update host $(aicli list hosts | grep {{ cluster_name }} | grep worker | awk '{print $6}') -P extra_args=[--copy-network]"
 
