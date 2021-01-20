@@ -4,7 +4,7 @@
   with_items: "{{ groups['worker_nodes'] }}"
 
 - name: Wait until hosts are ready in Assisted Installer
-  shell: "aicli list hosts | grep {{ cluster_name }}-day2 | grep 'insufficient' | wc -l"
+  shell: "aicli list hosts | grep {{ cluster_name }}-day2 | grep 'insufficient\\|known' | wc -l"
   register: hosts_ready
   until: hosts_ready.stdout|int == 1
   retries: 100
