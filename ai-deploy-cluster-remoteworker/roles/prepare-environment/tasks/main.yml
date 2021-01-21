@@ -23,13 +23,13 @@
     gpgcheck: no
     enabled: yes
     description: "Add repo"
-  when: bmc_type == "Dell"
+  when: need_racadm|bool == True
 
 - name: install racadm
   yum:
     name:
       - srvadmin-idracadm7
-  when: bmc_type == "Dell"
+  when: need_racadm|bool == True
 
 - name: check if aicli exists
   stat:
