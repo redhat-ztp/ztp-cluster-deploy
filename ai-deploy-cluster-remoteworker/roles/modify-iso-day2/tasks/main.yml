@@ -27,47 +27,8 @@
 - name: Extract the ignition file from the downloaded ISO
   script:
     chdir: "{{ script_directory.path }}"
-    cmd: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh {{ ai_iso_path }}/{{ cluster_name }}-day2.iso {{ http_server_path }}/{{ ignition_config_name }}"
+    cmd: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh {{ ai_iso_path }}/{{ cluster_name }}-day2.iso {{ http_server_path }}/ai_ignition"
 
-- name: Inject network files if needed
-  block:
-  - name: Create fake-root directory
-    file:
-      path: "{{ ignition_directory.path }}/fake_root"
-      state: directory
-      mode: '0755'
-
-  - name: Copy generated ignition into temporary directory
-    copy:
-      src: "{{ http_server_path }}/{{ ignition_config_name }}"
-      dest: "{{ ignition_directory.path }}/{{ ignition_config_name }}"
-
-  - name: Copy network directory to the ignition temporary path, if we need to inject it
-    copy:
-      src: "{{ ramdisk_path }}/"
-      dest: "{{ ignition_directory.path }}/fake_root"
-      mode: preserve
-
-  - name: Generate extra ramdisk
-    script:
-      chdir: "{{ script_directory.path }}"
-      cmd: "{{ script_directory.path }}/ramdisk_generator.sh {{ ramdisk_path }} {{ script_directory.path }}/extra_config.img"
-
-  - name: Transpile ignition to include ramdisk
-    shell: "podman run --rm -ti --volume {{ ignition_directory.path }}:/srv:z localhost/filetranspiler:latest -i {{ ignition_config_name }} -f fake_root -o /srv/modified_ignition"
-
-  - name: Copy final ignition to final path
-    copy:
-      src: "{{ ignition_directory.path }}/modified_ignition"
-      dest: "{{ http_server_path }}/{{ ignition_config_name }}"
-  when: ramdisk_path is defined
-
-- name: Produce the final iso
-  script:
-    chdir: "{{ script_directory.path }}"
-    cmd: "{{ script_directory.path }}/inject_config_files.sh {{ small_iso_path }} {{ final_iso_path }} {{ ignition_url }} {{ rootfs_url }} {% if kernel_arguments is defined %}'{{ kernel_arguments }}'{% else %}''{% endif %} {% if ramdisk_path is defined %}{{ script_directory.path }}/extra_config.img{% else %}''{%  endif %}"
-
-- name: Copy final ISO to SMB/HTTP Server
-  shell: "cp {{ final_iso_path }} {% if smb_server_path is defined and smb_server_path %}{{ smb_server_path }}{% else %}{{ http_server_path }}{% endif %}"
-  ignore_errors: true
-
+- name: Modify ISO for all the workers
+  include_tasks: modify_iso_for_worker.yaml
+  with_items: "{{ groups['worker_nodes'] }}"
