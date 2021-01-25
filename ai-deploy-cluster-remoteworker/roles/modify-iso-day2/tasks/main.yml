@@ -8,16 +8,19 @@
   get_url:
       url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/inject_config_files.sh
       dest: "{{ script_directory.path }}/inject_config_files.sh"
+      mode: 0755
 
 - name: Get the script to generate ramdisk
   get_url:
       url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/ramdisk_generator.sh
       dest: "{{ script_directory.path }}/ramdisk_generator.sh"
+      mode: 0755
 
 - name: Get the script to extract ignition from ISO
   get_url:
       url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/extract_ignition_from_ai_iso.sh
       dest: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh"
+      mode: 0755
 
 - name: Create temporary directory for modifying the ignition
   tempfile:
@@ -25,7 +28,7 @@
   register: ignition_directory
 
 - name: Extract the ignition file from the downloaded ISO
-  script:
+  shell:
     chdir: "{{ script_directory.path }}"
     cmd: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh {{ ai_iso_path }}/{{ cluster_name }}-day2.iso {{ http_server_path }}/ai_ignition"
 
