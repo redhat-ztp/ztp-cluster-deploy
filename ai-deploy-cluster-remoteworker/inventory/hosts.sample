@@ -22,6 +22,7 @@ ignition_url=http://192.168.112.199/
 # You will need to configure your env DNS server for the cluster_domain and cluster_name
 cluster_name="test-aut"
 cluster_domain="cluster.testing"
+cluster_version="4.7"
 
 # Make sure api_vip is mapped in your env DNS server to api.{cluster_name}.{cluster_domain} AND ingress_vip to *.apps.{cluster_name}.{cluster_domain}
 ingress_vip=192.168.112.195
@@ -34,6 +35,7 @@ need_racadm=true
 [provisioner]
 # host from where the installation is performed
 localhost ansible_connection=local
+#<remote_ip> ansible_connection=ssh
 
 [worker_nodes]
 worker-0.test-aut.cluster-testing bmc_type=SuperMicro bmc_address=192.168.111.212 bmc_user="ADMIN" bmc_password="ADMIN" smb_host=192.168.111.1 smb_path=share smb_server_path=/home/share ramdisk_path=/opt/network-config kernel_arguments="" final_iso_path=/home/share/ ignition_name=worker0
