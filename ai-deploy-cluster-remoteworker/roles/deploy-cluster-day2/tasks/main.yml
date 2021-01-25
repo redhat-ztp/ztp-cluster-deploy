@@ -2,11 +2,11 @@
 - name: Configure cluster
   block:
     - name: Update host to copy the network
-      shell: "aicli update host $(aicli list hosts | grep {{ cluster_name }} | grep {{ item }} | awk '{print $6}') -P extra_args=[--copy-network]"
+      shell: "/usr/local/bin/aicli update host $(/usr/local/bin/aicli list hosts | grep {{ cluster_name }} | grep {{ item }} | awk '{print $6}') -P extra_args=[--copy-network]"
       with_items: "{{ groups['worker_nodes'] }}"
 
     - name: Install cluster
-      shell: "aicli start cluster {{ cluster_name }}-day2"
+      shell: "/usr/local/bin/aicli start cluster {{ cluster_name }}-day2"
   environment:
     AI_URL: "{{ ai_url }}"
 

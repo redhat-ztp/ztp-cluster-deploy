@@ -4,20 +4,28 @@
   roles:
     - role: prepare-environment
       tags: prepare-environment
+      become: yes
     - role: create-cluster
       tags: create-cluster
+      become: yes
     - role: enroll-hosts
       tags: enroll-hosts
+      become: yes
     - role: deploy-cluster
       tags: deploy-cluster
+      become: yes
     - role: expose-endpoints
       tags: expose-endpoints
+      become: yes
     - role: create-cluster-day2
       tags: create-cluster-day2
+      become: yes
     - role: modify-iso-day2
       tags: modify-iso-day2
+      become: yes
     - role: add-remote-workers
       tags: add-remote-workers
+      become: yes
     - role: deploy-cluster-day2
       tags: deploy-cluster-day2
-
+      become: yes

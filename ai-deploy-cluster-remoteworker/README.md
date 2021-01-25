@@ -6,6 +6,7 @@ and Small ISO.
     - Podman.
     - Ansible.
         - Ansible modules: community.libvirt, containers.podman and community.general
+          You can install all the requirements with: `ansible-galaxy collection install -r requirements.yaml`
 
 - Steps:
 

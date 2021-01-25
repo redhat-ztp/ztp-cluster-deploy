@@ -12,21 +12,21 @@
 - name: Create cluster and download ISO
   block:
     - name: Create new AI cluster
-      shell: "aicli create cluster -P pull_secret={{ tempfile_pullsecret.path }} -P base_dns_domain={{ cluster_domain }} -P ssh_public_key='{{ ssh_public_key }}' -P ingress_vip={{ ingress_vip }} {{ cluster_name }}"
+      shell: "/usr/local/bin/aicli create cluster -P pull_secret={{ tempfile_pullsecret.path }} -P base_dns_domain={{ cluster_domain }} -P ssh_public_key='{{ ssh_public_key }}' -P ingress_vip={{ ingress_vip }} -P openshift_version='{{ cluster_version }}'  {{ cluster_name }}"
       retries: 30
       delay: 5
       register: result
       until: result.rc == 0
       
     - name: Generate the ISO for the cluster
-      shell: "aicli create iso -P ssh_public_key='{{ ssh_public_key }}' {{ cluster_name }}"
+      shell: "/usr/local/bin/aicli create iso -P ssh_public_key='{{ ssh_public_key }}' {{ cluster_name }}"
       retries: 30
       delay: 5
       register: result
       until: result.rc == 0
 
     - name: And download it
-      shell: "aicli download iso {{ cluster_name }} -p {{ ai_iso_path }}"
+      shell: "/usr/local/bin/aicli download iso {{ cluster_name }} -p {{ ai_iso_path }}"
       retries: 3
       delay: 3
       register: result

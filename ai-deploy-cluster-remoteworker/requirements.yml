@@ -1,0 +1,5 @@
+---
+collections:
+  - name: community.libvirt
+  - name: containers.podman
+  - name: community.general
