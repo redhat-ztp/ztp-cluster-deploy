@@ -5,9 +5,10 @@
       path: "{{ ignition_directory.path }}/fake_root"
       state: directory
       mode: '0755'
+
   - name: Copy generated ignition into temporary directory
     copy:
-      src: "{{ http_server_path }}/ai_ignition"
+      src: "{{ ignition_directory.path }}/ai_ignition"
       dest: "{{ ignition_directory.path }}/{{ hostvars[item].ignition_name }}"
       remote_src: yes
 
@@ -28,7 +29,7 @@
   - name: Copy final ignition to final path
     copy:
       src: "{{ ignition_directory.path }}/modified_ignition"
-      dest: "{{ http_server_path }}/{{ hostvars[item].ignition_name }}"
+      dest: "{{ ignition_http_server_path }}/{{ hostvars[item].ignition_name }}"
       remote_src: yes
   when: hostvars[item].ramdisk_path is defined
 

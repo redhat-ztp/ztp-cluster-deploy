@@ -2,31 +2,31 @@
 - name: Configure cluster
   block:
     - name: Wait until hosts are ready
-      shell: "/usr/local/bin/aicli list hosts | grep {{ cluster_name }} | grep 'pending-for-input\\|known' | wc -l"
+      shell: "aicli list hosts | grep {{ cluster_name }} | grep 'pending-for-input\\|known' | wc -l"
       register: hosts_number
       until: hosts_number.stdout|int == 3
       retries: 100
       delay: 30
 
     - name: Set API VIP
-      shell: "/usr/local/bin/aicli update cluster -P api_vip={{ api_vip }} {{ cluster_name }}"
+      shell: "aicli update cluster -P api_vip={{ api_vip }} {{ cluster_name }}"
       retries: 20
       delay: 10
       register: result
       until: result.rc == 0
 
     - name: Wait until cluster is ready to be installed
-      shell: "/usr/local/bin/aicli list cluster | grep {{ cluster_name }} |  cut -d '|' -f4 | tr -d ' '"
+      shell: "aicli list cluster | grep {{ cluster_name }} |  cut -d '|' -f4 | tr -d ' '"
       register: cluster_ready
       until: cluster_ready.stdout == "ready"
       retries: 100
       delay: 30
 
     - name: Install cluster
-      shell: "/usr/local/bin/aicli start cluster {{ cluster_name }}"
+      shell: "aicli start cluster {{ cluster_name }}"
 
     - name: Wait until cluster is installed
-      shell: "/usr/local/bin/aicli list cluster | grep {{ cluster_name }} |  cut -d '|' -f4 | tr -d ' '"
+      shell: "aicli list cluster | grep {{ cluster_name }} |  cut -d '|' -f4 | tr -d ' '"
       register: cluster_ready
       until: cluster_ready.stdout == "installed"
       retries: 300

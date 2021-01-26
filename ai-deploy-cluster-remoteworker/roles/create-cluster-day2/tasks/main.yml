@@ -12,13 +12,13 @@
 - name: Create cluster and download ISO
   block:
     - name: Create new AI cluster
-      shell: "/usr/local/bin/aicli create cluster -P pull_secret={{ tempfile_pullsecret.path }} -P base_dns_domain={{ cluster_domain }} -P ssh_public_key='{{ ssh_public_key }}' {{ cluster_name }}-day2"
+      shell: "aicli create cluster -P pull_secret={{ tempfile_pullsecret.path }} -P base_dns_domain={{ cluster_domain }} -P ssh_public_key='{{ ssh_public_key }}' {{ cluster_name }}-day2"
 
     - name: Generate the ISO for the cluster
-      shell: "/usr/local/bin/aicli create iso -P ssh_public_key='{{ ssh_public_key }}' {{ cluster_name }}-day2"
+      shell: "aicli create iso -P ssh_public_key='{{ ssh_public_key }}' {{ cluster_name }}-day2"
 
     - name: And download it
-      shell: "/usr/local/bin/aicli download iso {{ cluster_name }}-day2 -p {{ ai_iso_path }}"
+      shell: "aicli download iso {{ cluster_name }}-day2 -p {{ temporary_path }}"
 
   environment:
     AI_URL: "{{ ai_url }}"
