@@ -19,22 +19,16 @@
       url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/extract_ignition_from_ai_iso.sh
       dest: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh"
 
+- name: Create temporary directory for modifying the ignition
+  tempfile:
+    state: directory
+  register: ignition_directory
+
 - name: Extract the ignition file from the downloaded ISO
   script:
     chdir: "{{ script_directory.path }}"
-    cmd: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh {{ ai_iso_path }}/{{ cluster_name }}-day2.iso {{ http_server_path }}/{{ ignition_config_name }}"
+    cmd: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh {{ ai_iso_path }}/{{ cluster_name }}-day2.iso {{ http_server_path }}/ai_ignition"
 
-- name: Generate extra ramdisk
-  script:
-    chdir: "{{ script_directory.path }}"
-    cmd: "{{ script_directory.path }}/ramdisk_generator.sh {{ ramdisk_path }} {{ script_directory.path }}/extra_config.img"
-  when: ramdisk_path is defined
-
-- name: Produce the final iso
-  script:
-    chdir: "{{ script_directory.path }}"
-    cmd: "{{ script_directory.path }}/inject_config_files.sh {{ small_iso_path }} {{ final_iso_path }} {{ ignition_url }} {{ rootfs_url }} {% if kernel_arguments is defined %}'{{ kernel_arguments }}'{% else %}''{% endif %} {% if ramdisk_path is defined %}{{ script_directory.path }}/extra_config.img{% else %}''{%  endif %}"
-
-- name: Copy final ISO to HTTP Server
-  shell: "cp {{ final_iso_path }} {{ http_server_path }}"
-
+- name: Modify ISO for all the workers
+  include_tasks: modify_iso_for_worker.yaml
+  with_items: "{{ groups['worker_nodes'] }}"

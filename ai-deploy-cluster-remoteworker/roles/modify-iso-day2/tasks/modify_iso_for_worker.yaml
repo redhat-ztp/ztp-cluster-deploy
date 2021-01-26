@@ -1,0 +1,37 @@
+- name: Inject network files if needed
+  block:
+  - name: Create fake-root directory
+    file:
+      path: "{{ ignition_directory.path }}/fake_root"
+      state: directory
+      mode: '0755'
+  - name: Copy generated ignition into temporary directory
+    copy:
+      src: "{{ http_server_path }}/ai_ignition"
+      dest: "{{ ignition_directory.path }}/{{ hostvars[item].ignition_name }}"
+
+  - name: Copy network directory to the ignition temporary path, if we need to inject it
+    copy:
+      src: "{{ hostvars[item].ramdisk_path }}/"
+      dest: "{{ ignition_directory.path }}/fake_root"
+      mode: preserve
+
+  - name: Generate extra ramdisk
+    script:
+      chdir: "{{ script_directory.path }}"
+      cmd: "{{ script_directory.path }}/ramdisk_generator.sh {{ hostvars[item].ramdisk_path }} {{ script_directory.path }}/extra_config.img"
+
+  - name: Transpile ignition to include ramdisk
+    shell: "podman run --rm -ti --volume {{ ignition_directory.path }}:/srv:z localhost/filetranspiler:latest -i {{ hostvars[item].ignition_name }} -f fake_root -o /srv/modified_ignition"
+
+  - name: Copy final ignition to final path
+    copy:
+      src: "{{ ignition_directory.path }}/modified_ignition"
+      dest: "{{ http_server_path }}/{{ hostvars[item].ignition_name }}"
+  when: hostvars[item].ramdisk_path is defined
+
+- name: Produce the final iso
+  script:
+    chdir: "{{ script_directory.path }}"
+    cmd: "{{ script_directory.path }}/inject_config_files.sh {{ small_iso_path }} {{ hostvars[item].final_iso_path }}/{{ item }}.iso {{ ignition_url }}/{{ hostvars[item].ignition_name }} {{ rootfs_url }} {% if hostvars[item].kernel_arguments is defined %}'{{ hostvars[item].kernel_arguments }}'{% else %}''{% endif %} {% if hostvars[item].ramdisk_path is defined %}{{ script_directory.path }}/extra_config.img{% else %}''{%  endif %}"
+

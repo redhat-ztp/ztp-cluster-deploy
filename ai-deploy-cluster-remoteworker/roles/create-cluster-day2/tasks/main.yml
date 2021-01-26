@@ -12,7 +12,7 @@
 - name: Create cluster and download ISO
   block:
     - name: Create new AI cluster
-      shell: "aicli create cluster  {{ cluster_name }}-day2"
+      shell: "aicli create cluster -P pull_secret={{ tempfile_pullsecret.path }} -P base_dns_domain={{ cluster_domain }} -P ssh_public_key='{{ ssh_public_key }}' -P openshift_version='{{ cluster_version }}' {{ cluster_name }}-day2"
 
     - name: Generate the ISO for the cluster
       shell: "aicli create iso -P ssh_public_key='{{ ssh_public_key }}' {{ cluster_name }}-day2"
@@ -20,8 +20,6 @@
     - name: And download it
       shell: "aicli download iso {{ cluster_name }}-day2 -p {{ ai_iso_path }}"
 
-    - name: Copy AI ISO to HTTP Server
-      shell: "cp {{ ai_iso_path }}/{{ cluster_name }}-day2.iso {{ http_server_path }}"
   environment:
     AI_URL: "{{ ai_url }}"
 

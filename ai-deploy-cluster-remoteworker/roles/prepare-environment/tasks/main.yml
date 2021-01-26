@@ -23,13 +23,13 @@
     gpgcheck: no
     enabled: yes
     description: "Add repo"
-  when: bmc_type == "Dell"
+  when: need_racadm|bool == True
 
 - name: install racadm
   yum:
     name:
       - srvadmin-idracadm7
-  when: bmc_type == "Dell"
+  when: need_racadm|bool == True
 
 - name: check if aicli exists
   stat:
@@ -48,7 +48,7 @@
         git clone https://github.com/openshift/assisted-service {{ dockerfile_directory.path }}/assisted-service
         pushd {{ dockerfile_directory.path }}/assisted-service
         podman build -t ocpmetal/assisted-service -f ./Dockerfile.assisted-service .
-        podman run -v $PWD:/here --rm ocpmetal/assisted-service:latest cp -r /clients/assisted-service-client-1.0.0.tar.gz /here
+        podman run -v $PWD:/here:Z --rm ocpmetal/assisted-service:latest cp -r /clients/assisted-service-client-1.0.0.tar.gz /here
         tar zxvf assisted-service-client-1.0.0.tar.gz
         cd assisted-service-client-1.0.0
         # --prefix might need to changes to '/usr/local' based on your python setup.
@@ -78,8 +78,29 @@
     chdir: "{{ script_directory.path }}"
     cmd: "{{ script_directory.path }}/generate_rhcos_iso.sh {{ small_iso_path }}"
 
-- name: Copy small ISO to HTTP Server
-  shell: "cp {{ small_iso_path }} {{ http_server_path }}"
+- name: Check if filetranspiler exists
+  shell: podman images | grep transpile | wc -l
+  register: filetranspile_exists
+
+- name: Build filetranspiler if not exists
+  block:
+    - name: Create temporary directory for script
+      tempfile:
+        state: directory
+      register: transpile_directory
+
+    - name: Clone the directory
+      git:
+        repo: 'https://github.com/ashcrow/filetranspiler'
+        dest: "{{ transpile_directory.path }}"
+        update: no
+
+    - name: Build the pod
+      shell: "podman build . -t filetranspiler:latest"
+      args:
+        chdir: "{{ transpile_directory.path }}"
+        
+  when: filetranspile_exists.stdout|int < 1
 
 - name: Clone the assisted installer project
   git:

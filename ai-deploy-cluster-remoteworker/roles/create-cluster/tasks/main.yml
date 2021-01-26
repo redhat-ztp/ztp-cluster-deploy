@@ -12,7 +12,7 @@
 - name: Create cluster and download ISO
   block:
     - name: Create new AI cluster
-      shell: "aicli create cluster -P pull_secret={{ tempfile_pullsecret.path }} -P base_dns_domain={{ cluster_domain }} -P ssh_public_key='{{ ssh_public_key }}' -P ingress_vip={{ ingress_vip }} {{ cluster_name }}"
+      shell: "aicli create cluster -P pull_secret={{ tempfile_pullsecret.path }} -P base_dns_domain={{ cluster_domain }} -P ssh_public_key='{{ ssh_public_key }}' -P ingress_vip={{ ingress_vip }} -P openshift_version="{{ cluster_version }}" {{ cluster_name }}"
       retries: 30
       delay: 5
       register: result
@@ -34,6 +34,7 @@
 
     - name: Copy AI ISO to HTTP Server
       shell: "cp {{ ai_iso_path }}/{{ cluster_name }}.iso {{ http_server_path }}"
+      ignore_errors: true
   environment:
     AI_URL: "{{ ai_url }}"
 
