@@ -121,7 +121,7 @@ and Small ISO.
 
     - You can download the kubeconfig of your cluster using the command below
 
-            $ aicli download installconfig {YOUR_CLUSTER_NAME} --path ~/
+            $ aicli download kubeconfig {YOUR_CLUSTER_NAME} --path ~/
 
     - Use the kubeconfig with OC command to check the openshift cluster nodes and custome resources
 
