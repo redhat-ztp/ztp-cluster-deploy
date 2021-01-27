@@ -1,3 +1,9 @@
+- name: Check workers not exist
+  shell: "aicli list hosts | grep {{ item }} | wc -l"
+  register: host_exist
+  environment:
+    AI_URL: "{{ ai_url }}"
+
 - name: Enroll a SuperMicro worker
   block:
   - name: Unmount SuperMicro ISO
@@ -82,7 +88,7 @@
       force_basic_auth: yes
       validate_certs: no
       return_content: yes
-  when: hostvars[item].bmc_type == "SuperMicro"
+  when: hostvars[item].bmc_type == "SuperMicro" and (host_exist.stdout|int == 0 or hostvars[item].redeploy|bool == true)
 
 - name: Add Dell remote worker
   block:
@@ -95,4 +101,4 @@
 
   - name: run racadm
     shell: "/root/racadm.sh {{ hostvars[item].bmc_user }} {{ hostvars[item].bmc_password }} {{ hostvars[item].bmc_address }} {{ item }}.iso"
-  when: hostvars[item].bmc_type == "Dell"
+  when: hostvars[item].bmc_type == "Dell" and (host_exist.stdout|int == 0 or hostvars[item].redeploy|bool == true)
