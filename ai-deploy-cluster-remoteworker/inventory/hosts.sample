@@ -9,7 +9,6 @@ ssh_public_key="ssh-rsa xxx"
 # Default as httpd config
 ignition_http_server_path=/var/www/html
 kernel_arguments=""
-small_iso_path=/opt/cached_disconnected_images/small_iso.iso
 ai_iso_path=/opt/cached_disconnected_images
 
 # You can set your own rootfs image and store it under the same IP as above.
