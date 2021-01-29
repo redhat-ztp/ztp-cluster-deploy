@@ -3,7 +3,7 @@
 CLUSTER_NAME=$1
 KUBE_CONFIG=$2
 
-cat <<EOF | oc --kubeconfig=$KUBE_CONFIG apply -f - 
+cat << EOF >> ./import-$CLUSTER_NAME.yaml
 apiVersion: cluster.open-cluster-management.io/v1
 kind: ManagedCluster
 metadata:
@@ -14,9 +14,7 @@ metadata:
   name: $CLUSTER_NAME
 spec:
   hubAcceptsClient: true
-EOF
-
-cat <<EOF | oc --kubeconfig=$KUBE_CONFIG apply -f - 
+---
 apiVersion: agent.open-cluster-management.io/v1
 kind: KlusterletAddonConfig
 metadata:
@@ -40,3 +38,5 @@ spec:
     enabled: true
   version: 2.1.0
 EOF
+
+oc --kubeconfig=$KUBE_CONFIG apply -f ./import-$CLUSTER_NAME.yaml
