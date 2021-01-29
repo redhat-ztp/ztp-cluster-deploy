@@ -18,7 +18,7 @@
       shell: "aicli create iso -P ssh_public_key='{{ ssh_public_key }}' {{ cluster_name }}-day2"
 
     - name: And download it
-      shell: "aicli download iso {{ cluster_name }}-day2 -p {{ ai_iso_path }}"
+      shell: "aicli download iso {{ cluster_name }}-day2 -p {{ temporary_path }}"
 
   environment:
     AI_URL: "{{ ai_url }}"
