@@ -1,36 +1,30 @@
 #!/usr/bin/env bash
 
 CLUSTER_NAME=$1
-PROFILE=$2
-KUBE_CONFIG=$3
+KUBE_CONFIG=$2
 
-
-cat << EOF > ./$CLUSTER_NAME.yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: $CLUSTER_NAME-cluster
----
+cat <<EOF | oc --kubeconfig=$KUBE_CONFIG apply -f - 
 apiVersion: cluster.open-cluster-management.io/v1
 kind: ManagedCluster
 metadata:
   labels:
     cloud: auto-detect
     vendor: auto-detect
-    name: $CLUSTER_NAME-cluster
-    profile: $PROFILE
-  name: $CLUSTER_NAME-cluster
+    name: $CLUSTER_NAME
+  name: $CLUSTER_NAME
 spec:
   hubAcceptsClient: true
----
+EOF
+
+cat <<EOF | oc --kubeconfig=$KUBE_CONFIG apply -f - 
 apiVersion: agent.open-cluster-management.io/v1
 kind: KlusterletAddonConfig
 metadata:
-  name: $CLUSTER_NAME-cluster
-  namespace: $CLUSTER_NAME-cluster
+  name: $CLUSTER_NAME
+  namespace: $CLUSTER_NAME
 spec:
-  clusterName: $CLUSTER_NAME-cluster
-  clusterNamespace: $CLUSTER_NAME-cluster
+  clusterName: $CLUSTER_NAME
+  clusterNamespace: $CLUSTER_NAME
   clusterLabels:
     cloud: auto-detect
     vendor: auto-detect
@@ -46,5 +40,3 @@ spec:
     enabled: true
   version: 2.1.0
 EOF
-
-oc --kubeconfig=$KUBE_CONFIG apply -f ./import-$CLUSTER_NAME.yaml
