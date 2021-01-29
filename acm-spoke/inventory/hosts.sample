@@ -7,6 +7,9 @@ kubeconfig_hub_path=/path/to/acm_hub_kubeconfig
 cluster_name=sample-site-cu
 acm_manifest_repo=https://github.com/redhat-ztp/ztp-acm-manifests
 
+# profile should be easier cu or du.
+profile=cu
+
 [provisioner]
 # host from where the installation is performed
 localhost ansible_connection=local
