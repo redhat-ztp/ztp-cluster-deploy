@@ -26,7 +26,7 @@
       until: result.rc == 0
 
     - name: And download it
-      shell: "aicli download iso {{ cluster_name }} -p {{ ai_iso_path }}"
+      shell: "aicli download iso {{ cluster_name }} -p {{ temporary_path }}"
       retries: 3
       delay: 3
       register: result
