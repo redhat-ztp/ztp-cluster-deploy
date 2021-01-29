@@ -1,6 +1,8 @@
 ---
 - name: Deploy clusters with assisted installer
   hosts: provisioner
+  environment:
+    PATH: "/usr/bin/:/usr/local/bin/:{{ ansible_env.PATH }}"
   roles:
     - role: prepare-environment
       tags: prepare-environment

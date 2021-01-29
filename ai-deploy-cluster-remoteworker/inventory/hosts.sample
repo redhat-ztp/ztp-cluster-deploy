@@ -21,6 +21,7 @@ ignition_url=http://192.168.112.199/
 # You will need to configure your env DNS server for the cluster_domain and cluster_name
 cluster_name="test-aut"
 cluster_domain="cluster.testing"
+cluster_version="4.7"
 
 # Make sure api_vip is mapped in your env DNS server to api.{cluster_name}.{cluster_domain} AND ingress_vip to *.apps.{cluster_name}.{cluster_domain}
 ingress_vip=192.168.112.195
