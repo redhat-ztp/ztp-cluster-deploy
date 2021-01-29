@@ -33,7 +33,7 @@
 
   - name: Clone ACM manifests there
     git:
-      repo: acm_manifest_repo
+      repo: {{ acm_manifest_repo }}
       dest: "{{ acm_directory.path }}"
 
   - name: Prepare cluster Profile
@@ -41,8 +41,6 @@
 
   - name: Import cluster to ACM
     shell: "import_cluster.sh {{ cluster_name }} {{ kubeconfig_hub_path }}"
-    environment:
-      KUBECONFIG: "{{ kubeconfig_hub_path }}"
 
   - name: Extract the klusterlet definition from ACM
     shell: "oc get secret/{{ cluster_name }}-import -n {{ cluster_name }} -o jsonpath={.data.crds\\\\.yaml} | base64 --decode > {{ acm_directory.path }}/crd.yaml"
