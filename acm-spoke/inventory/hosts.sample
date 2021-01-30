@@ -1,17 +1,14 @@
 [all:vars]
-kubeconfig_spoke_path=/path/to/acm_spoke_kubeconfig
+
 kubeconfig_hub_path=/path/to/acm_hub_kubeconfig
 
 # Cluster name and profil should be defined at the ACM manifest repo
-#example: https://github.com/redhat-ztp/ztp-acm-manifests/tree/main/subscriptions/sites/sample_site_cu_subscription
-cluster_name=sample-site-cu
-acm_manifest_repo=https://github.com/redhat-ztp/ztp-acm-manifests
-
+# example: https://github.com/redhat-ztp/ztp-acm-manifests/tree/main/subscriptions/sites/sample_site_cu_subscription
 # profile should be easier cu or du.
-profile=cu
+[clusters]
+cluster-1 name=sample-site-cu kubeconfig=/path/to/spoke_cluster_kubeconfig profile=cu acm_manifest_repo=https://github.com/redhat-ztp/ztp-acm-manifests
+cluster-2 name=sample-site-du kubeconfig=/path/to/spoke_cluster_kubeconfig profile=du acm_manifest_repo=https://github.com/redhat-ztp/ztp-acm-manifests
 
 [provisioner]
 # host from where the installation is performed
 localhost ansible_connection=local
-
-
