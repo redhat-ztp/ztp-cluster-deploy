@@ -1,10 +1,11 @@
-This playbook for spoke-clusters to join the ACM hub.
+This playbook is to allow spoke-clusters to join the ACM hub.
 
 - Requirements:
 
-    - We assume that there is already ACM hub up and running. If not you can use the ../acm-hub/playbook.yaml to create ACM hub.
-        - Note: ACM hub shouldn't be created on one of the spoke-clusters.
-    - The clusters that will be defiend in the inventroy/hosts under [clusters] section should have its profiles in the ztp-acm-manifest. Check the https://github.com/redhat-ztp/ztp-acm-manifests for more information
+    - We assume that there is already an ACM hub up and running. If not you can use the ../acm-hub/playbook.yaml to create an ACM hub.
+        - Note: The ACM hub needs an independent cluster to run. Cannot use spoke-clusters to run ACM.
+        - Note: The ACM must have this subscription_permission manifest https://github.com/redhat-ztp/ztp-acm-manifests/blob/main/hub/04_add_subscription_permission.yaml applied to give proper permissions, otherwise the subscriptions are not created correctly.
+    - The clusters that will be defined in the inventroy/hosts under [clusters] section should have its profiles in the ztp-acm-manifest. Check the https://github.com/redhat-ztp/ztp-acm-manifests/tree/main/subscriptions/sites for more information
 
 - Steps:
 
@@ -12,7 +13,7 @@ This playbook for spoke-clusters to join the ACM hub.
 
     2- go to acm-spoke dir
 
-    3- make a copy inventory/hosts.sample file and name it hosts under same directory.
+    3- make a copy inventory/hosts.sample file and rename it with hosts name under same directory.
 
     4- modify the [all:vars] section at inventory/hosts file to match your setup.
 
