@@ -68,16 +68,39 @@
     state: directory
   register: script_directory
 
+- name: Remove the previously downloaded base ISO
+  file:
+    path: "/tmp/rhcos-live.iso"
+    state: absent
+
 - name: Get the script to create small ISO
   get_url:
       url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/generate_rhcos_iso.sh
       dest: "{{ script_directory.path }}/generate_rhcos_iso.sh"
       mode: 0755
 
+- name: Clone the assisted installer project
+  git:
+    repo: 'https://github.com/openshift/assisted-service'
+    dest: /opt/assisted-service-ztp
+    update: yes
+    force: yes
+
+- name: Read json with image versions
+  shell: cat "/opt/assisted-service-ztp/default_ocp_versions.json"
+  register: json_content
+
+- name: Query for the right ISO according to the version
+  vars:
+    jsondata: "{{ json_content.stdout | from_json }}"
+    query_version: "\"{{ cluster_version }}\".rhcos_image"
+  set_fact:
+    iso_url: "{{ jsondata | json_query(query_version) }}"
+
 - name: Create the small ISO and copy to desired path
   shell:
     chdir: "{{ script_directory.path }}"
-    cmd: "{{ script_directory.path }}/generate_rhcos_iso.sh {{ temporary_path }}/small_{{ cluster_name }}.iso"
+    cmd: "{{ script_directory.path }}/generate_rhcos_iso.sh {{ temporary_path }}/small_{{ cluster_name }}.iso {{ iso_url }}"
 
 - name: Check if filetranspiler exists
   shell: podman images | grep transpile | wc -l
@@ -103,11 +126,11 @@
         
   when: filetranspile_exists.stdout|int < 1
 
-- name: Clone the assisted installer project
-  git:
-    repo: 'https://github.com/openshift/assisted-service'
-    dest: /opt/assisted-service-ztp
-    update: no
+
+- name: Remove livecd iso if it already exists
+  file:
+    path: /opt/assisted-service-ztp/livecd.iso
+    state: absent
 
 - name: Add env var to file if does not exist
   lineinfile:
@@ -117,6 +140,7 @@
     - "SUPPORT_L2=false"
     - "SERVICE_BASE_URL={{ ai_url }}"
     - "HW_VALIDATOR_MIN_DISK_SIZE_GIB=50"
+    - "RHCOS_BASE_ISO={{ iso_url }}"
 
 - name: Clean the pod
   shell: "podman pod rm -f assisted-installer"
@@ -126,3 +150,5 @@
   shell: "make deploy-onprem"
   args:
     chdir: "/opt/assisted-service-ztp"
+  environment:
+    RHCOS_BASE_ISO: "{{ iso_url }}"
