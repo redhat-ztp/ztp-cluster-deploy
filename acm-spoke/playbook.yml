@@ -34,7 +34,7 @@
   - name: Add import cluster
     ansible.builtin.copy:
       src: import_cluster.sh
-      dest: "{{ out_dir }}/import_cluster.sh"
+      dest: "{{ temporary_path }}/import_cluster.sh"
       owner: root
       mode: 700
 
