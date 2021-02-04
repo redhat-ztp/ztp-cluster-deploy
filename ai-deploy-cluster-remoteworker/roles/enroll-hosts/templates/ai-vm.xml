@@ -66,7 +66,7 @@
       <address type='pci' domain='0x0000' bus='0x00' slot='0x06' function='0x0'/>
     </controller>
     <interface type='bridge'>
-      <mac address='{{ item.mac }}'/>
+      <mac address='{{ item.mac_address }}'/>
       <source bridge='{{ bridge_name }}'/>
       <model type='e1000'/>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
