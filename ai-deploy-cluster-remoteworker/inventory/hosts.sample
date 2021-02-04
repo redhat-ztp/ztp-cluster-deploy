@@ -32,13 +32,13 @@ bridge_name=nm-bridge
 libvirt_uri="qemu:///system"
 need_racadm=true
 
+# path where to generate temporary directories
+temporary_path="/tmp/"
+
 [provisioner]
 # host from where the installation is performed
 localhost ansible_connection=local
 #<remote_ip> ansible_connection=ssh
-
-# path where to generate temporary directories
-temporary_path="/tmp/"
 
 [worker_nodes]
 worker-0.test-aut.cluster-testing name=worker_0 bmc_type=SuperMicro bmc_address=192.168.111.212 bmc_user="ADMIN" bmc_password="ADMIN" smb_host=192.168.111.1 smb_path=share ramdisk_path=/opt/network-config kernel_arguments="" final_iso_path=/home/share/ redeploy=false
