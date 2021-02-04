@@ -8,7 +8,7 @@
   - name: Copy generated ignition into temporary directory
     copy:
       src: "{{ ignition_directory.path }}/ai_ignition"
-      dest: "{{ ignition_directory.path }}/{{ hostvars[item].ignition_name }}"
+      dest: "{{ ignition_directory.path }}/{{ hostvars[item].name }}"
       remote_src: yes
 
   - name: Copy network directory to the ignition temporary path, if we need to inject it
@@ -23,17 +23,17 @@
       cmd: "{{ script_directory.path }}/ramdisk_generator.sh {{ hostvars[item].ramdisk_path }} {{ script_directory.path }}/extra_config.img"
 
   - name: Transpile ignition to include ramdisk
-    shell: "podman run --rm -ti --volume {{ ignition_directory.path }}:/srv:z localhost/filetranspiler:latest -i {{ hostvars[item].ignition_name }} -f fake_root -o /srv/modified_ignition"
+    shell: "podman run --rm -ti --volume {{ ignition_directory.path }}:/srv:z localhost/filetranspiler:latest -i {{ hostvars[item].name }} -f fake_root -o /srv/modified_ignition"
 
   - name: Copy final ignition to final path
     copy:
       src: "{{ ignition_directory.path }}/modified_ignition"
-      dest: "{{ ignition_http_server_path }}/{{ hostvars[item].ignition_name }}"
+      dest: "{{ ignition_http_server_path }}/{{ hostvars[item].name }}"
       remote_src: yes
   when: hostvars[item].ramdisk_path is defined
 
 - name: Produce the final iso
   shell:
     chdir: "{{ script_directory.path }}"
-    cmd: "{{ script_directory.path }}/inject_config_files.sh {{ temporary_path }}/small_{{ cluster_name }}.iso {{ hostvars[item].final_iso_path }}/{{ item }}.iso {{ ignition_url }}/{{ hostvars[item].ignition_name }} {{ rootfs_url }} {% if hostvars[item].kernel_arguments is defined %}'{{ hostvars[item].kernel_arguments }}'{% else %}''{% endif %} {% if hostvars[item].ramdisk_path is defined %}{{ script_directory.path }}/extra_config.img{% else %}''{%  endif %}"
+    cmd: "{{ script_directory.path }}/inject_config_files.sh {{ temporary_path }}/small_{{ cluster_name }}.iso {{ hostvars[item].final_iso_path }}/{{ hostvars[item].name }}.iso {{ ignition_url }}/{{ hostvars[item].name }} {{ rootfs_url }} {% if hostvars[item].kernel_arguments is defined %}'{{ hostvars[item].kernel_arguments }}'{% else %}''{% endif %} {% if hostvars[item].ramdisk_path is defined %}{{ script_directory.path }}/extra_config.img{% else %}''{%  endif %}"
 
