@@ -77,7 +77,7 @@
 - name: Create the small ISO and copy to desired path
   shell:
     chdir: "{{ script_directory.path }}"
-    cmd: "{{ script_directory.path }}/generate_rhcos_iso.sh {{ small_iso_path }}"
+    cmd: "{{ script_directory.path }}/generate_rhcos_iso.sh {{ temporary_path }}/small_{{ cluster_name }}.iso"
 
 - name: Check if filetranspiler exists
   shell: podman images | grep transpile | wc -l

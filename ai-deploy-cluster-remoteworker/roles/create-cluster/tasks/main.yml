@@ -26,15 +26,11 @@
       until: result.rc == 0
 
     - name: And download it
-      shell: "aicli download iso {{ cluster_name }} -p {{ ai_iso_path }}"
+      shell: "aicli download iso {{ cluster_name }} -p {{ temporary_path }}"
       retries: 3
       delay: 3
       register: result
       until: result.rc == 0
-
-    - name: Copy AI ISO to HTTP Server
-      shell: "cp {{ ai_iso_path }}/{{ cluster_name }}.iso {{ http_server_path }}"
-      ignore_errors: true
   environment:
     AI_URL: "{{ ai_url }}"
 
