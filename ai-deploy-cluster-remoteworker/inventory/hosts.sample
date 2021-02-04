@@ -40,6 +40,11 @@ localhost ansible_connection=local
 # path where to generate temporary directories
 temporary_path="/tmp/"
 
+[master_nodes]
+master_1 name=master_1 mac_address=52:54:00:55:f3:31
+master_2 name=master_2 mac_address=52:54:00:55:f3:32
+master_3 name=master_3 mac_address=52:54:00:55:f3:33
+
 [worker_nodes]
 worker-0.test-aut.cluster-testing name=worker_0 bmc_type=SuperMicro bmc_address=192.168.111.212 bmc_user="ADMIN" bmc_password="ADMIN" smb_host=192.168.111.1 smb_path=share ramdisk_path=/opt/network-config kernel_arguments="" final_iso_path=/home/share/ redeploy=false
 worker-1 bmc_type=Dell name=worker_1 bmc_address=10.16.231.121 bmc_user="usr" bmc_password="pwd" ramdisk_path=/opt/network-config kernel_arguments="" final_iso_path=/opt/cached_disconnected_images redeploy=false
