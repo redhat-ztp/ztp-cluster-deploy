@@ -31,6 +31,13 @@
       state: directory
     register: acm_directory
 
+  - name: Add import cluster
+    ansible.builtin.copy:
+      src: import_cluster.sh
+      dest: "{{ out_dir }}/import_cluster.sh"
+      owner: root
+      mode: 700
+
   - name: Enroll spoke clusters to ACM
     include_tasks: enroll-clusters.yaml
     with_items: "{{ groups['clusters'] }}"
