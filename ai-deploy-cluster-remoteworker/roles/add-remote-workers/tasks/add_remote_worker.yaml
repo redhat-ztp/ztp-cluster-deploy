@@ -30,7 +30,7 @@
       headers:
         content-type: application/json
         Accept: application/json
-      body: "{\"Host\": \"{{ hostvars[item].smb_host }}\", \"Path\": \"\\\\{{ hostvars[item].smb_path}}\\{{ item }}.iso\"}"
+      body: "{\"Host\": \"{{ hostvars[item].smb_host }}\", \"Path\": \"\\\\{{ hostvars[item].smb_path}}\\{{ hostvars[item].name }}.iso\"}"
       body_format: json
       force_basic_auth: yes
       validate_certs: no
@@ -100,5 +100,5 @@
       mode: 700
 
   - name: run racadm
-    shell: "/root/racadm.sh {{ hostvars[item].bmc_user }} {{ hostvars[item].bmc_password }} {{ hostvars[item].bmc_address }} {{ item }}.iso"
+    shell: "/root/racadm.sh {{ hostvars[item].bmc_user }} {{ hostvars[item].bmc_password }} {{ hostvars[item].bmc_address }} {{ iso_url }} {{ hostvars[item].name }}.iso"
   when: hostvars[item].bmc_type == "Dell" and (host_exist.stdout|int == 0 or hostvars[item].redeploy|bool == true)
