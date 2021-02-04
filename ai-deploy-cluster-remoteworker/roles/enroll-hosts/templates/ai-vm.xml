@@ -1,5 +1,5 @@
 <domain type='kvm'>
-  <name>{{ hostvars[item] }}_{{ cluster_name }}</name>
+  <name>{{ hostvars[item].name }}_{{ cluster_name }}</name>
   <memory unit='KiB'>17008000</memory>
   <currentMemory unit='KiB'>17008000</currentMemory>
   <vcpu placement='static'>4</vcpu>
@@ -32,7 +32,7 @@
     <emulator>/usr/libexec/qemu-kvm</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='/var/lib/libvirt/images/{{ hostvars[item] }}_{{ cluster_name }}.qcow2'/>
+      <source file='/var/lib/libvirt/images/{{ hostvars[item].name }}_{{ cluster_name }}.qcow2'/>
       <target dev='hda' bus='ide'/>
       <address type='drive' controller='0' bus='0' target='0' unit='0'/>
     </disk>
