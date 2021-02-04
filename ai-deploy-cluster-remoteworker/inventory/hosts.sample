@@ -32,13 +32,13 @@ bridge_name=nm-bridge
 libvirt_uri="qemu:///system"
 need_racadm=true
 
+# path where to generate temporary directories
+temporary_path=/tmp
+
 [provisioner]
 # host from where the installation is performed
 localhost ansible_connection=local
 #<remote_ip> ansible_connection=ssh
-
-# path where to generate temporary directories
-temporary_path="/tmp/"
 
 [master_nodes]
 master_1 name=master_1 mac_address=52:54:00:55:f3:31
