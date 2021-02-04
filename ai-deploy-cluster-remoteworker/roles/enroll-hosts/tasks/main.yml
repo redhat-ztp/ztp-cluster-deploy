@@ -2,7 +2,7 @@
 - name: Remove previous vm
   community.libvirt.virt:
     command: destroy
-    name: "{{ item.name }}_{{ cluster_name }}"
+    name: "{{ hostvars[item].name }}_{{ cluster_name }}"
     uri: "{{ libvirt_uri }}"
   ignore_errors: true
   with_items: "{{ groups['master_nodes'] }}"
@@ -10,13 +10,13 @@
 - name: Undefine previous vm
   community.libvirt.virt:
     command: undefine
-    name: "{{ item.name }}_{{ cluster_name }}"
+    name: "{{ hostvars[item].name }}_{{ cluster_name }}"
     uri: "{{ libvirt_uri }}"
   ignore_errors: true
   with_items: "{{ groups['master_nodes'] }}"
 
 - name: Create the qcow2 file
-  command: "qemu-img create -f qcow2 /var/lib/libvirt/images/{{ item.name }}_{{ cluster_name }}.qcow2 50G"
+  command: "qemu-img create -f qcow2 /var/lib/libvirt/images/{{ hostvars[item].name }}_{{ cluster_name }}.qcow2 50G"
   with_items: "{{ groups['master_nodes'] }}"
 
 - name: Create vm
@@ -30,6 +30,6 @@
 - name: Start vm
   community.libvirt.virt:
     command: start
-    name: "{{ item.name }}_{{ cluster_name }}"
+    name: "{{ hostvars[item].name }}_{{ cluster_name }}"
     uri: "{{ libvirt_uri }}"
   with_items: "{{ groups['master_nodes'] }}"

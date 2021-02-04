@@ -1,5 +1,5 @@
 <domain type='kvm'>
-  <name>{{ item.name }}_{{ cluster_name }}</name>
+  <name>{{ hostvars[item] }}_{{ cluster_name }}</name>
   <memory unit='KiB'>17008000</memory>
   <currentMemory unit='KiB'>17008000</currentMemory>
   <vcpu placement='static'>4</vcpu>
@@ -32,7 +32,7 @@
     <emulator>/usr/libexec/qemu-kvm</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='/var/lib/libvirt/images/{{ item.name }}_{{ cluster_name }}.qcow2'/>
+      <source file='/var/lib/libvirt/images/{{ hostvars[item] }}_{{ cluster_name }}.qcow2'/>
       <target dev='hda' bus='ide'/>
       <address type='drive' controller='0' bus='0' target='0' unit='0'/>
     </disk>
@@ -66,7 +66,7 @@
       <address type='pci' domain='0x0000' bus='0x00' slot='0x06' function='0x0'/>
     </controller>
     <interface type='bridge'>
-      <mac address='{{ item.mac_address }}'/>
+      <mac address='{{ hostvars[item].mac_address }}'/>
       <source bridge='{{ bridge_name }}'/>
       <model type='e1000'/>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
