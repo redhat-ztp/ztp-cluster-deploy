@@ -1,14 +1,13 @@
 ---
-- name: Install podman
-  yum:
-    name: podman
-    state: present
-
-- name: install httpd
+- name: Install needed packages
   yum:
     name:
+      - podman
       - httpd
       - openssl-devel
+      - make
+      - libvirt-python3
+    state: present
 
 - name: Enable and start httpd
   systemd:
