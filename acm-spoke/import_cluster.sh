@@ -47,4 +47,4 @@ spec:
   version: 2.1.0
 EOF
 
-oc --kubeconfig=$KUBE_CONFIG apply -f ./import-$CLUSTER_NAME.yaml
+oc --kubeconfig=$KUBE_CONFIG apply -f ./$CLUSTER_NAME.yaml
