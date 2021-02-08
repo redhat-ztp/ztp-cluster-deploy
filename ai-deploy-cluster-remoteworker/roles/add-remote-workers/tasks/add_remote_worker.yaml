@@ -102,4 +102,3 @@
   - name: run racadm
     shell: "/root/racadm.sh {{ hostvars[item].bmc_user }} {{ hostvars[item].bmc_password }} {{ hostvars[item].bmc_address }} {{ iso_url }} {{ hostvars[item].name }}.iso"
   when: hostvars[item].bmc_type == "Dell" and (host_exist.stdout|int == 0 or hostvars[item].redeploy|bool == true)
-
