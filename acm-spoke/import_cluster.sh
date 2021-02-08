@@ -3,9 +3,9 @@
 CLUSTER_NAME=$1
 PROFILE=$2
 KUBE_CONFIG=$3
+OUT_DIR=$4
 
-
-cat << EOF > ./$CLUSTER_NAME.yaml
+cat << EOF > $OUT_DIR/$CLUSTER_NAME.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -47,4 +47,4 @@ spec:
   version: 2.1.0
 EOF
 
-oc --kubeconfig=$KUBE_CONFIG apply -f ./import-$CLUSTER_NAME.yaml
+oc --kubeconfig=$KUBE_CONFIG apply -f $OUT_DIR/$CLUSTER_NAME.yaml
