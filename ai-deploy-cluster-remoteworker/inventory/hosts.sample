@@ -12,7 +12,7 @@ kernel_arguments=""
 ai_iso_path=/opt/cached_disconnected_images
 
 # You can set your own rootfs image and store it under the same IP as above.
-rootfs_url=https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/latest/rhcos-live-rootfs.x86_64.img
+#rootfs_url=https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/latest/rhcos-live-rootfs.x86_64.img
 
 # should be same as the installer machine IP-address
 ai_url="http://192.168.112.199:8080"

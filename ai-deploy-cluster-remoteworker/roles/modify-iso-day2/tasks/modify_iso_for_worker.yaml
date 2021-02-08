@@ -32,8 +32,26 @@
       remote_src: yes
   when: hostvars[item].ramdisk_path is defined
 
+- block:
+  - name: Read json with image versions
+    shell: cat "/opt/assisted-service-ztp/default_ocp_versions.json"
+    register: json_content
+
+  - name: Query for the right ISO according to the version
+    vars:
+      jsondata: "{{ json_content.stdout | from_json }}"
+      query_version: "\"{{ cluster_version }}\".rhcos_image"
+    set_fact:
+      rhcos_image: "{{ jsondata | json_query(query_version) }}"
+
+  - name: Manipulate the name, to add -rootfs suffix
+    set_fact:
+      default_rootfs_url: "{{ rhcos_image | regex_search('^http.*live', ignorecase=True) }}-rootfs.x86_64.img"
+      
+  when: (rootfs_url is not defined) or (rootfs|length==0)
+
 - name: Produce the final iso
   shell:
     chdir: "{{ script_directory.path }}"
-    cmd: "{{ script_directory.path }}/inject_config_files.sh {{ temporary_path }}/small_{{ cluster_name }}.iso {{ hostvars[item].final_iso_path }}/{{ hostvars[item].name }}.iso {{ ignition_url }}/{{ hostvars[item].name }} {{ rootfs_url }} {% if hostvars[item].kernel_arguments is defined %}'{{ hostvars[item].kernel_arguments }}'{% else %}''{% endif %} {% if hostvars[item].ramdisk_path is defined %}{{ script_directory.path }}/extra_config.img{% else %}''{%  endif %}"
+    cmd: "{{ script_directory.path }}/inject_config_files.sh {{ temporary_path }}/small_{{ cluster_name }}.iso {{ hostvars[item].final_iso_path }}/{{ hostvars[item].name }}.iso {{ ignition_url }}/{{ hostvars[item].name }} {% if rootfs_url is defined %}{{ rootfs_url }}{% else %}{{ default_rootfs_url }}{% endif %} {% if hostvars[item].kernel_arguments is defined %}'{{ hostvars[item].kernel_arguments }}'{% else %}''{% endif %} {% if hostvars[item].ramdisk_path is defined %}{{ script_directory.path }}/extra_config.img{% else %}''{%  endif %}"
 
