@@ -35,6 +35,9 @@ need_racadm=true
 # path where to generate temporary directories
 temporary_path=/tmp
 
+# optional: path where to store images for controlplane
+# libvirt_images_path=/var/lib/libvirt/images
+
 [provisioner]
 # host from where the installation is performed
 localhost ansible_connection=local

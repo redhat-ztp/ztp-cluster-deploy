@@ -32,7 +32,7 @@
     <emulator>/usr/libexec/qemu-kvm</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='/var/lib/libvirt/images/{{ hostvars[item].name }}_{{ cluster_name }}.qcow2'/>
+      <source file='{{ libvirt_images_path | default('/var/lib/libvirt/images') }}/{{ hostvars[item].name }}_{{ cluster_name }}.qcow2'/>
       <target dev='hda' bus='ide'/>
       <address type='drive' controller='0' bus='0' target='0' unit='0'/>
     </disk>
