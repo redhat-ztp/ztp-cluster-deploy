@@ -10,12 +10,12 @@
   shell: "{{ temporary_path }}/import_cluster.sh {{ hostvars[item].name }} {{ hostvars[item].profile }} {{ kubeconfig_hub_path }} {{ temporary_path }}"
 
 - name: Extract the klusterlet definition from ACM
-  shell: "oc get secret/{{ hostvars[item].name }}-cluster-import -n {{ hostvars[item].name }} -o jsonpath={.data.crds\\\\.yaml} | base64 --decode > {{ acm_directory.path }}/crd.yaml"
+  shell: "oc get secret/{{ hostvars[item].name }}-cluster-import -n {{ hostvars[item].name }}-cluster -o jsonpath={.data.crds\\\\.yaml} | base64 --decode > {{ acm_directory.path }}/crd.yaml"
   environment:
     KUBECONFIG: "{{ kubeconfig_hub_path }}"
 
 - name: Extract the import command from ACM
-  shell: "oc get secret/{{ hostvars[item].name }}-cluster-import -n {{ hostvars[item].name }} -o jsonpath={.data.import\\\\.yaml} | base64 --decode > {{ acm_directory.path }}/import.yaml"
+  shell: "oc get secret/{{ hostvars[item].name }}-cluster-import -n {{ hostvars[item].name }}-cluster -o jsonpath={.data.import\\\\.yaml} | base64 --decode > {{ acm_directory.path }}/import.yaml"
   environment:
     KUBECONFIG: "{{ kubeconfig_hub_path }}"
 
