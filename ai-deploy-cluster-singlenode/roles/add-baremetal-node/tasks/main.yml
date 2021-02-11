@@ -1,0 +1,23 @@
+---
+- name: Enroll a SuperMicro node
+  include_role:
+    name: "{{ playbook_dir }}/../common-roles/enroll-supermicro"
+  vars:
+    iso_name: "{{ cluster_name }}.iso"
+  when: bmc_type == "SuperMicro"
+
+- name: Enroll a Dell node
+  include_role:
+    name: "{{ playbook_dir }}/../common-roles/enroll-dell"
+  vars:
+    iso_name: "{{ cluster_name }}.iso"
+  when: bmc_type == "Dell"
+
+- name: Wait until hosts are ready in Assisted Installer
+  shell: "aicli list hosts | grep {{ cluster_name }} | grep 'insufficient\\|known' | wc -l"
+  register: hosts_ready
+  until: hosts_ready.stdout|int == 1
+  retries: 100
+  delay: 30
+  environment:
+    AI_URL: "{{ ai_url }}"

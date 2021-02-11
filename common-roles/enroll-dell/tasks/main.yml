@@ -1,0 +1,11 @@
+- name: Add Dell remote worker
+  - name: template racadm
+    template:
+      src: templates/racadm.sh
+      dest: /root/racadm.sh
+      owner: root
+      mode: 700
+
+  - name: run racadm
+    shell: "/root/racadm.sh {{ bmc_user }} {{ bmc_password }} {{ bmc_address }} {{ iso_url }} {{ iso_name }}" 
+

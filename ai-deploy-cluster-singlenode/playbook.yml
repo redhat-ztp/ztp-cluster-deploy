@@ -1,15 +1,19 @@
 ---
-- name: Deploy clusters with assisted installer
+- name: Deploy single node cluster with assisted installer
   hosts: provisioner
+  environment:
+    PATH: "/usr/bin/:/usr/local/bin/:{{ ansible_env.PATH }}"
   roles:
-    - roles: prepare-environment
+    - role: prepare-environment
       tags: prepare-environment
+      become: yes
     - role: create-cluster
       tags: create-cluster
-    - role: modify-iso
-      tags: modify-iso
-    - role: enroll-hosts
-      tags: enroll-hosts
+      become: yes
+    - role: add-baremetal-node
+      tags: add-baremetal-node
+      become: yes
     - role: deploy-cluster
       tags: deploy-cluster
+      become: yes
 

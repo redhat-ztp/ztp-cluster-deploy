@@ -1,0 +1,12 @@
+- name: Copy network directory to the temporary path, if we need to inject it
+  copy:
+    src: "{{ ramdisk_path }}/"
+    dest: "{{ ramdisk_temporary_path }}"
+    mode: preserve
+
+- name: Generate extra ramdisk
+  shell:
+    chdir: "{{ ramdisk_temporary_path }}"
+    cmd: "{{ temporary_path }}/ramdisk_generator.sh {{ extra_ramdisk_path }} {{ temporary_path }}/{{ image_name }}"
+
+
