@@ -1,0 +1,18 @@
+- name: Get the script to modify ISOs
+  get_url:
+      url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/inject_config_files.sh
+      dest: "{{ temporary_path }}/inject_config_files.sh"
+      mode: 0755
+
+- name: Get the script to generate ramdisk
+  get_url:
+      url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/ramdisk_generator.sh
+      dest: "{{ temporary_path }}/ramdisk_generator.sh"
+      mode: 0755
+
+- name: Get the script to extract ignition from ISO
+  get_url:
+      url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/extract_ignition_from_ai_iso.sh
+      dest: "{{ temporary_path }}/extract_ignition_from_ai_iso.sh"
+      mode: 0755
+

@@ -1,0 +1,8 @@
+- name: Transpile ignition to include ramdisk
+  shell: "podman run --rm -ti --volume {{base_path }}:/srv:z localhost/filetranspiler:latest -i {{ ignition_name }} -f {{ ramdisk_name }} -o /srv/modified_ignition"
+
+- name: Copy final ignition to final path
+  copy:
+    src: "{{ base_path }}/modified_ignition"
+    dest: "{{ final_ignition_path }}"
+    remote_src: yes

@@ -1,0 +1,24 @@
+- name: Check if filetranspiler exists
+  shell: podman images | grep transpile | wc -l
+  register: filetranspile_exists
+
+- name: Build filetranspiler if not exists
+  block:
+    - name: Create temporary directory for script
+      tempfile:
+        state: directory
+      register: transpile_directory
+
+    - name: Clone the directory
+      git:
+        repo: 'https://github.com/ashcrow/filetranspiler'
+        dest: "{{ transpile_directory.path }}"
+        update: no
+
+    - name: Build the pod
+      shell: "podman build . -t filetranspiler:latest"
+      args:
+        chdir: "{{ transpile_directory.path }}"
+
+  when: filetranspile_exists.stdout|int < 1
+

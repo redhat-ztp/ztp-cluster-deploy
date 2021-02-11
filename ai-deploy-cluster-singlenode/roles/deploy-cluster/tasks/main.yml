@@ -1,9 +1,21 @@
 ---
 - name: Configure cluster
   block:
-    - name: Set API VIP
-      shell: "aicli update cluster -P api_vip={{ api_vip }} {{ cluster_name }}"
+    - block:
+      - name: Get the IP to query for
+        set_fact:
+          node_ip: "{% if static_ip is defined %}{% if static_ip.ipv4_config is defined and static_ip.ipv4_config.ip is defined %}{{ static_ip.ipv4_config.ip}}{% elif static_ip.ipv6_config is defined and static_ip.ipv6_config.ip is defined %}{{ static_ip.ipv6_config.ip }}{% endif %}{% endif %}"
       
+      - name: Query for the host ID that belongs to that ip
+        shell: "aicli list hosts | grep {{ node_ip }} | cut -d '|' -f 4"
+        register: host_id
+        when: node_ip | length > 0
+
+      - name: Set the hostname for the given host_id
+        shell: "aicli update host {{ host_id.stdout | trim }} -P name={{ static_ip.hostname }}"
+        when: host_id | length > 0
+      when: static_ip is defined and static_ip.hostname is defined
+
     - name: Wait until cluster is ready to be installed
       shell: "aicli list cluster | grep {{ cluster_name }} |  cut -d '|' -f4 | tr -d ' '"
       register: cluster_ready

@@ -1,0 +1,21 @@
+- name: Clone the assisted installer project
+  git:
+    repo: 'https://github.com/openshift/assisted-service'
+    dest: /opt/assisted-service-ztp
+    update: yes
+    force: yes
+
+- name: Add env var to file if does not exist
+  lineinfile:
+    path: /opt/assisted-service-ztp/onprem-environment
+    line: "{{ item }}"
+  with_items: "{{ onprem_vars }}"
+
+- name: Clean the pod
+  shell: "podman pod rm -f assisted-installer"
+  ignore_errors: yes
+
+- name: Start the assisted installer service
+  shell: "make deploy-onprem"
+  args:
+    chdir: "/opt/assisted-service-ztp"

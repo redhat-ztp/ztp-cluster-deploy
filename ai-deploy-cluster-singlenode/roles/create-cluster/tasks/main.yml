@@ -12,13 +12,28 @@
 - name: Create cluster and download ISO
   block:
     - name: Create new AI cluster
-      shell: "aicli create cluster -P pull_secret={{ tempfile_pullsecret.path }} -P base_dns_domain={{ cluster_domain }} -P ssh_public_key='{{ ssh_public_key }}' -P ingress_vip={{ ingress_vip }} {{ cluster_name }}"
-      
-    - name: Generate the ISO for the cluster
-      shell: "aicli create iso -P ssh_public_key='{{ ssh_public_key }}' {{ cluster_name }}"
+      shell: "aicli create cluster -P pull_secret={{ tempfile_pullsecret.path }} -P base_dns_domain={{ cluster_domain }} -P ssh_public_key='{{ ssh_public_key }}' -P high_availability_mode=None -P openshift_version='{{ cluster_version }}' {{ cluster_name }}"
+
+    - name: Retrieve the cluster ID
+      shell: "aicli list clusters | grep test-aut  | cut -d '|' -f 3"
+      register: cluster_id
+
+    - name: Create a temporary file for the template
+      tempfile:
+        state: file
+      register: template_pullsecret
+
+    - name: Generate blob for small ISO with the specific node config
+      ansible.builtin.template:
+        src: templates/small_iso_request
+        dest: "{{ template_pullsecret.path }}"
+
+    - name: Execute call for generating the ISO
+      shell: "curl --header \"Content-Type: application/json\" --request POST --data @{{ template_pullsecret.path }} \"{{ ai_url }}/api/assisted-install/v1/clusters/{{ cluster_id.stdout | trim }}/downloads/image\""
 
     - name: And download it
-      shell: "aicli download iso {{ cluster_name }} -p {{ ai_iso_path }}"
+      shell: "aicli download iso {{ cluster_name }} -p {{ final_iso_path }}"
+
   environment:
     AI_URL: "{{ ai_url }}"
 
