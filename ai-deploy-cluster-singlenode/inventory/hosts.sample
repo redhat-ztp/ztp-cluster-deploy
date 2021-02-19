@@ -22,6 +22,7 @@ smb_path=share
 # when this var is set, it injects static configuration
 static_ip={"mac":"ac:1f:6b:7b:e9:ec", "hostname": "single-node-cluster.test-aut.cluster.testing", "ipv4_config": {"ip": "192.168.112.34", "gateway":"192.168.112.1", "mask":24, "dns":"8.8.8.8"}}
 temporary_path=/tmp
+sno_image="registry.svc.ci.openshift.org/sno-dev/openshift-bip:0.5.0"
 
 [provisioner]
 # host from where the installation is performed
