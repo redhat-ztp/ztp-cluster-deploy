@@ -48,7 +48,7 @@
     set_fact:
       default_rootfs_url: "{{ rhcos_image | regex_search('^http.*live', ignorecase=True) }}-rootfs.x86_64.img"
       
-  when: (rootfs_url is not defined) or (rootfs|length==0)
+  when: (rootfs_url is not defined) or (rootfs_url|length==0)
 
 - name: Produce the final iso
   shell:
