@@ -111,14 +111,14 @@ and Small ISO.
 
             $ aicli list hosts
 
-            +-------------------------------------------+-------------+--------------------------------------+---------------------------+--------+---------------+
-            |                    Host                   |   Cluster   |                  Id                  |           Status          |  Role  |       Ip      |
-            +-------------------------------------------+-------------+--------------------------------------+---------------------------+--------+---------------+
-            |     cnfde7.ptp.lab.eng.bos.redhat.com     | cnfde2-day2 | 3eedcafb-1558-1a71-5c35-afa338e0730a | added-to-existing-cluster | worker |  10.16.231.7  |
-            | dhcp16-231-115.ptp.lab.eng.bos.redhat.com |    cnfde2   | 6e01b4d4-8fa9-40b4-b477-8a4ac66c5826 |         installed         | master | 10.16.231.115 |
-            | dhcp16-231-152.ptp.lab.eng.bos.redhat.com |    cnfde2   | 1a7bf1ff-2c16-4653-8d8d-2e68f2311660 |         installed         | master | 10.16.231.152 |
-            | dhcp16-231-154.ptp.lab.eng.bos.redhat.com |    cnfde2   | e6d260ca-3a4b-4af6-8edd-478d90591f39 |         installed         | master | 10.16.231.154 |
-            +-------------------------------------------+-------------+--------------------------------------+---------------------------+--------+---------------+
+            +-------------------------------------------+-------------+--------------------------------------+---------------------------+-------------------+---------------+
+            |                    Host                   |   Cluster   |                  Id                  |           Status          |  Role             |       Ip      |
+            +-------------------------------------------+-------------+--------------------------------------+---------------------------+-------------------+---------------+
+            |     cnfde7.ptp.lab.eng.bos.redhat.com     | cnfde2-day2 | 3eedcafb-1558-1a71-5c35-afa338e0730a | added-to-existing-cluster | worker,worker-cnf |  10.16.231.7  |
+            | dhcp16-231-115.ptp.lab.eng.bos.redhat.com |    cnfde2   | 6e01b4d4-8fa9-40b4-b477-8a4ac66c5826 |         installed         | master            | 10.16.231.115 |
+            | dhcp16-231-152.ptp.lab.eng.bos.redhat.com |    cnfde2   | 1a7bf1ff-2c16-4653-8d8d-2e68f2311660 |         installed         | master            | 10.16.231.152 |
+            | dhcp16-231-154.ptp.lab.eng.bos.redhat.com |    cnfde2   | e6d260ca-3a4b-4af6-8edd-478d90591f39 |         installed         | master            | 10.16.231.154 |
+            +-------------------------------------------+-------------+--------------------------------------+---------------------------+-------------------+---------------+
 
     - You can download the kubeconfig of your cluster using the command below
 
@@ -149,8 +149,8 @@ and Small ISO.
 
             $ oc get nodes
 
-            NAME                                        STATUS   ROLES           AGE     VERSION
-            cnfde7.ptp.lab.eng.bos.redhat.com           Ready    worker          19h     v1.19.0+9f84db3
-            dhcp16-231-115.ptp.lab.eng.bos.redhat.com   Ready    master,worker   20h     v1.19.0+9f84db3
-            dhcp16-231-152.ptp.lab.eng.bos.redhat.com   Ready    master,worker   20h     v1.19.0+9f84db3
-            dhcp16-231-154.ptp.lab.eng.bos.redhat.com   Ready    master,worker   20h     v1.19.0+9f84db3
+            NAME                                        STATUS   ROLES               AGE     VERSION
+            cnfde7.ptp.lab.eng.bos.redhat.com           Ready    worker,worker-cnf   19h     v1.19.0+9f84db3
+            dhcp16-231-115.ptp.lab.eng.bos.redhat.com   Ready    master              20h     v1.19.0+9f84db3
+            dhcp16-231-152.ptp.lab.eng.bos.redhat.com   Ready    master              20h     v1.19.0+9f84db3
+            dhcp16-231-154.ptp.lab.eng.bos.redhat.com   Ready    master              20h     v1.19.0+9f84db3

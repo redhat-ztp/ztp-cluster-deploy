@@ -5,6 +5,11 @@
       shell: "aicli update host $(aicli list hosts | grep {{ cluster_name }} | grep {{ item }} | awk '{print $6}') -P extra_args=[--copy-network]"
       with_items: "{{ groups['worker_nodes'] }}"
 
+    - name: For each worker, override the default mcp if it has a profile
+      shell: "aicli update host $(aicli list hosts | grep {{ cluster_name }} | grep {{ item }} | awk '{print $6}') -P mcp={{ hostvars[item].profile }}"
+      when: hostvars[item].profile is defined
+      with_items: "{{ groups['worker_nodes'] }}"
+
     - name: Install cluster
       shell: "aicli start cluster {{ cluster_name }}-day2"
   environment:
