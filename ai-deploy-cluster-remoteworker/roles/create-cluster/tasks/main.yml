@@ -17,6 +17,18 @@
       delay: 5
       register: result
       until: result.rc == 0
+
+    - name: Retrieve cluster ID from name
+      shell: "aicli list cluster | grep {{ cluster_name }} | cut -d '|' -f3 | tr -d ' '"
+      register: cluster_id
+
+    - name: Set the right network type
+      uri:
+        url: "{{ ai_url }}/api/assisted-install/v1/clusters/{{ cluster_id.stdout }}/install-config"
+        method: PATCH        
+        body: '"{\"networking\": {\"networkType\": \"{{ cluster_sdn | default("OVNKubernetes") }}\"}}"'
+        body_format: json
+        status_code: 201
       
     - name: Generate the ISO for the cluster
       shell: "aicli create iso -P ssh_public_key='{{ ssh_public_key }}' {{ cluster_name }}"
