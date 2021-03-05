@@ -14,9 +14,17 @@
     - name: Create new AI cluster
       shell: "aicli create cluster -P pull_secret={{ tempfile_pullsecret.path }} -P base_dns_domain={{ cluster_domain }} -P ssh_public_key='{{ ssh_public_key }}' -P high_availability_mode=None -P openshift_version='{{ cluster_version }}' {{ cluster_name }}"
 
-    - name: Retrieve the cluster ID
-      shell: "aicli list clusters | grep test-aut  | cut -d '|' -f 3"
+    - name: Retrieve cluster ID from name
+      shell: "aicli list cluster | grep {{ cluster_name }} | cut -d '|' -f3 | tr -d ' '"
       register: cluster_id
+
+    - name: Set the right network type
+      uri:
+        url: "{{ ai_url }}/api/assisted-install/v1/clusters/{{ cluster_id.stdout }}/install-config"
+        method: PATCH        
+        body: '"{\"networking\": {\"networkType\": \"{{ cluster_sdn | default("OVNKubernetes") }}\"}}"'
+        body_format: json
+        status_code: 201
 
     - name: Create a temporary file for the template
       tempfile:

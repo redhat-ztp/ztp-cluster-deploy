@@ -6,6 +6,7 @@ ai_url="http://192.168.112.199:8080" # url where AI will be populated
 cluster_name="test-aut"
 cluster_domain="cluster.testing"
 cluster_version=4.8
+cluster_sdn="OpenShiftSDN"
 ssh_public_key="<your_ssh_key>"
 need_racadm=false # set to true if you use Dell
 final_iso_path=/home/share/ # path where to store the final ISO. Needs to point to the path of your SMB share/http server that populates the ISO
