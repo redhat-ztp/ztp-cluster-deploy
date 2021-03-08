@@ -15,6 +15,12 @@
   shell: "podman pod rm -f assisted-installer"
   ignore_errors: yes
 
+- name: Get RHCOS livecd iso
+  shell: "curl {{ rhcos_base_iso }} -o livecd.iso"
+  args:
+    chdir: "/opt/assisted-service-ztp"
+  when: rhcos_base_iso is defined
+
 - name: Start the assisted installer service
   shell: "make deploy-onprem"
   args:
