@@ -36,8 +36,9 @@ smb_path=share
 need_racadm=false
 iso_url=http://192.168.112.199
 
-# when this var is set, it injects static configuration
-# static_ip={"mac":"ac:1f:6b:7b:e9:ec", "hostname": "single-node-cluster.test-aut.cluster.testing", "ipv4_config": {"ip": "192.168.112.34", "gateway":"192.168.112.1", "mask":24, "dns":"8.8.8.8"}}
+# it needs to follow nmstate format
+network_config_path=./sample/worker_sno.yaml
+hostname="single-node-cluster.test-aut.cluster.testing"
 
 [provisioner]
 # host from where the installation is performed
