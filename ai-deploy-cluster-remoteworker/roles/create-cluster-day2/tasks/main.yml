@@ -1,25 +1,7 @@
 ---
-- name: Create a temporary file
-  tempfile:
-    state: file
-  register: tempfile_pullsecret
-
-- name: Copy pull secret to file
-  copy:
-    content: "{{ pull_secret }}"
-    dest: "{{ tempfile_pullsecret.path }}"
-
-- name: Create cluster and download ISO
-  block:
-    - name: Create new AI cluster
-      shell: "aicli create cluster -P pull_secret={{ tempfile_pullsecret.path }} -P base_dns_domain={{ cluster_domain }} -P ssh_public_key='{{ ssh_public_key }}' -P openshift_version='{{ cluster_version }}' {{ cluster_name }}-day2"
-
-    - name: Generate the ISO for the cluster
-      shell: "aicli create iso -P ssh_public_key='{{ ssh_public_key }}' {{ cluster_name }}-day2"
-
-    - name: And download it
-      shell: "aicli download iso {{ cluster_name }}-day2 -p {{ temporary_path }}"
-
-  environment:
-    AI_URL: "{{ ai_url }}"
-
+- name: create day 2 cluster
+  include_role:
+    name: "{{ playbook_dir }}/../common-roles/create-cluster"
+  vars:
+    extra_args: "-P ingress_vip={{ ingress_vip }}"
+    cluster_name_var: "{{ cluster_name }}-day2"

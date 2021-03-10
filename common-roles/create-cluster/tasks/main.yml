@@ -1,0 +1,34 @@
+---
+- name: Create a temporary file
+  tempfile:
+    state: file
+  register: tempfile_pullsecret
+
+- name: Copy pull secret to file
+  copy:
+    content: "{{ pull_secret }}"
+    dest: "{{ tempfile_pullsecret.path }}"
+
+- name: Create cluster
+  block:
+    - name: Create new AI cluster
+      shell: "aicli create cluster -P pull_secret={{ tempfile_pullsecret.path }} -P base_dns_domain={{ cluster_domain }} -P ssh_public_key='{{ ssh_public_key }}' -P openshift_version='{{ cluster_version }}' {{ extra_args }} {{ cluster_name_var }}"
+      retries: 30
+      delay: 5
+      register: result
+      until: result.rc == 0
+
+    - name: Retrieve cluster ID from name
+      shell: "aicli list cluster | grep {{ cluster_name_var }} | cut -d '|' -f3 | tr -d ' '"
+      register: cluster_id
+
+    - name: Set the right network type
+      uri:
+        url: "{{ ai_url }}/api/assisted-install/v1/clusters/{{ cluster_id.stdout }}/install-config"
+        method: PATCH
+        body: '"{\"networking\": {\"networkType\": \"{{ cluster_sdn | default("OVNKubernetes") }}\"}}"'
+        body_format: json
+        status_code: 201
+  environment:
+    AI_URL: "{{ ai_url }}"
+

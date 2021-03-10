@@ -1,37 +1,8 @@
 ---
-- name: Create temporary directory for script
-  tempfile:
-    state: directory
-  register: script_directory
-
-- name: Get the script to modify ISOs
-  get_url:
-      url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/inject_config_files.sh
-      dest: "{{ script_directory.path }}/inject_config_files.sh"
-      mode: 0755
-
-- name: Get the script to generate ramdisk
-  get_url:
-      url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/ramdisk_generator.sh
-      dest: "{{ script_directory.path }}/ramdisk_generator.sh"
-      mode: 0755
-
-- name: Get the script to extract ignition from ISO
-  get_url:
-      url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/extract_ignition_from_ai_iso.sh
-      dest: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh"
-      mode: 0755
-
-- name: Create temporary directory for modifying the ignition
-  tempfile:
-    state: directory
-  register: ignition_directory
-
-- name: Extract the ignition file from the downloaded ISO
-  shell:
-    chdir: "{{ script_directory.path }}"
-    cmd: "{{ script_directory.path }}/extract_ignition_from_ai_iso.sh {{ temporary_path }}/{{ cluster_name }}-day2.iso {{ ignition_directory.path }}/ai_ignition"
-
-- name: Modify ISO for all the workers
-  include_tasks: modify_iso_for_worker.yaml
-  with_items: "{{ groups['worker_nodes'] }}"
+- name: Generate ISOs for the workers
+  include_role:
+    name: "{{ playbook_dir }}/../common-roles/download-iso"
+  vars:
+    cluster_name_var: "{{ cluster_name }}-day2"
+    minimal: True
+    final_iso_path_var: "{{ final_iso_path }}"

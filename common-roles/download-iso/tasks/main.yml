@@ -1,0 +1,22 @@
+---
+- name: Download ISO
+  block:
+    - name: Retrieve cluster ID from name
+      shell: "aicli list cluster | grep {{ cluster_name_var }} | cut -d '|' -f3 | tr -d ' '"
+      register: cluster_id
+
+    - name: Copy the network file remotely if it exists
+      copy:
+        src: "{{ network_config_path }}"
+        dest: "{{ temporary_path }}/network_config"
+      when: network_config_path is defined and network_config_path|length>0
+
+    - name: Create the small ISO
+      shell: "aicli create iso {% if minimal is defined and minimal | bool == True%}--minimal{% endif %} -P ssh_public_key='{{ ssh_public_key}}' --paramfile {% if network_config_path is defined and network_config_path|length > 0 %}{{ temporary_path }}/network_config{% endif %} {{ cluster_name_var }}"
+
+    - name: And download it
+      shell: "aicli download iso {{ cluster_name_var }} -p {{ final_iso_path_var }}"
+
+  environment:
+    AI_URL: "{{ ai_url }}"
+

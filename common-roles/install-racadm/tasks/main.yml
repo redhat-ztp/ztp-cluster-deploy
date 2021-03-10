@@ -6,7 +6,8 @@
     enabled: yes
     description: "Add repo"
 
-- name: install racadm
+- name: install httpd and racadm
   yum:
     name:
+      - httpd
       - srvadmin-idracadm7
