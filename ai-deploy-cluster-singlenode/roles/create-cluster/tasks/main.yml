@@ -26,18 +26,14 @@
         body_format: json
         status_code: 201
 
-    - name: Create a temporary file for the template
-      tempfile:
-        state: file
-      register: template_pullsecret
+    - name: Copy the network file remotely if it exists
+      copy:
+        src: "{{ network_config_path }}"
+        dest: "{{ temporary_path }}/network_config"
+      when: network_config_path is defined and network_config_path|length>0
 
-    - name: Generate blob for small ISO with the specific node config
-      ansible.builtin.template:
-        src: templates/small_iso_request
-        dest: "{{ template_pullsecret.path }}"
-
-    - name: Execute call for generating the ISO
-      shell: "curl --header \"Content-Type: application/json\" --request POST --data @{{ template_pullsecret.path }} \"{{ ai_url }}/api/assisted-install/v1/clusters/{{ cluster_id.stdout | trim }}/downloads/image\""
+    - name: Download the small ISO
+      shell: "aicli create iso --minimal -P ssh_public_key='{{ ssh_public_key}}' {% if network_config_path is defined and network_config_path|length > 0 %}--paramfile {{ temporary_path }}/network_config{% endif %} {{ cluster_name }}"
 
     - name: And download it
       shell: "aicli download iso {{ cluster_name }} -p {{ final_iso_path }}"
