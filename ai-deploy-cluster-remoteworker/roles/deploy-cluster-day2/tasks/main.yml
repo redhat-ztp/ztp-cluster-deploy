@@ -1,13 +1,14 @@
 ---
 - name: Configure cluster
   block:
-    - name: Update host to copy the network
-      shell: "aicli update host $(aicli list hosts | grep {{ cluster_name }} | grep {{ item }} | awk '{print $6}') -P extra_args=[--copy-network]"
+    - name: Update hostnames
+      shell: "IP=$(aicli list hosts | grep {{ cluster_name }}-day2 | grep {{ hostvars[item].ip }} | cut -d '|' -f 4 | tr -d ' '); aicli update host $IP -P name={{ hostvars[item].hostname }}"
+      when: hostvars[item].hostname is defined and hostvars[item].hostname|length > 0 
       with_items: "{{ groups['worker_nodes'] }}"
 
     - name: For each worker, override the default mcp if it has a profile
-      shell: "aicli update host $(aicli list hosts | grep {{ cluster_name }} | grep {{ item }} | awk '{print $6}') -P mcp={{ hostvars[item].profile }}"
-      when: hostvars[item].profile is defined
+      shell: "IP=$(aicli list hosts | grep {{ cluster_name }}-day2 | grep {{ hostvars[item].hostname }} | cut -d '|' -f 4 | tr -d ' '); aicli update host $IP -P mcp={{ hostvars[item].profile }}"
+      when: hostvars[item].profile is defined and hostvars[item].profile|length > 0 and hostvars[item].hostname is defined and hostvars[item].hostname|length > 0
       with_items: "{{ groups['worker_nodes'] }}"
 
     - name: Install cluster

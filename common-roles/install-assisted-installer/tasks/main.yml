@@ -15,13 +15,27 @@
   shell: "podman pod rm -f assisted-installer"
   ignore_errors: yes
 
+- name: Read json with image versions
+  shell: cat "/opt/assisted-service-ztp/default_ocp_versions.json"
+  register: json_content
+  when: rhcos_base_iso is not defined or rhcos_base_iso|length == 0
+
+- name: Query for the right ISO according to the version
+  vars:
+    jsondata: "{{ json_content.stdout | from_json }}"
+    query_version: "\"{{ cluster_version }}\".rhcos_image"
+  set_fact:
+    rhcos_base_iso: "{{ jsondata | json_query(query_version) }}"
+  when: rhcos_base_iso is not defined or rhcos_base_iso|length == 0
+
 - name: Get RHCOS livecd iso
   shell: "curl {{ rhcos_base_iso }} -o livecd.iso"
   args:
     chdir: "/opt/assisted-service-ztp"
-  when: rhcos_base_iso is defined
 
 - name: Start the assisted installer service
   shell: "make deploy-onprem"
   args:
     chdir: "/opt/assisted-service-ztp"
+  environment:
+    RHCOS_BASE_ISO: "{{ rhcos_base_iso }}"

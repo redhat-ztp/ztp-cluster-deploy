@@ -3,87 +3,19 @@
   yum:
     name:
       - podman
-      - httpd
       - openssl-devel
       - make
       - libvirt-python3
     state: present
 
-- name: Enable and start httpd
-  systemd:
-    name: httpd
-    enabled: yes
-    masked: no
-
-- name: define racadm yum repo
-  yum_repository:
-    name: Racadm
-    baseurl: http://linux.dell.com/repo/hardware/dsu/os_dependent/RHEL8_64
-    gpgcheck: no
-    enabled: yes
-    description: "Add repo"
-  when: need_racadm|bool == True
-
 - name: install racadm
-  yum:
-    name:
-      - srvadmin-idracadm7
+  include_role:
+    name: "{{ playbook_dir }}/../common-roles/install-racadm"
   when: need_racadm|bool == True
 
-- name: check if aicli exists
-  stat:
-    path: /usr/local/bin/aicli
-  register: aicli_path
-
-- name: Install aicli if not present
-  block:
-    - name: Create temporary directory for aicli
-      tempfile:
-        state: directory
-      register: dockerfile_directory
-
-    - name: Install assisted service client
-      shell: |
-        git clone https://github.com/openshift/assisted-service {{ dockerfile_directory.path }}/assisted-service
-        pushd {{ dockerfile_directory.path }}/assisted-service
-        podman build -t ocpmetal/assisted-service -f ./Dockerfile.assisted-service .
-        podman run -v $PWD:/here:Z --rm ocpmetal/assisted-service:latest cp -r /clients/assisted-service-client-1.0.0.tar.gz /here
-        tar zxvf assisted-service-client-1.0.0.tar.gz
-        cd assisted-service-client-1.0.0
-        # --prefix might need to changes to '/usr/local' based on your python setup.
-        python3 setup.py install --prefix=/usr
-        popd
-
-    - name: Install aicli
-      shell: |
-          git clone https://github.com/karmab/assisted-installer-cli {{ dockerfile_directory.path }}/assisted-installer-cli
-          pushd {{ dockerfile_directory.path }}/assisted-installer-cli
-          python3 setup.py install
-          popd
-  when: aicli_path.stat.exists == False
-
-- name: Create temporary directory for script
-  tempfile:
-    state: directory
-  register: script_directory
-
-- name: Remove the previously downloaded base ISO
-  file:
-    path: "/tmp/rhcos-live.iso"
-    state: absent
-
-- name: Get the script to create small ISO
-  get_url:
-      url: https://raw.githubusercontent.com/redhat-ztp/ztp-iso-generator/main/rhcos-iso/generate_rhcos_iso.sh
-      dest: "{{ script_directory.path }}/generate_rhcos_iso.sh"
-      mode: 0755
-
-- name: Clone the assisted installer project
-  git:
-    repo: 'https://github.com/openshift/assisted-service'
-    dest: /opt/assisted-service-ztp
-    update: yes
-    force: yes
+- name: install aicli
+  include_role:
+    name: "{{ playbook_dir }}/../common-roles/install-aicli"
 
 - name: Read json with image versions
   shell: cat "/opt/assisted-service-ztp/default_ocp_versions.json"
@@ -94,60 +26,17 @@
     jsondata: "{{ json_content.stdout | from_json }}"
     query_version: "\"{{ cluster_version }}\".rhcos_image"
   set_fact:
-    iso_url: "{{ jsondata | json_query(query_version) }}"
+    rhcos_base_iso: "{{ jsondata | json_query(query_version) }}"
 
-- name: Create the small ISO and copy to desired path
-  shell:
-    chdir: "{{ script_directory.path }}"
-    cmd: "{{ script_directory.path }}/generate_rhcos_iso.sh {{ temporary_path }}/small_{{ cluster_name }}.iso {{ iso_url }}"
+- name: install assisted installer
+  include_role:
+    name: "{{ playbook_dir }}/../common-roles/install-assisted-installer"
+  vars:
+    onprem_vars:
+      - - "SUPPORT_L2=false"
+        - "SERVICE_BASE_URL={{ ai_url }}"
+        - "HW_VALIDATOR_MIN_DISK_SIZE_GIB=50"
+        - "PUBLIC_CONTAINER_REGISTRIES=quay.io,registry.svc.ci.openshift.org"
+        - "RHCOS_BASE_ISO={{ rhcos_base_iso }}"
+        - "AUTH_TYPE=none"
 
-- name: Check if filetranspiler exists
-  shell: podman images | grep transpile | wc -l
-  register: filetranspile_exists
-
-- name: Build filetranspiler if not exists
-  block:
-    - name: Create temporary directory for script
-      tempfile:
-        state: directory
-      register: transpile_directory
-
-    - name: Clone the directory
-      git:
-        repo: 'https://github.com/ashcrow/filetranspiler'
-        dest: "{{ transpile_directory.path }}"
-        update: no
-
-    - name: Build the pod
-      shell: "podman build . -t filetranspiler:latest"
-      args:
-        chdir: "{{ transpile_directory.path }}"
-        
-  when: filetranspile_exists.stdout|int < 1
-
-
-- name: Remove livecd iso if it already exists
-  file:
-    path: /opt/assisted-service-ztp/livecd.iso
-    state: absent
-
-- name: Add env var to file if does not exist
-  lineinfile:
-    path: /opt/assisted-service-ztp/onprem-environment
-    line: "{{ item }}"
-  with_items:
-    - "SUPPORT_L2=false"
-    - "SERVICE_BASE_URL={{ ai_url }}"
-    - "HW_VALIDATOR_MIN_DISK_SIZE_GIB=50"
-    - "RHCOS_BASE_ISO={{ iso_url }}"
-
-- name: Clean the pod
-  shell: "podman pod rm -f assisted-installer"
-  ignore_errors: yes
-
-- name: Start the assisted installer service
-  shell: "make deploy-onprem"
-  args:
-    chdir: "/opt/assisted-service-ztp"
-  environment:
-    RHCOS_BASE_ISO: "{{ iso_url }}"

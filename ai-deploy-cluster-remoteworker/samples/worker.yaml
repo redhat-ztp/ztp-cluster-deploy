@@ -1,0 +1,87 @@
+static_network_config:
+  - interfaces:
+      - name: eno1
+        type: ethernet
+        state: up
+        ethernet:
+          auto-negotiation: true
+          duplex: full
+          speed: 1000
+        ipv4:
+          address:
+          - ip: 192.168.112.29
+            prefix-length: 24
+          enabled: true
+        mtu: 1500
+        mac-address: ac:1f:6b:7b:ea:24
+      - name: eno2
+        mac-address: ac:1f:6b:7b:ea:25
+        type: ethernet
+        state: up
+        ipv4:
+          enabled: false
+      - name: eno3
+        mac-address: ac:1f:6b:7b:ea:7e
+        type: ethernet
+        state: up
+        ipv4:
+          enabled: false
+      - name: eno4
+        mac-address: ac:1f:6b:7b:ea:7f
+        type: ethernet
+        state: up
+        ipv4:
+          enabled: false
+    routes:                                                                     
+      config:                                                                   
+        - destination: 0.0.0.0/0
+          next-hop-address: 192.168.112.1
+          next-hop-interface: eno1
+    dns-resolver:
+      config:
+        server:
+          - 192.168.112.1
+          - 8.8.8.8
+  - interfaces:
+      - name: eno1
+        type: ethernet
+        state: up
+        ethernet:
+          auto-negotiation: true
+          duplex: full
+          speed: 1000
+        ipv4:
+          address:
+          - ip: 192.168.112.30
+            prefix-length: 24
+          enabled: true
+        mtu: 1500
+        mac-address: ac:1f:6b:7b:e9:ec
+      - name: eno2
+        mac-address: ac:1f:6b:7b:e9:ed
+        type: ethernet
+        state: up
+        ipv4:
+          enabled: false
+      - name: eno3
+        mac-address: ac:1f:6b:7b:ea:46
+        type: ethernet
+        state: up
+        ipv4:
+          enabled: false
+      - name: eno4
+        mac-address: ac:1f:6b:7b:ea:47
+        type: ethernet
+        state: up
+        ipv4:
+          enabled: false
+    routes:                                                                     
+      config:                                                                   
+        - destination: 0.0.0.0/0
+          next-hop-address: 192.168.112.1
+          next-hop-interface: eno1
+    dns-resolver:
+      config:
+        server:
+          - 192.168.112.1
+          - 8.8.8.8

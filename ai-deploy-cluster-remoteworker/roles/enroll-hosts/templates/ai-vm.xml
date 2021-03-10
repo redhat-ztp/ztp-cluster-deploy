@@ -1,7 +1,7 @@
 <domain type='kvm'>
   <name>{{ hostvars[item].name }}_{{ cluster_name }}</name>
-  <memory unit='KiB'>17008000</memory>
-  <currentMemory unit='KiB'>17008000</currentMemory>
+  <memory unit='KiB'>18008000</memory>
+  <currentMemory unit='KiB'>18008000</currentMemory>
   <vcpu placement='static'>4</vcpu>
   <os>
     <type arch='x86_64' machine='pc-i440fx-rhel7.6.0'>hvm</type>

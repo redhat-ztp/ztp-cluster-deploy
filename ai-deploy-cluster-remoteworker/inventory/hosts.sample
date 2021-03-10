@@ -6,24 +6,15 @@ pull_secret='xxx'
 # ssh key of the installer machine
 ssh_public_key="ssh-rsa xxx"
 
-# Default as httpd config
-ignition_http_server_path=/var/www/html
-kernel_arguments=""
-ai_iso_path=/opt/cached_disconnected_images
-
-# You can set your own rootfs image and store it under the same IP as above.
-#rootfs_url=https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/latest/rhcos-live-rootfs.x86_64.img
-
 # should be same as the installer machine IP-address
 ai_url="http://192.168.112.199:8080"
-ignition_url="http://192.168.112.199"
 iso_url="http://192.168.112.199"
 
 # You will need to configure your env DNS server for the cluster_domain and cluster_name
 cluster_name="test-aut"
 cluster_domain="cluster.testing"
 cluster_version="4.7"
-cluster_sdn="OpenShiftSDN" # if not set, defaults to OVNKubernetes
+#cluster_sdn="OpenShiftSDN" # if not set, defaults to OVNKubernetes
 
 # Make sure api_vip is mapped in your env DNS server to api.{cluster_name}.{cluster_domain} AND ingress_vip to *.apps.{cluster_name}.{cluster_domain}
 ingress_vip=192.168.112.195
@@ -38,6 +29,10 @@ temporary_path=/tmp
 
 # optional: path where to store images for controlplane
 # libvirt_images_path=/var/lib/libvirt/images
+#
+# network configuration, in nmstate format. Please enable
+# that if you need to rely on static ip configuration
+#network_config_path=./samples/worker.yaml
 
 [provisioner]
 # host from where the installation is performed
@@ -50,5 +45,6 @@ master_2 name=master_2 mac_address=52:54:00:55:f3:32
 master_3 name=master_3 mac_address=52:54:00:55:f3:33
 
 [worker_nodes]
-worker-0.test-aut.cluster-testing name=worker_0 bmc_type=SuperMicro bmc_address=192.168.111.212 bmc_user="ADMIN" bmc_password="ADMIN" smb_host=192.168.111.1 smb_path=share ramdisk_path=/opt/network-config kernel_arguments="" final_iso_path=/home/share/ redeploy=false profile=worker-cnf
-worker-1 bmc_type=Dell name=worker_1 bmc_address=10.16.231.121 bmc_user="usr" bmc_password="pwd" ramdisk_path=/opt/network-config kernel_arguments="" final_iso_path=/opt/cached_disconnected_images redeploy=false
+# only set ip if you need to embed static network. It needs to match with the nmstate config
+worker-0.test-aut.cluster-testing name=worker_0 bmc_type=SuperMicro bmc_address=192.168.111.212 bmc_user="ADMIN" bmc_password="ADMIN" smb_host=192.168.111.1 smb_path=share ip=<host_ip> hostname=<hostname> redeploy=false profile=worker-cnf
+worker-1 bmc_type=Dell name=worker_1 bmc_address=10.16.231.121 bmc_user="usr" bmc_password="pwd" 

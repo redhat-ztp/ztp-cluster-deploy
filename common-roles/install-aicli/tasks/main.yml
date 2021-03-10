@@ -1,31 +1,5 @@
-- name: check if aicli exists
-  stat:
-    path: /usr/local/bin/aicli
-  register: aicli_path
 
-- name: Install aicli if not present
-  block:
-    - name: Create temporary directory for aicli
-      tempfile:
-        state: directory
-      register: dockerfile_directory
-
-- name: Install assisted service client
-  shell: |
-    git clone https://github.com/openshift/assisted-service {{ dockerfile_directory.path }}/assisted-service
-    pushd {{ dockerfile_directory.path }}/assisted-service
-    podman build -t ocpmetal/assisted-service -f ./Dockerfile.assisted-service .
-    podman run -v $PWD:/here:Z --rm ocpmetal/assisted-service:latest cp -r /clients/assisted-service-client-1.0.0.tar.gz /here
-    tar zxvf assisted-service-client-1.0.0.tar.gz
-    cd assisted-service-client-1.0.0
-    # --prefix might need to changes to '/usr/local' based on your python setup.
-    python3 setup.py install --prefix=/usr
-    popd
-
-- name: Install aicli
-  shell: |
-    git clone https://github.com/karmab/assisted-installer-cli {{ dockerfile_directory.path }}/assisted-installer-cli
-    pushd {{ dockerfile_directory.path }}/assisted-installer-cli
-    python3 setup.py install
-    popd
-  when: aicli_path.stat.exists == False
+- name: Intall latest aicli
+  pip:
+    name: aicli
+    state: latest
