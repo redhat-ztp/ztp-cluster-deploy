@@ -5,7 +5,24 @@
       - podman
       - openssl-devel
       - make
+      - httpd
     state: present
+
+- name: make sure httpd landing page is disabled
+  copy:
+    content: "# Disabled"
+    dest: /etc/httpd/conf.d/welcome.conf
+    force: yes
+    group: root
+    owner: root
+    mode: 0644
+
+- name: Enable and (re)start httpd
+  systemd:
+    name: httpd
+    enabled: yes
+    masked: no
+    state: restarted
 
 - name: install ISO generator scripts
   include_role:
