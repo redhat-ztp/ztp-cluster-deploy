@@ -4,6 +4,7 @@ CLUSTER_NAME=$1
 PROFILE=$2
 KUBE_CONFIG=$3
 OUT_DIR=$4
+HW_TYPE=$5
 
 cat << EOF > $OUT_DIR/$CLUSTER_NAME.yaml
 apiVersion: v1
@@ -19,6 +20,7 @@ metadata:
     vendor: auto-detect
     name: $CLUSTER_NAME-cluster
     profile: $PROFILE
+    hardwareType: $HW_TYPE
   name: $CLUSTER_NAME-cluster
 spec:
   hubAcceptsClient: true
