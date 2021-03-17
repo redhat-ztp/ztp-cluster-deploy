@@ -7,8 +7,8 @@ temporary_path=/tmp
 # example: https://github.com/redhat-ztp/ztp-acm-manifests/tree/main/subscriptions/sites/sample_site_cu_subscription
 # profile should be easier cu or du.
 [clusters]
-cluster-1 name=sample-site-cu kubeconfig=/path/to/spoke_cluster_kubeconfig profile=cu acm_manifest_repo=https://github.com/redhat-ztp/ztp-acm-manifests
-cluster-2 name=sample-site-du kubeconfig=/path/to/spoke_cluster_kubeconfig profile=du acm_manifest_repo=https://github.com/redhat-ztp/ztp-acm-manifests
+cluster-1 name=sample-site-cu kubeconfig=/path/to/spoke_cluster_kubeconfig profile=cu acm_manifest_repo=https://github.com/redhat-ztp/ztp-acm-manifests hw=dell
+cluster-2 name=sample-site-du kubeconfig=/path/to/spoke_cluster_kubeconfig profile=du acm_manifest_repo=https://github.com/redhat-ztp/ztp-acm-manifests hw=dell
 
 [provisioner]
 # host from where the installation is performed
