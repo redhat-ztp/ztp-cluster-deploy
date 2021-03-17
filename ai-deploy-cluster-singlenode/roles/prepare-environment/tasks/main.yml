@@ -24,6 +24,21 @@
     masked: no
     state: restarted
 
+- name: Set openshift_versions json dict
+  ansible.builtin.set_fact:
+    openshift_versions_dict: '{"{{ cluster_version }}":{
+      "release_image": "{{ sno_image }}",
+      "display_name": "{{ display_name }}",
+      "rhcos_image": "{{ rhcos_image }}",
+      "rhcos_version": "{{ rhcos_version }}",
+      "support_level": "{{ support_level }}"}}'
+- name: Set openshift_versions json object
+  ansible.builtin.set_fact:
+    openshift_versions: "{{ openshift_versions_dict | to_json }}"
+- name: Set rhcos_base_iso to rhcos_image to avoid duplication
+  ansible.builtin.set_fact:
+    rhcos_base_iso: "{{ rhcos_image }}"
+
 - name: install ISO generator scripts
   include_role:
     name: "{{ playbook_dir }}/../common-roles/install-iso-generator"
