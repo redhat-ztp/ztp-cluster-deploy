@@ -1,6 +1,7 @@
 - name: Clone the assisted installer project
   git:
     repo: 'https://github.com/openshift/assisted-service'
+    version: "{{ ai_version }}"
     dest: /opt/assisted-service-ztp
     update: yes
     force: yes
@@ -22,6 +23,6 @@
   when: rhcos_base_iso is defined
 
 - name: Start the assisted installer service
-  shell: "make deploy-onprem"
+  shell: "ASSISTED_TAG={{ assisted_tag }} make deploy-onprem"
   args:
     chdir: "/opt/assisted-service-ztp"

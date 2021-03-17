@@ -1,6 +1,6 @@
 [all:vars]
 
-pull_secret='<your_pull_secret>'
+pull_secret='<your_pull_secret as one line text without special characters>'
 ssh_public_key="<your_ssh_key>"
 
 temporary_path=/tmp
@@ -13,32 +13,45 @@ cluster_name="test-aut"
 cluster_domain="cluster.testing"
 cluster_sdn="OpenShiftSDN"
 
-# OpenShift versions that will be used by AI be careful with changing rhcos_base_iso without changing the equivalent cluster_version.
+# OpenShift versions that will be used by AI 
+# Be careful with changing rhcos_base_iso without changing the equivalent cluster_version.
 cluster_version=4.8
-sno_image="registry.svc.ci.openshift.org/sno-dev/openshift-bip:0.6.0"
-openshift_versions='{"4.6":{"display_name":"4.6.18","release_image":"quay.io/openshift-release-dev/ocp-release:4.6.18-x86_64","rhcos_image":"https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.6/4.6.8/rhcos-4.6.8-x86_64-live.x86_64.iso","rhcos_version":"46.82.202012051820-0","support_level":"production"},"4.7":{"display_name":"4.7.0","release_image":"quay.io/openshift-release-dev/ocp-release:4.7.0-x86_64","rhcos_image":"https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/4.7.0-rc.2/rhcos-4.7.0-rc.2-x86_64-live.x86_64.iso","rhcos_version":"47.83.202102090044-0","support_level":"production"},"4.8":{"display_name":"single-node-4.7-alpha","release_image":"registry.svc.ci.openshift.org/sno-dev/openshift-bip:0.6.0","rhcos_image":"https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/4.7.0-rc.2/rhcos-4.7.0-rc.2-x86_64-live.x86_64.iso","rhcos_version":"47.83.202102090044-0","support_level":"beta"}}'
-rhcos_base_iso="https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.7/latest/rhcos-live.x86_64.iso"
+sno_image="registry.ci.openshift.org/ocp/release:4.8.0-0.nightly-2021-03-11-220037"
+display_name="single-node-4.8.0-0.nightly-2021-03-11-220037"
+rhcos_image="https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/4.7.0-rc.2/rhcos-4.7.0-rc.2-x86_64-live.x86_64.iso"
+rhcos_version="47.83.202102090044-0"
+support_level="beta"
 
-# path where to store the final ISO. Needs to point to the path of your SMB share/http server that populates the ISO
-final_iso_path=/home/share/ 
+### AI versions to deploy: ###
+# Set as "HEAD" to use main latest, or as the specific commit hash:
+ai_version="HEAD"
 
-# bmc settings: type of bmc (Dell, SuperMicro)
-bmc_type=SuperMicro
-bmc_address=192.168.111.212
-bmc_user="ADMIN"
-bmc_password="ADMIN"
+# Set as "latest" for latest quay image
+# assisted_tag=stable.12.03.2021-07.23
+assisted_tag=latest
 
-# for supermicro
-smb_host=192.168.111.1
-smb_path=share
+### BMC variables. Set according to your server' hardware ###
+bmc_address=10.46.61.142
+bmc_user="<bmc_user>"
+bmc_password="<bmc_password"
 
-# for dell set  need_racadm to true and set the http server populating the ISO
-need_racadm=false
+# Uncomment for Dell:
+bmc_type=Dell
+need_racadm=true
 iso_url=http://192.168.112.199
+final_iso_path=/var/www/html 
 
+## Uncomment for SuperMicro:
+# bmc_type=SuperMicro
+# smb_host=192.168.111.1
+# smb_path=share
+# final_iso_path=/home/share/
+# need_racadm=false
+
+### Network config (uncomment for static setting, or leave commented for DHCP)
 # it needs to follow nmstate format
-network_config_path=./sample/worker_sno.yaml
-hostname="single-node-cluster.test-aut.cluster.testing"
+# network_config_path=./sample/worker_sno.yaml
+# hostname="single-node-cluster.test-aut.cluster.testing"
 
 [provisioner]
 # host from where the installation is performed
