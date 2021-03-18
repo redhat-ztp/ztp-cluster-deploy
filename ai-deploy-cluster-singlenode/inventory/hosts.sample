@@ -48,6 +48,9 @@ final_iso_path=/var/www/html
 # final_iso_path=/home/share/
 # need_racadm=false
 
+# if virtualmedia is done over http
+virtualmedia_over_http=True
+
 ### Network config (uncomment for static setting, or leave commented for DHCP)
 # it needs to follow nmstate format
 # network_config_path=./sample/worker_sno.yaml

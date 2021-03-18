@@ -5,24 +5,12 @@
       - podman
       - openssl-devel
       - make
-      - httpd
     state: present
 
-- name: make sure httpd landing page is disabled
-  copy:
-    content: "# Disabled"
-    dest: /etc/httpd/conf.d/welcome.conf
-    force: yes
-    group: root
-    owner: root
-    mode: 0644
-
-- name: Enable and (re)start httpd
-  systemd:
-    name: httpd
-    enabled: yes
-    masked: no
-    state: restarted
+- name: install httpd
+  include_role:
+    name: "{{ playbook_dir }}/../common-roles/install-httpd"
+  when: virtualmedia_over_http is defined and virtualmedia_over_http|bool == True
 
 - name: Set openshift_versions json dict
   ansible.builtin.set_fact:
@@ -31,17 +19,17 @@
       "display_name": "{{ display_name }}",
       "rhcos_image": "{{ rhcos_image }}",
       "rhcos_version": "{{ rhcos_version }}",
-      "support_level": "{{ support_level }}"}}'
+      "support_level": "{{ support_level | default("beta") }}"
+}
+}'
+
 - name: Set openshift_versions json object
   ansible.builtin.set_fact:
     openshift_versions: "{{ openshift_versions_dict | to_json }}"
+
 - name: Set rhcos_base_iso to rhcos_image to avoid duplication
   ansible.builtin.set_fact:
     rhcos_base_iso: "{{ rhcos_image }}"
-
-- name: install ISO generator scripts
-  include_role:
-    name: "{{ playbook_dir }}/../common-roles/install-iso-generator"
 
 - name: install racadm
   include_role:
@@ -64,5 +52,3 @@
         - "OPENSHIFT_INSTALL_RELEASE_IMAGE={{ sno_image }}"
         - "PUBLIC_CONTAINER_REGISTRIES=quay.io,registry.svc.ci.openshift.org"
         - "RHCOS_BASE_ISO={{ rhcos_base_iso }}"
-
-
