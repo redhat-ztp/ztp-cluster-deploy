@@ -1,43 +1,15 @@
 ---
-- name: Create a temporary file
-  tempfile:
-    state: file
-  register: tempfile_pullsecret
+- name: create cluster
+  include_role:
+    name: "{{ playbook_dir }}/../common-roles/create-cluster"
+  vars:
+    extra_args: "-P high_availability_mode=None"
+    cluster_name_var: "{{ cluster_name }}"
 
-- name: Copy pull secret to file
-  copy:
-    content: "{{ pull_secret }}"
-    dest: "{{ tempfile_pullsecret.path }}"
-
-- name: Create cluster and download ISO
-  block:
-    - name: Create new AI cluster
-      shell: "aicli create cluster -P pull_secret={{ tempfile_pullsecret.path }} -P base_dns_domain={{ cluster_domain }} -P ssh_public_key='{{ ssh_public_key }}' -P high_availability_mode=None -P openshift_version='{{ cluster_version }}' {{ cluster_name }}"
-
-    - name: Retrieve cluster ID from name
-      shell: "aicli list cluster | grep {{ cluster_name }} | cut -d '|' -f3 | tr -d ' '"
-      register: cluster_id
-
-    - name: Set the right network type
-      uri:
-        url: "{{ ai_url }}/api/assisted-install/v1/clusters/{{ cluster_id.stdout }}/install-config"
-        method: PATCH        
-        body: '"{\"networking\": {\"networkType\": \"{{ cluster_sdn | default("OVNKubernetes") }}\"}}"'
-        body_format: json
-        status_code: 201
-
-    - name: Copy the network file remotely if it exists
-      copy:
-        src: "{{ network_config_path }}"
-        dest: "{{ temporary_path }}/network_config"
-      when: network_config_path is defined and network_config_path|length>0
-
-    - name: Download the small ISO
-      shell: "aicli create iso --minimal -P ssh_public_key='{{ ssh_public_key}}' {% if network_config_path is defined and network_config_path|length > 0 %}--paramfile {{ temporary_path }}/network_config{% endif %} {{ cluster_name }}"
-
-    - name: And download it
-      shell: "aicli download iso {{ cluster_name }} -p {{ final_iso_path }}"
-
-  environment:
-    AI_URL: "{{ ai_url }}"
-
+- name: download ISO
+  include_role:
+    name: "{{ playbook_dir }}/../common-roles/download-iso"
+  vars:
+    cluster_name_var: "{{ cluster_name }}"
+    final_iso_path_var: "{{ final_iso_path }}"
+    minimal: True

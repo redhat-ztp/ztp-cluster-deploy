@@ -1,7 +1,7 @@
 - name: Clone the assisted installer project
   git:
     repo: 'https://github.com/openshift/assisted-service'
-    version: "{{ ai_version }}"
+    version: "{{ ai_version | default('HEAD') }}"
     dest: /opt/assisted-service-ztp
     update: yes
     force: yes
@@ -35,7 +35,7 @@
     chdir: "/opt/assisted-service-ztp"
 
 - name: Start the assisted installer service
-  shell: "ASSISTED_TAG={{ assisted_tag }} make deploy-onprem"
+  shell: "ASSISTED_TAG={{ assisted_tag | default('latest') }} make deploy-onprem"
   args:
     chdir: "/opt/assisted-service-ztp"
   environment:
