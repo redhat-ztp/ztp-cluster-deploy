@@ -11,24 +11,25 @@ ai_url="http://192.168.112.199:8080"
 # cluster settings
 cluster_name="test-aut"
 cluster_domain="cluster.testing"
-cluster_sdn="OpenShiftSDN"
+# OVN Kubernetes by default, uncomment if you need to change it
+#cluster_sdn="OpenShiftSDN"
 
 # OpenShift versions that will be used by AI 
 # Be careful with changing rhcos_base_iso without changing the equivalent cluster_version.
 cluster_version=4.8
-sno_image="registry.ci.openshift.org/ocp/release:4.8.0-0.nightly-2021-03-11-220037"
-display_name="single-node-4.8.0-0.nightly-2021-03-11-220037"
-rhcos_image="https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/4.7.0-rc.2/rhcos-4.7.0-rc.2-x86_64-live.x86_64.iso"
+sno_image="quay.io/openshift-release-dev/ocp-release-nightly:4.8.0-0.nightly-2021-03-16-141734"
+display_name="single-node-4.8.0"
+rhcos_image="https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.7/latest/rhcos-4.7.0-x86_64-live.x86_64.iso"
 rhcos_version="47.83.202102090044-0"
 support_level="beta"
 
 ### AI versions to deploy: ###
 # Set as "HEAD" to use main latest, or as the specific commit hash:
-ai_version="HEAD"
+ai_version="ac59176add3f1a5f89fe47e1df021d9c9ab7589c"
 
 # Set as "latest" for latest quay image
 # assisted_tag=stable.12.03.2021-07.23
-assisted_tag=latest
+assisted_tag=stable.17.03.2021-13.18
 
 ### BMC variables. Set according to your server' hardware ###
 bmc_address=10.46.61.142
