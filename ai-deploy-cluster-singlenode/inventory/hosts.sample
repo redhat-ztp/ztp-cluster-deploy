@@ -56,6 +56,17 @@ virtualmedia_over_http=True
 # network_config_path=./sample/worker_sno.yaml
 # hostname="single-node-cluster.test-aut.cluster.testing"
 
+# provisioner cluster, just set it if you need to deploy a provisioner cluster
+provisioner_cluster_name=test-operator
+provisioner_cluster_domain=cluster.testing
+provisioner_ipv6_range=1001:db9::/64
+default_libvirt_range=192.168.122.0/24
+provisioner_cluster_version=4.7.3
+provisioner_cluster_api_ip=1001:db9::250
+provisioner_cluster_ingress_ip=1001:db9::25
+# set it if you are consuming your own provisioner cluster 
+#provisioner_cluster_kubeconfig=/root/.kcli/clusters/test-operator/auth/kubeconfig 
+
 [provisioner]
 # host from where the installation is performed
 #<remote_ip> ansible_connection=ssh
