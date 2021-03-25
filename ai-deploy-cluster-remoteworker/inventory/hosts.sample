@@ -27,11 +27,6 @@ need_racadm=true
 # path where to generate temporary directories
 temporary_path=/tmp
 
-# path where to copy the ISO
-# if using httpd for virtual media, path to the http server for
-# the images. If using samba, path to the samba share
-final_iso_path=/var/www/html
-
 # optional: path where to store images for controlplane
 # libvirt_images_path=/var/lib/libvirt/images
 #
@@ -51,5 +46,5 @@ master_3 name=master_3 mac_address=52:54:00:55:f3:33
 
 [worker_nodes]
 # only set ip if you need to embed static network. It needs to match with the nmstate config
-worker-0.test-aut.cluster.testing name=worker_0 bmc_type=SuperMicro bmc_address=192.168.111.212 bmc_user="ADMIN" bmc_password="ADMIN" smb_host=192.168.111.1 smb_path=share ip=<host_ip> hostname=<hostname> redeploy=false profile=worker-cnf
+worker-0.test-aut.cluster-testing name=worker_0 bmc_type=SuperMicro bmc_address=192.168.111.212 bmc_user="ADMIN" bmc_password="ADMIN" smb_host=192.168.111.1 smb_path=share ip=<host_ip> hostname=<hostname> redeploy=false profile=worker-cnf
 worker-1 bmc_type=Dell name=worker_1 bmc_address=10.16.231.121 bmc_user="usr" bmc_password="pwd" 

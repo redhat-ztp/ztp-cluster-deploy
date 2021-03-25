@@ -2,6 +2,10 @@
     mirror_part: "{{ image.split('/') }}"
 - set_fact:
     target: "{{ image |replace(mirror_part.0, provisioner_cluster_registry_var) }}"
+- set_fact:
+    image_without_tag: "{{ image.split(':')[0] }}"
+- set_fact:
+    target_without_tag: "{{ image_without_tag |replace(mirror_part.0, provisioner_cluster_registry_var) }}"
 
 - name: Execute the mirror command
   ansible.builtin.shell:
@@ -14,5 +18,5 @@
     marker: "# {mark } mirror {{ image }}"
     block: |2
           - mirrors:
-            - {{ target }}
-            source: {{ image }}
+            - {{ target_without_tag }}
+            source: {{ image_without_tag }}

@@ -66,7 +66,7 @@
     line: "{{ disconnecter_vm.stdout }} {{ provisioner_cluster_name }}-disconnecter.{{ provisioner_cluster_name }}.{{ provisioner_cluster_domain }}"
 
 - name: Copy certificate to trusted certs path
-  shell: "kcli scp root@{{ provisioner_cluster_name }}-disconnecter.{{ provisioner_cluster_name }}.{{ provisioner_cluster_domain }}:/opt/registry/certs/domain.crt /etc/pki/ca-trust/source/anchors/"
+  shell: "kcli scp root@{{ provisioner_cluster_name }}-disconnecter:/opt/registry/certs/domain.crt /etc/pki/ca-trust/source/anchors/"
 
 - name: Update ca trust
   shell: "update-ca-trust"

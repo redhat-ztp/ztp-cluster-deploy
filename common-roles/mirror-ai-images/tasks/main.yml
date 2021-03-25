@@ -25,6 +25,7 @@
 
 - name: Mirror images to internal registry
   include: mirror_image.yml image={{ item }} provisioner_cluster_registry_var={{ provisioner_cluster_registry_var }}
+  ignore_errors: true
   with_items:
     - quay.io/ocpmetal/s3server
     - quay.io/jparrill/s3server
@@ -75,6 +76,7 @@
   ansible.builtin.shell:
     cmd: oc apply -f ./icsp.yaml
     chdir: "{{ temporary_directory.path }}"
+  ignore_errors: true
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}"
 

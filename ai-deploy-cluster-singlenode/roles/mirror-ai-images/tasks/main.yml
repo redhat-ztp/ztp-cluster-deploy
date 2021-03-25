@@ -8,7 +8,7 @@
 
 - name: Set disconnected http server var
   set_fact:
-    disconnected_http_server_var: "{% if disconnected_http_server is defined and disconnected_http_server|length > 0 %}{{ disconnected_http_server }}{% else %}{{ provisioner_cluster_name }}-disconnecter.{{ provisioner_cluster_name }}.{{ provisioner_cluster_domain }}:80{% endif %}"
+    disconnected_http_server_var: "{% if disconnected_http_server is defined and disconnected_http_server|length > 0 %}{{ disconnected_http_server }}{% else %}http://{{ provisioner_cluster_name }}-disconnecter.{{ provisioner_cluster_name }}.{{ provisioner_cluster_domain }}:80{% endif %}"
 
 - name: Download and copy rhcos image if using default cluster
   block:

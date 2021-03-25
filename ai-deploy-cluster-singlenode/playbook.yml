@@ -14,13 +14,3 @@
     - role: install-assisted-installer
       tags: install-assisted-installer
       become: yes
-    - role: create-cluster
-      tags: create-cluster
-      become: yes
-    - role: add-baremetal-node
-      tags: add-baremetal-node
-      become: yes
-    - role: deploy-cluster
-      tags: deploy-cluster
-      become: yes
-
