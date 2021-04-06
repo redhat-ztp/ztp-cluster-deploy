@@ -53,6 +53,10 @@ final_iso_path=/var/www/html
 # network_config_path=./sample/worker_sno.yaml
 # hostname="single-node-cluster.test-aut.cluster.testing"
 
+### Workload partitioning
+# This cpuset will be used for pinning management workloads
+# management_workload_cpuset="0-1,52-53"
+
 [provisioner]
 # host from where the installation is performed
 #<remote_ip> ansible_connection=ssh
