@@ -1,0 +1,4 @@
+---
+temporary_path: "/tmp"
+cluster_tmp_path: "{{ temporary_path }}/{{ cluster_name }}"
+manifests_path: "{{ cluster_tmp_path }}/manifests"

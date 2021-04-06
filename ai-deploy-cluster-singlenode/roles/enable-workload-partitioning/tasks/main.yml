@@ -1,18 +1,6 @@
 ---
-- name: Set up workload partitioning
+- name: Create the workload-partitioning MachineConfig manifest
+  template:
+    src: templates/02-master-workload-partitioning.yaml
+    dest: "{{ manifests_path }}/02-master-workload-partitioning.yaml"
   when: management_workload_cpuset != ''
-  block:
-  - name: Create temporary directory for manifests
-    tempfile:
-      state: directory
-    register: manifests_dir
-
-  - name: Create the workload-partitioning MachineConfig manifest
-    template:
-      src: templates/02-master-workload-partitioning.yaml
-      dest: "{{ manifests_dir.path }}/02-master-workload-partitioning.yaml"
-
-  - name: Register the workload-partitioning MachineConfig manifest with AI
-    command: "aicli create manifests --dir {{ manifests_dir.path }} {{ cluster_name }}"
-    environment:
-      AI_URL: "{{ ai_url }}"

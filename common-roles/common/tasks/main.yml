@@ -1,0 +1,6 @@
+---
+- name: Create the shared manifests directory
+  file:
+    path: "{{ manifests_path }}"
+    state: directory
+    mode: '0755'
