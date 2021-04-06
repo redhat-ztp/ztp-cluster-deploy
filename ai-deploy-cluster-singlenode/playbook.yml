@@ -10,6 +10,9 @@
     - role: create-cluster
       tags: create-cluster
       become: yes
+    - role: enable-workload-partitioning
+      tags: enable-workload-partitioning
+      become: yes
     - role: add-baremetal-node
       tags: add-baremetal-node
       become: yes
