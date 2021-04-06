@@ -3,7 +3,8 @@
 pull_secret='<your_pull_secret as one line text without special characters>'
 ssh_public_key="<your_ssh_key>"
 
-temporary_path=/tmp
+# The root of where temporary files and directories are created can be overridden from the default
+#temporary_path=/tmp
 
  # url where AI will be populated
 ai_url="http://192.168.112.199:8080"

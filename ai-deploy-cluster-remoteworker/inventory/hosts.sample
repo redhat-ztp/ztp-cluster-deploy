@@ -33,8 +33,8 @@ bridge_name=nm-bridge
 libvirt_uri="qemu:///system"
 need_racadm=true
 
-# path where to generate temporary directories
-temporary_path=/tmp
+# The root of where temporary files and directories are created can be overridden from the default
+#temporary_path=/tmp
 
 # optional: path where to store images for controlplane
 # libvirt_images_path=/var/lib/libvirt/images

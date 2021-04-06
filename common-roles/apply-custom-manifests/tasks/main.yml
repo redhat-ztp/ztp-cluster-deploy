@@ -1,0 +1,12 @@
+---
+- name: Check for custom manifests
+  find:
+    path: "{{ manifests_path }}"
+  register: manifest_files
+
+- name: Apply custom manifests for this cluster
+  command: "aicli create manifests --dir {{ manifests_path }} {{ cluster_name }}"
+  environment:
+    AI_URL: "{{ ai_url }}"
+  when: manifest_files.matched|int != 0
+

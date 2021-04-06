@@ -4,11 +4,17 @@
   environment:
     PATH: "/usr/bin/:/usr/local/bin/:{{ ansible_env.PATH }}"
   roles:
+    - role: ../common-roles/common
+      tags: always
+      become: yes
     - role: prepare-environment
       tags: prepare-environment
       become: yes
     - role: create-cluster
       tags: create-cluster
+      become: yes
+    - role: ../common-roles/apply-custom-manifests
+      tags: apply-custom-manifests
       become: yes
     - role: enroll-hosts
       tags: enroll-hosts
