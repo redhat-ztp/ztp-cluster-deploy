@@ -21,6 +21,6 @@ spec:
           source: data:text/plain;charset=utf-8;base64,{{ lookup('template', 'templates/kubelet.conf', convert_data=False) | string | b64encode}}
         mode: 420
         overwrite: true
-        path: /etc/kubernetes/workload-pinning
+        path: /etc/kubernetes/openshift-workload-pinning
         user:
           name: root
