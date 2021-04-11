@@ -13,6 +13,13 @@ cluster_name="test-aut"
 cluster_domain="cluster.testing"
 cluster_sdn="OpenShiftSDN"
 
+# Registry mirror cert file full path and image content sources.
+# If not using release mirror, leave undefined
+# registry_mirror_cert='/opt/registry/certs/domain.crt'
+# Image content sources in yaml format as received from "oc adm release mirror" command output
+image_content_sources = '/root/imageContentSources.yaml'
+
+
 # OpenShift versions that will be used by AI 
 # Be careful with changing rhcos_base_iso without changing the equivalent cluster_version.
 cluster_version=4.8
