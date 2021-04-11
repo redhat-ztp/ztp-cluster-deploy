@@ -1,0 +1,1 @@
+{ {% if registry_mirror_cert is defined %} "additionalTrustBundle":{{ registry_mirror_certificate | to_json }},{{ image_content_sources }},{% endif %}"networking":{"networkType":"{{ cluster_sdn | default("OVNKubernetes") }}" }}

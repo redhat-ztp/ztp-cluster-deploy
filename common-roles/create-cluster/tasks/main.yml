@@ -1,4 +1,18 @@
 ---
+- name: Handle release mirror 
+  block:
+  - name: Get local registry certificate (will fail if the file is not there)
+    set_fact:
+      registry_mirror_certificate: "{{ lookup('file', registry_mirror_cert, rstrip=False) }}"
+  - name: Get image content sources
+    set_fact:
+      image_content_sources: "{{ lookup('file', image_content_sources, rstrip=False) | from_yaml | to_json }}"
+  when: registry_mirror_cert is defined
+
+- name: populate the install config patch
+  set_fact:
+    instal_cfg_patch: "{{ lookup('template', 'install-config.json.j2') |to_json }}"
+
 - name: Create a temporary file
   tempfile:
     state: file
@@ -22,13 +36,15 @@
       shell: "aicli list cluster | grep {{ cluster_name_var }} | cut -d '|' -f3 | tr -d ' '"
       register: cluster_id
 
-    - name: Set the right network type
+    - name: Patch the install-config
       uri:
         url: "{{ ai_url }}/api/assisted-install/v1/clusters/{{ cluster_id.stdout }}/install-config"
         method: PATCH
-        body: '"{\"networking\": {\"networkType\": \"{{ cluster_sdn | default("OVNKubernetes") }}\"}}"'
+        headers:
+          Content-Type: application/json
+          accept: application/json
+        body: "{{ instal_cfg_patch }}"
         body_format: json
         status_code: 201
   environment:
     AI_URL: "{{ ai_url }}"
-
