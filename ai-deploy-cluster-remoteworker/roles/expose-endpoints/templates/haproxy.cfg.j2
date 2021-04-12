@@ -24,13 +24,13 @@ defaults
     maxconn                 3000
 
 frontend http
-    bind *:80
+    bind *:{{ haproxy_http_port }}
     mode tcp
     default_backend http-main
     option tcplog
 
 frontend https
-    bind *:443
+    bind *:{{ haproxy_https_port }}
     mode tcp
     default_backend https-main
     option tcplog
