@@ -16,6 +16,8 @@
 
 - name: Extract the import command from ACM
   shell: "oc get secret/{{ hostvars[item].name }}-cluster-import -n {{ hostvars[item].name }}-cluster -o jsonpath={.data.import\\\\.yaml} | base64 --decode > {{ acm_directory.path }}/import.yaml"
+  retries: 3
+  delay: 10
   environment:
     KUBECONFIG: "{{ kubeconfig_hub_path }}"
 
