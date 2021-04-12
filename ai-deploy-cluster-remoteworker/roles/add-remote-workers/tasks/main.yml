@@ -20,7 +20,7 @@
     bmc_user: "{{ hostvars[item].bmc_user }}"
     bmc_password: "{{ hostvars[item].bmc_password }}"
     bmc_address: "{{ hostvars[item].bmc_address }}"
-    iso_url: "{{ final_iso_path }}"
+    iso_url: "{{ hostvars[item].iso_url }}"
   when: hostvars[item].bmc_type == "Dell"
   with_items: "{{ groups['worker_nodes'] }}"
 
