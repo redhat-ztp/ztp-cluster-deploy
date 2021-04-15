@@ -9,15 +9,21 @@
 - name: Import cluster to ACM
   shell: "{{ temporary_path }}/import_cluster.sh {{ hostvars[item].name }} {{ hostvars[item].profile }} {{ kubeconfig_hub_path }} {{ temporary_path }} {{ hostvars[item].hw }}"
 
+- name: Give some time for object creation
+  pause:
+    minutes: 1
+
 - name: Extract the klusterlet definition from ACM
   shell: "oc get secret/{{ hostvars[item].name }}-cluster-import -n {{ hostvars[item].name }}-cluster -o jsonpath={.data.crds\\\\.yaml} | base64 --decode > {{ acm_directory.path }}/crd.yaml"
+  retries: 20
+  delay: 30
   environment:
     KUBECONFIG: "{{ kubeconfig_hub_path }}"
 
 - name: Extract the import command from ACM
   shell: "oc get secret/{{ hostvars[item].name }}-cluster-import -n {{ hostvars[item].name }}-cluster -o jsonpath={.data.import\\\\.yaml} | base64 --decode > {{ acm_directory.path }}/import.yaml"
-  retries: 3
-  delay: 10
+  retries: 20
+  delay: 30
   environment:
     KUBECONFIG: "{{ kubeconfig_hub_path }}"
 
