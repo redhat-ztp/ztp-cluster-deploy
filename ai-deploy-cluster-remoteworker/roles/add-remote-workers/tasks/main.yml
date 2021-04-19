@@ -1,28 +1,7 @@
 ---
-- name: Enroll a SuperMicro node
-  include_role:
-    name: "{{ playbook_dir }}/../common-roles/enroll-supermicro"
-  vars:
-    iso_name: "{{ cluster_name }}-day2.iso"
-    smb_host: "{{ hostvars[item].smb_host }}"
-    smb_path: "{{ hostvars[item].smb_path }}"
-    bmc_address: "{{ hostvars[item].bmc_address }}"
-    bmc_user: "{{ hostvars[item].bmc_user }}"
-    bmc_password: "{{ hostvars[item].bmc_password }}"
-  when: hostvars[item].bmc_type == "SuperMicro"
-  with_items: "{{ groups['worker_nodes'] }}"
-
-- name: Enroll a Dell node
-  include_role:
-    name: "{{ playbook_dir }}/../common-roles/enroll-dell"
-  vars:
-    iso_name: "{{ cluster_name }}-day2.iso"
-    bmc_user: "{{ hostvars[item].bmc_user }}"
-    bmc_password: "{{ hostvars[item].bmc_password }}"
-    bmc_address: "{{ hostvars[item].bmc_address }}"
-    iso_url: "{{ hostvars[item].iso_url }}"
-  when: hostvars[item].bmc_type == "Dell"
-  with_items: "{{ groups['worker_nodes'] }}"
+- name: Enroll remote worker if needed
+  include_tasks: add_remote_worker.yaml
+  loop: "{{ groups['worker_nodes'] }}"
 
 - name: Wait until hosts are ready in Assisted Installer
   shell: "aicli list hosts | grep {{ cluster_name }}-day2 | grep 'insufficient\\|known' | wc -l"
