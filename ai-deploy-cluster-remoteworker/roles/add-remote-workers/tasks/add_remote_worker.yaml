@@ -4,6 +4,10 @@
   environment:
     AI_URL: "{{ ai_url }}"
 
+- name: Delete host if it is a redeploy
+  shell: "aicli delete host {{ item }}"
+  when: host_exist.stdout|int == 1 and hostvars[item].redeploy|bool == true
+
 - name: Enroll a SuperMicro node
   include_role:
     name: "{{ playbook_dir }}/../common-roles/enroll-supermicro"
