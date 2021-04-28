@@ -1,42 +1,165 @@
-- name: Clone the assisted installer project
-  git:
-    repo: 'https://github.com/openshift/assisted-service'
-    version: "{{ ai_version | default('HEAD') }}"
-    dest: /opt/assisted-service-ztp
-    update: yes
-    force: yes
+- name: Create temporary directory
+  tempfile:
+    state: directory
+  register: temporary_directory
 
-- name: Clean the pod
-  shell: "podman pod rm -f assisted-installer"
+- name: Copy local kubeconfig to remote server if set
+  ansible.builtin.copy:
+    src: "{{ provisioner_cluster_kubeconfig }}"
+    dest: "{{ temporary_directory.path }}/kubeconfig"
+  when: provisioner_cluster_kubeconfig is defined and provisioner_cluster_kubeconfig|length > 0
+
+- name: If not set, download with kcli
+  ansible.builtin.shell:
+    cmd: "kcli scp root@test-operator-installer:/root/ocp/auth/kubeconfig {{ temporary_directory.path }}/kubeconfig"
+  when: provisioner_cluster_kubeconfig is not defined
+
+- block:
+  - name: Retrieve the private registry crt
+    ansible.builtin.shell:
+      cmd: "kcli ssh {{ provisioner_cluster_name }}-installer 'cat /etc/pki/ca-trust/source/anchors/domain.crt'"
+    register: cert_result
+
+  - name: Set fact for crt
+    set_fact:
+      private_registry_crt: "{{ cert_result.stdout }}"
+  when: private_registry_crt is not defined or private_registry_crt|length <=0
+
+- block:
+  - name: Retrieve registries.conf file, if we are provisioning the mirror
+    ansible.builtin.shell:
+      cmd: "kcli ssh core@{{ provisioner_cluster_name }}-master-0 'cat /etc/containers/registries.conf'"
+    register: registries_conf_data
+
+  - name: Set fact for file
+    set_fact:
+      registries_conf_file: "{{ registries_conf_data.stdout | b64encode }}"
+  when: provisioner_cluster_kubeconfig is not defined or provisioner_cluster_kubeconfig|length<=0
+
+- name: Copy template to temporary path
+  template:
+    src: "templates/{{ item }}"
+    dest: "{{ temporary_directory.path }}/{{ item | replace('.j2', '') }}"
+  vars:
+    provisioner_cluster_registry_var: "{% if provisioner_cluster_registry is defined and provisioner_cluster_registry|length > 0 %}{{ provisioner_cluster_registry }}{% else %}{{ provisioner_cluster_name }}-installer.{{ provisioner_cluster_domain }}:5000{% endif %}"
+    disconnected_http_server_var: "{% if disconnected_http_server is defined and disconnected_http_server|length > 0 %}{{ disconnected_http_server }}{% else %}http://{{ provisioner_cluster_name }}-installer.{{ provisioner_cluster_domain }}:80{% endif %}"
+  with_items:
+    - add-local-storage-operator.yaml.j2
+    - local-volume.yaml.j2
+    - add-hive-operator.yaml.j2
+    - add-assisted-service-operator.yaml.j2
+    - add-configmap-registry.yaml.j2
+    - assisted-service-volumes-patch.yaml.j2
+    - add-cluster-imageset.yaml
+
+- name: Create local storage operator
+  ansible.builtin.shell:
+    cmd: oc apply -f ./add-local-storage-operator.yaml
+    chdir: "{{ temporary_directory.path }}"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: Apply local volume, need to iterate until succeeds
+  ansible.builtin.shell:
+    cmd: oc apply -f ./local-volume.yaml
+    chdir: "{{ temporary_directory.path }}"
+  register: result
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+  until: result.rc == 0
+  retries: 100
+  delay: 30
   ignore_errors: yes
 
-- name: Read json with image versions
-  shell: cat "/opt/assisted-service-ztp/default_ocp_versions.json"
-  register: json_content
-  when: rhcos_base_iso is not defined or rhcos_base_iso|length == 0
-
-- name: Query for the right ISO according to the version
-  vars:
-    jsondata: "{{ json_content.stdout | from_json }}"
-    query_version: "\"{{ cluster_version }}\".rhcos_image"
-  set_fact:
-    rhcos_base_iso: "{{ jsondata | json_query(query_version) }}"
-  when: rhcos_base_iso is not defined or rhcos_base_iso|length == 0
-
-- name: Get RHCOS livecd iso
-  shell: "curl {{ rhcos_base_iso }} -o livecd.iso"
-  args:
-    chdir: "/opt/assisted-service-ztp"
-
-- name: Add env var to file if does not exist
-  lineinfile:
-    path: /opt/assisted-service-ztp/onprem-environment
-    line: "{{ item }}"
-  with_items: "{{ onprem_vars }}"
-
-- name: Start the assisted installer service
-  shell: "ASSISTED_TAG={{ assisted_tag | default('latest') }} make deploy-onprem"
-  args:
-    chdir: "/opt/assisted-service-ztp"
+- name: wait until provisioner pods are created
+  ansible.builtin.shell:
+    cmd: oc get pods -n openshift-local-storage | grep provisioner | wc -l
+  register: provisioner_pods
   environment:
-    RHCOS_BASE_ISO: "{{ rhcos_base_iso }}"
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+  until: provisioner_pods.stdout|int == 3
+  retries: 100
+  delay: 30
+
+- name: annotate as default class
+  ansible.builtin.shell:
+    cmd: "{{ lookup('template', 'patch_local_storage.j2') }}"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: Create local storage operator
+  ansible.builtin.shell:
+    cmd: oc apply -f ./add-hive-operator.yaml
+    chdir: "{{ temporary_directory.path }}"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: wait until hive pods are created
+  ansible.builtin.shell:
+    cmd: oc get pods -n openshift-operators | grep hive | wc -l
+  register: hive_pods
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+  until: hive_pods.stdout|int == 1
+  retries: 100
+  delay: 30
+
+- name: Create assisted service operator
+  ansible.builtin.shell:
+    cmd: oc apply -f ./add-assisted-service-operator.yaml
+    chdir: "{{ temporary_directory.path }}"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: Create configmap for crt
+  ansible.builtin.shell:
+    cmd: oc apply -f ./add-configmap-registry.yaml
+    chdir: "{{ temporary_directory.path }}"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: wait until ai pods are created
+  ansible.builtin.shell:
+    cmd: oc get pods -n assisted-installer | grep assisted-service-operator | wc -l
+  register: ai_pods
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+  until: ai_pods.stdout|int == 1
+  retries: 100
+  delay: 30
+
+- name: wait until assisited-service deployment is created
+  ansible.builtin.shell:
+    cmd: oc get deployment/assisted-service -n assisted-installer | grep assisted-service | wc -l
+  register: ai_deployment
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+  until: ai_deployment.stdout|int == 1
+  retries: 100
+  delay: 30
+
+- name: Downscale the operator
+  ansible.builtin.shell:
+    cmd: "oc scale --replicas=0 deployment/assisted-service-operator -n assisted-installer"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: Patch the deployment to add the extra volume
+  ansible.builtin.shell:
+    cmd: 'oc patch deployment assisted-service --patch "$(cat {{ temporary_directory.path }}/assisted-service-volumes-patch.yaml)" -n assisted-installer'
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: Patch the provisioning to monitor all namespaces
+  ansible.builtin.shell:
+    cmd: |
+      oc patch provisioning provisioning-configuration --type merge -p '{"spec":{"watchAllNamespaces": true}}'
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: Add cluster imageset
+  ansible.builtin.shell:
+    cmd: oc apply -f ./add-cluster-imageset.yaml
+    chdir: "{{ temporary_directory.path }}"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"

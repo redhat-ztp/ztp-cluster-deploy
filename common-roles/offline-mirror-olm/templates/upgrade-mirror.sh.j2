@@ -1,0 +1,36 @@
+#!/bin/bash
+# Disconnected Operator Catalog Mirror and Minor Upgrade
+# Variables to set, suit to your installation
+
+export OCP_REGISTRY=quay.io/openshift-release-dev/ocp-release-nightly
+export OCP_RELEASE={{ mirror_version }}
+export ARCHITECTURE="x86_64"
+export LOCAL_REGISTRY={{ provisioner_cluster_registry_var }}/
+export LOCAL_REPOSITORY=ocp4
+export AUTH_FILE="{{ pull_secret_path }}"
+export SIGNATURE_BASE64_FILE="signature-sha256-${OCP_RELEASE}.yaml"
+
+# generate new auth file with merged creds
+jq -s '.[0] * .[1]' $AUTH_FILE $XDG_RUNTIME_DIR/containers/auth.json > ./merged_creds.json
+
+DIGEST="$(oc adm release info quay.io/openshift-release-dev/ocp-release:{{ mirror_version }}.{{ mirror_version_minor }}-x86_64 | sed -n 's/Pull From: .*@//p')"
+DIGEST_ALGO="${DIGEST%%:*}"
+DIGEST_ENCODED="${DIGEST#*:}"
+SIGNATURE_BASE64=$(curl -s "https://mirror.openshift.com/pub/openshift-v4/signatures/openshift/release/${DIGEST_ALGO}=${DIGEST_ENCODED}/signature-1" | base64 -w0 && echo)
+
+cat > $SIGNATURE_BASE64_FILE << EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-image-${OCP_RELEASE}
+  namespace: openshift-config-managed
+  labels:
+    release.openshift.io/verification-signatures: ""
+binaryData:
+  ${DIGEST_ALGO}-${DIGEST_ENCODED}: ${SIGNATURE_BASE64}
+EOF
+oc apply -f $SIGNATURE_BASE64_FILE
+
+# mirror the content
+oc adm release mirror --registry-config ./merged_creds.json --from=quay.io/openshift-release-dev/ocp-release@$DIGEST --to=${LOCAL_REGISTRY}${LOCAL_REPOSITORY} --to-release-image=${LOCAL_REGISTRY}${LOCAL_REPOSITORY}:${OCP_RELEASE}-${ARCHITECTURE}
+oc adm upgrade --allow-explicit-upgrade --allow-upgrade-with-warnings --to-image ${LOCAL_REGISTRY}${LOCAL_REPOSITORY}@$DIGEST

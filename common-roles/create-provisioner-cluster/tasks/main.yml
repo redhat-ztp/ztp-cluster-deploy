@@ -1,0 +1,81 @@
+---
+- name: Enable Copr repository
+  command:
+      cmd: dnf copr enable -y karmab/kcli 
+      creates: /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:karmab:kcli.repo
+        
+- name: Install kcli package
+  yum:
+    name:
+      - kcli
+    state: latest
+
+- name: Configure ipv6 sysctl settings
+  sysctl:
+    name: net.ipv6.conf.all.accept_ra
+    value: 2
+    state: present
+
+- name: Delete cluster if already existed
+  shell: "kcli delete cluster -y {{ provisioner_cluster_name }}"
+
+- name: Create default pool if not already exists
+  shell: "kcli create pool default -p {{ provisioner_cluster_libvirt_pool | default('/var/lib/libvirt/images') }}"
+  ignore_errors: true
+
+- name: Create default network for vms
+  shell: "kcli create network -c {{ default_libvirt_range }} --domain default default"
+  ignore_errors: true
+
+- name: Remove installation directory
+  file:
+    state: absent
+    path: "{{ temporary_path }}/kcli_{{ provisioner_cluster_name }}"
+
+- name: Download the kcli plan
+  ansible.builtin.git:
+    repo: https://github.com/karmab/kcli-openshift4-baremetal
+    dest: "{{ temporary_path }}/kcli_{{ provisioner_cluster_name }}"
+    force: yes
+
+- name: Copy the kcli template
+  template:
+    src: "{{ role_path }}/templates/kcli_parameters.yml.j2"
+    dest: "{{ temporary_path }}/kcli_{{ provisioner_cluster_name }}/kcli_parameters.yml"
+
+- name: Copy pull secret to the same directory
+  copy:
+    content: "{{ pull_secret }}"
+    dest: "{{ temporary_path }}/kcli_{{ provisioner_cluster_name }}/openshift_pull.json"
+
+- name: Download centos8 image
+  shell: kcli download image centos8
+  args:
+    chdir: "{{ temporary_path }}/kcli_{{ provisioner_cluster_name }}"
+
+- name: Delete plan if it was created
+  ansible.builtin.shell:
+    cmd: "kcli delete plan --force plan_{{ provisioner_cluster_name }}"
+  ignore_errors: true
+
+- name: Deploy the cluster
+  ansible.builtin.shell:
+    cmd: "kcli create plan --paramfile {{ temporary_path }}//kcli_{{ provisioner_cluster_name }}/kcli_parameters.yml plan_{{ provisioner_cluster_name }}"
+    chdir: "{{ temporary_path }}/kcli_{{ provisioner_cluster_name }}"
+
+- name: Get IP of the registry vm
+  shell: "kcli info vm {{ provisioner_cluster_name }}-installer -f ip -v"
+  register: disconnecter_vm
+
+- name: Add entry into /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: "^(.*) {{ provisioner_cluster_name }}-installer.{{ provisioner_cluster_domain }}$"
+    line: "{{ disconnecter_vm.stdout }} {{ provisioner_cluster_name }}-installer.{{ provisioner_cluster_domain }}"
+
+- name: Copy certificate to trusted certs path
+  shell: "kcli scp root@{{ provisioner_cluster_name }}-installer:/opt/registry/certs/domain.crt /etc/pki/ca-trust/source/anchors/"
+
+- name: Update ca trust
+  shell: "update-ca-trust"
+

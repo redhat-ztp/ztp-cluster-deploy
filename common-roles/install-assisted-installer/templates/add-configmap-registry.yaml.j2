@@ -1,0 +1,9 @@
+apiVersion: v1
+data:
+  registries.conf: "{{ registries_conf_file|default("", True) }}"
+  ca-bundle.crt: |
+{{ private_registry_crt|indent(4, True) }}
+kind: ConfigMap
+metadata:
+  name: registry-ca
+  namespace: assisted-installer
