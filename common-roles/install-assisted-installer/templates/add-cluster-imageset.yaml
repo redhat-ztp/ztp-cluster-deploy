@@ -1,0 +1,7 @@
+apiVersion: hive.openshift.io/v1
+kind: ClusterImageSet
+metadata:
+  name: openshift-{{ mirror_version_spoke_release | regex_replace('^([0-9])\\.([0-9]*).*', '\\1.\\2') }}
+  namespace: assisted-installer
+spec:
+  releaseImage: {{ provisioner_cluster_registry_var }}/ocp4:{{ mirror_version_spoke_release }}

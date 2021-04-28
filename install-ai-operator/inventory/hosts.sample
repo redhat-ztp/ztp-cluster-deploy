@@ -1,0 +1,40 @@
+[all:vars]
+
+pull_secret='<pull_secret_var>'
+ssh_public_key="<ssh_public_key>'
+redhat_subscription_user=<redhat_subscription_user>
+redhat_subscription_password=<redhat_subscription_pass>
+
+temporary_path=/tmp
+
+# provisioner cluster, just set it if you need to deploy a provisioner cluster
+provisioner_cluster_name=test-operator
+provisioner_cluster_domain=cluster.testing
+provisioner_ipv6_cidr=1001:db9::
+provisioner_ipv6_suffix=64
+default_libvirt_range=192.168.122.0/24
+provisioner_cluster_version=4.8
+provisioner_cluster_version_minor=0
+
+# vars for the mirror, need to be pinned to 4.7 for the moment
+mirror_version=4.7
+mirror_version_minor=8
+mirror_version_spoke_release=ocp-release-nightly:4.8.0-0.nightly-2021-03-16-221720
+
+# set it to a disk that has a minimum of 350gb, for mirroring
+provisioner_cluster_libvirt_pool=/pool
+# if you use your own cluster, provide kubeconfig credentials. if not, the settings
+# for the default ipv6 cluster that is created with the playbooks will be used
+#provisioner_cluster_kubeconfig=/root/.kcli/clusters/test-operator/auth/kubeconfig
+# url for the rhcos image that will be mirrored into our installer
+rhcos_remote_url=https://releases-art-rhcos.svc.ci.openshift.org/art/storage/releases/rhcos-4.8/48.83.202103221318-0/x86_64/rhcos-48.83.202103221318-0-live.x86_64.iso
+# paths for the disks on masters, that will be used for local storage
+device_paths=[ '/dev/vda', '/dev/vdb' ]
+
+# if you use your own registry, the crt for it
+#private_registry_crt="<path_to_registry>"
+
+[provisioner]
+# host from where the installation is performed
+10.46.55.25 ansible_connection=ssh ansible_user=root
+#localhost ansible_connection=local
