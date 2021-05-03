@@ -1,0 +1,24 @@
+apiVersion: hive.openshift.io/v1
+kind: ClusterDeployment
+metadata:
+  name: {{ cluster_name }}-deployment
+  namespace: assisted-installer
+spec:
+  baseDomain: {{ cluster_domain }}
+  clusterName: {{ cluster_name }}
+  controlPlaneConfig:
+    servingCertificates: {}
+  installed: false
+  clusterInstallRef:
+    group: extensions.hive.openshift.io
+    kind: AgentClusterInstall
+    # aci == AgentClusterInstall
+    name: {{ cluster_name }}
+    version: v1beta1
+  platform:
+    agentBareMetal:
+      agentSelector:
+        matchLabels:
+          agent-label: du-sno
+  pullSecretRef:
+    name: assisted-deployment-pull-secret

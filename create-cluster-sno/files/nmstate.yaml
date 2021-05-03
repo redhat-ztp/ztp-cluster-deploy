@@ -1,0 +1,33 @@
+apiVersion: agent-install.openshift.io/v1beta1
+kind: NMStateConfig
+metadata:
+  name: nmstate-sno
+  namespace: assisted-installer
+  labels:
+    nmstate-label: du-sno
+spec:
+  config:
+    interfaces:
+      - name: eno1
+        type: ethernet
+        state: up
+        mac-address: 0C:42:A1:6C:E4:04
+        ipv4:
+          enabled: true
+          address:
+            - ip: 10.46.55.25
+              prefix-length: 24
+          dhcp: false
+    dns-resolver:
+      config:
+        server:
+          - 10.46.55.238
+    routes:
+      config:
+        - destination: 0.0.0.0/0
+          next-hop-address: 10.46.55.254
+          next-hop-interface: eno1
+          table-id: 254
+  interfaces:
+    - name: "eno1"
+      macAddress: "0C:42:A1:6C:E4:04"

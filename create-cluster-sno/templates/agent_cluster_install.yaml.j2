@@ -1,0 +1,23 @@
+---
+apiVersion: extensions.hive.openshift.io/v1beta1
+kind: AgentClusterInstall
+metadata:
+  name: {{ cluster_name }}
+  namespace: assisted-installer
+spec:
+  clusterDeploymentRef:
+    name: {{ cluster_name }}-deployment
+  imageSetRef:
+    name: {{ cluster_imageset }}
+  networking:
+    clusterNetwork:
+      - cidr: "{{ cluster_network_cidr }}/{{ cluster_network_sufix }}" 
+        hostPrefix: {{ cluster_network_host_prefix }}
+    serviceNetwork:
+      - "{{ service_network_cidr }}/{{ service_network_sufix }}"
+    machineNetwork:
+      - cidr: "{{ machine_network_cidr }}/{{ machine_network_sufix }}"
+    networkType: OVNKubernetes
+  provisionRequirements:
+    controlPlaneAgents: 1
+  sshPublicKey: '{{ ssh_pubkey }}'

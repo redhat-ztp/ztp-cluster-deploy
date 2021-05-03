@@ -1,0 +1,25 @@
+apiVersion: agent-install.openshift.io/v1beta1
+kind: InfraEnv
+metadata:
+  name: {{ cluster_name }}-installenv
+  namespace: assisted-installer
+spec:
+  clusterRef:
+    name: {{ cluster_name }}-deployment
+    namespace: assisted-installer
+  agentLabelSelector:
+    matchLabels:
+      agent-label: du-sno
+  pullSecretRef:
+    name: assisted-deployment-pull-secret
+{% if http_proxy is defined and http_proxy|length > 0 and https_proxy is defined and https_proxy|length > 0 is defined %}
+  proxy:
+    {% if http_proxy is defined and http_proxy|length > 0 %}httpProxy: {{ http_proxy }}{% endif %}
+    {% if https_proxy is defined and https_proxy|length > 0 %}httpsProxy: {{ https_proxy }}{% endif %}
+{% endif %}
+  sshAuthorizedKey: '{{ ssh_pubkey }}'
+{% if nmstate_path is defined %}
+  nmStateConfigLabelSelector:
+    matchLabels:
+      nmstate-label: du-sno
+{% endif %}
