@@ -1,0 +1,27 @@
+[all:vars]
+
+kubeconfig_path=/tmp/kubeconfig
+cluster_name=test_sno
+cluster_domain=cluster.testing
+bmc_user=root
+bmc_pass=calvin
+bmc_bootmac_address="0C:42:A1:8A:74:EC"
+bmc_redfish_endpoint=idrac-virtualmedia+https://[1001:db9::51e5]:8443/redfish/v1/Systems/System.Embedded.1
+cluster_network_cidr=1001:db9::
+cluster_network_sufix=64
+cluster_network_host_prefix=121
+machine_network_cidr=1001:db8::
+machine_network_sufix=64
+service_network_cidr=1001:db7::
+service_network_sufix=64
+
+# uncomment if you need to pass an nmstate definition for the host
+#nmstate_path=./files/nmstate.yaml
+
+# uncomment if you need to pass root device hints
+#root_device_hints="hctl: '0:1:0'"
+
+[provisioner]
+# host from where the installation is performed
+10.46.55.25 ansible_connection=ssh ansible_user=root
+#localhost ansible_connection=local
