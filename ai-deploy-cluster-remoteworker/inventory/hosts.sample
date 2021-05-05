@@ -45,7 +45,7 @@ ai_version="ac59176add3f1a5f89fe47e1df021d9c9ab7589c"
 
 # Set as "latest" for latest quay image
 # assisted_tag=stable.12.03.2021-07.23
-assisted_tag=stable.17.03.2021-13.18
+assisted_tag=v1.0.18.3
 
 # optional: if using expose routes, haproxy http and https ports. Need to use
 # an alternative port, as 80/8080 and 443 can't be used
