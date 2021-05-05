@@ -49,7 +49,7 @@
     - add-hive-operator.yaml.j2
     - add-assisted-service-operator.yaml.j2
     - add-configmap-registry.yaml.j2
-    - assisted-service-volumes-patch.yaml.j2
+    - assisted-service-patch.yaml.j2
     - add-cluster-imageset.yaml
 
 - name: Create local storage operator
@@ -146,7 +146,14 @@
 
 - name: Patch the deployment to add the extra volume
   ansible.builtin.shell:
-    cmd: 'oc patch deployment assisted-service --patch "$(cat {{ temporary_directory.path }}/assisted-service-volumes-patch.yaml)" -n assisted-installer'
+    cmd: 'oc patch deployment assisted-service --patch "$(cat {{ temporary_directory.path }}/assisted-service-patch.yaml)" -n assisted-installer'
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: Patch the route to remove tls termination
+  ansible.builtin.shell:
+    cmd: |
+      oc patch route/assisted-service --type=json -p='[{"op": "remove", "path": "/spec/tls"}]' -n assisted-installer
   environment:
     KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
 

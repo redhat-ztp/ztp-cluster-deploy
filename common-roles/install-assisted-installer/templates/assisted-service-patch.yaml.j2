@@ -3,6 +3,17 @@ spec:
     spec:
       containers:
       - name: assisted-service
+        env:
+        - name: SERVICE_BASE_URL
+          value: http://assisted-service-assisted-installer.apps.{{ provisioner_cluster_name }}.{{ provisioner_cluster_domain }}
+        - name: SERVE_HTTPS
+          value: False
+        livenessProbe:
+          httpGet:
+            scheme: HTTP
+        readinessProbe:
+          httpGet:
+            scheme: HTTP
         volumeMounts:
         - mountPath: /etc/pki/ca-trust/extracted/pem
           name: registry-ca
