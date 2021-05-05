@@ -27,8 +27,8 @@ support_level="beta"
 ai_version="HEAD"
 
 # Set as "latest" for latest quay image
-# assisted_tag=stable.12.03.2021-07.23
-assisted_tag=latest
+# assisted_tag=v1.0.18.3
+assisted_tag=v1.0.18.3
 
 ### BMC variables. Set according to your server' hardware ###
 bmc_address=10.46.61.142
