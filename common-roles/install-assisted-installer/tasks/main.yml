@@ -52,42 +52,52 @@
     - assisted-service-volumes-patch.yaml.j2
     - add-cluster-imageset.yaml
 
-- name: Create local storage operator
+- name: Query for existing storage class
   ansible.builtin.shell:
-    cmd: oc apply -f ./add-local-storage-operator.yaml
+    cmd: oc get sc -o name | wc -l
     chdir: "{{ temporary_directory.path }}"
   environment:
     KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+  register: sclass
 
-- name: Apply local volume, need to iterate until succeeds
-  ansible.builtin.shell:
-    cmd: oc apply -f ./local-volume.yaml
-    chdir: "{{ temporary_directory.path }}"
-  register: result
-  environment:
-    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
-  until: result.rc == 0
-  retries: 100
-  delay: 30
-  ignore_errors: yes
+- block:
+  - name: Create local storage operator
+    ansible.builtin.shell:
+      cmd: oc apply -f ./add-local-storage-operator.yaml
+      chdir: "{{ temporary_directory.path }}"
+    environment:
+      KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
 
-- name: wait until provisioner pods are created
-  ansible.builtin.shell:
-    cmd: oc get pods -n openshift-local-storage | grep provisioner | wc -l
-  register: provisioner_pods
-  environment:
-    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
-  until: provisioner_pods.stdout|int == 3
-  retries: 100
-  delay: 30
+  - name: Apply local volume, need to iterate until succeeds
+    ansible.builtin.shell:
+      cmd: oc apply -f ./local-volume.yaml
+      chdir: "{{ temporary_directory.path }}"
+    register: result
+    environment:
+      KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+    until: result.rc == 0
+    retries: 100
+    delay: 30
+    ignore_errors: yes
 
-- name: annotate as default class
-  ansible.builtin.shell:
-    cmd: "{{ lookup('template', 'patch_local_storage.j2') }}"
-  environment:
-    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+  - name: wait until provisioner pods are created
+    ansible.builtin.shell:
+      cmd: oc get pods -n openshift-local-storage | grep provisioner | wc -l
+    register: provisioner_pods
+    environment:
+      KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+    until: provisioner_pods.stdout|int == 3
+    retries: 100
+    delay: 30
 
-- name: Create local storage operator
+  - name: annotate as default class
+    ansible.builtin.shell:
+      cmd: "{{ lookup('template', 'patch_local_storage.j2') }}"
+    environment:
+      KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+  when: sclass.stdout|int == 0
+
+- name: Create hive operator
   ansible.builtin.shell:
     cmd: oc apply -f ./add-hive-operator.yaml
     chdir: "{{ temporary_directory.path }}"
