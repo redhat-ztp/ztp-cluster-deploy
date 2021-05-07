@@ -55,7 +55,7 @@
 
 - name: Delete plan if it was created
   ansible.builtin.shell:
-    cmd: "kcli delete plan --force plan_{{ provisioner_cluster_name }}"
+    cmd: "kcli delete plan --yes plan_{{ provisioner_cluster_name }}"
   ignore_errors: true
 
 - name: Deploy the cluster
