@@ -18,6 +18,7 @@
   ansible.builtin.copy:
     content: "{{ pull_secret }}"
     dest: "{{ temporary_directory.path }}/pull_secret"
+  register: pull_secret_loc
 
 - name: Download oc binary
   ansible.builtin.unarchive:
@@ -34,7 +35,7 @@
     dest: "{{ temporary_directory.path }}/{{ item | replace('.j2', '') }}"
     mode: 0755
   vars:
-    pull_secret_path: "{{ temporary_directory.path }}/pull_secret"
+    pull_secret_path: "{{ pull_secret_loc.dest }}"
     binary_path: "/usr/bin/"
     provisioner_cluster_registry_var: "{% if provisioner_cluster_registry is defined and provisioner_cluster_registry|length > 0 %}{{ provisioner_cluster_registry }}{% else %}{{ provisioner_cluster_name }}-installer.{{ provisioner_cluster_domain }}:5000{% endif %}"
     provisioner_cluster_registry_user: dummy
@@ -54,6 +55,7 @@
     executable: /bin/bash
   environment:
     KUBECONFIG: "{{ temporary_path }}/kubeconfig"
+    REGISTRY_AUTH_FILE: "{{ pull_secret_loc.dest }}"
 
 - name: Create catalog source
   ansible.builtin.shell:

@@ -1,9 +1,8 @@
 [all:vars]
 
+# Pull secret must include all necessary auth, including registry.redhat.io
 pull_secret='<pull_secret_var>'
 ssh_public_key="<ssh_public_key>'
-redhat_subscription_user=<redhat_subscription_user>
-redhat_subscription_password=<redhat_subscription_pass>
 
 temporary_path=/tmp
 
