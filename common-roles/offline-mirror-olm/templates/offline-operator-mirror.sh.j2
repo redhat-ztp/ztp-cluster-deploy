@@ -24,8 +24,6 @@ export MARKETPLACE_OP_INDEX="registry.redhat.io/redhat-marketplace-index:v${OCP_
 
 podman_login() {
 podman login --tls-verify=false $LOCAL_REGISTRY --username {{ provisioner_cluster_registry_user }} --password {{ provisioner_cluster_registry_password }}
-podman login registry.redhat.io --username {{ redhat_subscription_user }} --password {{ redhat_subscription_password }}
-
 }
 
 podman_login
