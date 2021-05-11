@@ -9,11 +9,7 @@
     dest: "{{ temporary_directory.path }}/pull_secret"
 
 - name: Login to private registry
-  shell: "podman login --username dummy --password dummy --tls-verify=false"
-
-- name: Set private registry var
-  set_fact:
-    provisioner_cluster_registry_var: "{% if provisioner_cluster_registry is defined and provisioner_cluster_registry|length > 0 %}{{ provisioner_cluster_registry }}{% else %}{{ provisioner_cluster_name }}-installer.{{ provisioner_cluster_domain }}:5000{% endif %}"
+  shell: "podman login --username {{ provisioner_cluster_registry_user }} --password {{ provisioner_cluster_registry_password }} --tls-verify=false"
 
 - name: Copy template to temporary path
   template:
@@ -21,7 +17,7 @@
     dest: "{{ temporary_directory.path }}/icsp.yaml"
 
 - name: Mirror images to internal registry
-  include: mirror_image.yml image={{ item }} provisioner_cluster_registry_var={{ provisioner_cluster_registry_var }}
+  include: mirror_image.yml image={{ item }}
   ignore_errors: true
   with_items:
     - quay.io/ocpmetal/s3server
@@ -61,12 +57,6 @@
   ansible.builtin.copy:
     src: "{{ provisioner_cluster_kubeconfig }}"
     dest: "{{ temporary_directory.path }}/kubeconfig"
-  when: provisioner_cluster_kubeconfig is defined and provisioner_cluster_kubeconfig|length > 0
-
-- name: If not set, download with kcli
-  ansible.builtin.shell:
-    cmd: "kcli scp root@{{ provisioner_cluster_name }}-installer:/root/ocp/auth/kubeconfig {{ temporary_directory.path }}/kubeconfig"
-  when: provisioner_cluster_kubeconfig is not defined
 
 - name: Apply generated icsp
   ansible.builtin.shell:
@@ -88,7 +78,7 @@
 
 - name: Mirror release image for spoke clusters
   ansible.builtin.shell:
-    cmd: "oc adm -a {{ temporary_directory.path }}/merged_creds.json release new --from-release=quay.io/openshift-release-dev/ocp-release:{{ mirror_version_spoke_release }} --mirror={{ provisioner_cluster_registry_var }}/ocp4 --to-image={{ provisioner_cluster_registry_var }}/ocp4:{{ mirror_version_spoke_release }}"
+    cmd: "oc adm -a {{ temporary_directory.path }}/merged_creds.json release new --from-release=quay.io/openshift-release-dev/ocp-release:{{ mirror_version_spoke_release }} --mirror={{ provisioner_cluster_registry }}/ocp4 --to-image={{ provisioner_cluster_registry }}/ocp4:{{ mirror_version_spoke_release }}"
   ignore_errors: true
   environment:
     KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"

@@ -5,7 +5,7 @@ metadata:
   namespace: openshift-marketplace
 spec:
   sourceType: grpc
-  image: {{ provisioner_cluster_registry_var }}/olm/redhat-operator-index:v{{ mirror_version }}
+  image: {{ provisioner_cluster_registry }}/olm/redhat-operator-index:v{{ mirror_version }}
   displayName: Temp Lab
   publisher: templab
   updateStrategy:

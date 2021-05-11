@@ -34,12 +34,6 @@
   ansible.builtin.copy:
     src: "{{ provisioner_cluster_kubeconfig }}"
     dest: "{{ temporary_path }}/kubeconfig"
-  when: provisioner_cluster_kubeconfig is defined and provisioner_cluster_kubeconfig|length > 0
-
-- name: If not set, copy with kcli
-  ansible.builtin.shell:
-    cmd: "kcli scp root@{{ provisioner_cluster_name }}-installer:/root/ocp/auth/kubeconfig {{ temporary_path }}/kubeconfig"
-  when: provisioner_cluster_kubeconfig is not defined
 
 - name: Apply the secrets
   ansible.builtin.shell:

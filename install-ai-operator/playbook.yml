@@ -7,6 +7,9 @@
     - role: prepare-environment
       tags: prepare-environment
       become: yes
+    - role: "{{ playbook_dir }}/../common-roles/create-provisioner-cluster"
+      tags: create-provisioner-cluster
+      become: yes
     - role: create-olm-mirror
       tags: create-olm-mirror
     - role: mirror-ai-images

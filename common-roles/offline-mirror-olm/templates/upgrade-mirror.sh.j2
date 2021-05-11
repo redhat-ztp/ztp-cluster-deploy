@@ -5,7 +5,7 @@
 export OCP_REGISTRY=quay.io/openshift-release-dev/ocp-release-nightly
 export OCP_RELEASE={{ mirror_version }}
 export ARCHITECTURE="x86_64"
-export LOCAL_REGISTRY={{ provisioner_cluster_registry_var }}/
+export LOCAL_REGISTRY={{ provisioner_cluster_registry }}/
 export LOCAL_REPOSITORY=ocp4
 export AUTH_FILE="{{ pull_secret_path }}"
 export SIGNATURE_BASE64_FILE="signature-sha256-${OCP_RELEASE}.yaml"

@@ -2,12 +2,6 @@
   ansible.builtin.copy:
     src: "{{ provisioner_cluster_kubeconfig }}"
     dest: "{{ temporary_path }}/kubeconfig"
-  when: provisioner_cluster_kubeconfig is defined and provisioner_cluster_kubeconfig|length > 0
-
-- name: If not set, copy with kcli
-  ansible.builtin.shell:
-    cmd: "kcli scp root@{{ provisioner_cluster_name }}-installer:/root/ocp/auth/kubeconfig {{ temporary_path }}/kubeconfig"
-  when: provisioner_cluster_kubeconfig is not defined
 
 - name: Create temporary directory
   tempfile:
@@ -20,11 +14,19 @@
     dest: "{{ temporary_directory.path }}/pull_secret"
   register: pull_secret_loc
 
+- name: Install needed packages
+  yum:
+    name:
+      - podman
+      - skopeo
+    state: present
+
 - name: Download oc binary
   ansible.builtin.unarchive:
     src: "https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp-dev-preview/latest-{{ provisioner_cluster_version }}/{{ item }}"
     dest: /usr/bin/
     remote_src: yes
+    creates: /usr/bin/{{ item }}
   with_items:
     - openshift-client-linux.tar.gz
     - opm-linux.tar.gz
@@ -37,9 +39,6 @@
   vars:
     pull_secret_path: "{{ pull_secret_loc.dest }}"
     binary_path: "/usr/bin/"
-    provisioner_cluster_registry_var: "{% if provisioner_cluster_registry is defined and provisioner_cluster_registry|length > 0 %}{{ provisioner_cluster_registry }}{% else %}{{ provisioner_cluster_name }}-installer.{{ provisioner_cluster_domain }}:5000{% endif %}"
-    provisioner_cluster_registry_user: dummy
-    provisioner_cluster_registry_password: dummy
   with_items:
     - offline-operator-mirror.sh.j2
     - catalogsource_redhat.yaml.j2
@@ -74,6 +73,7 @@
     executable: /bin/bash
   environment:
     KUBECONFIG: "{{ temporary_path }}/kubeconfig"
+    REGISTRY_AUTH_FILE: "{{ pull_secret_loc.dest }}"
 
 - name: Apply ICSP
   ansible.builtin.shell:

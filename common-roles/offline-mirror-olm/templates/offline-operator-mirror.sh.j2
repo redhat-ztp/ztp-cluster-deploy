@@ -7,7 +7,7 @@ export OCP_RELEASE={{ mirror_version }}
 export ARCHITECTURE=x86_64
 export SIGNATURE_BASE64_FILE="signature-sha256-$OCP_RELEASE.yaml"
 export OCP_PULLSECRET_AUTHFILE='{{ pull_secret_path }}'
-export LOCAL_REGISTRY={{ provisioner_cluster_registry_var }}
+export LOCAL_REGISTRY={{ provisioner_cluster_registry }}
 export LOCAL_REGISTRY_MIRROR_TAG=/ocp4/openshift4
 export LOCAL_REGISTRY_IMAGE_TAG=olm
 
@@ -23,7 +23,7 @@ export COMM_OP_INDEX="registry.redhat.io/redhat/community-operator-index:v${OCP_
 export MARKETPLACE_OP_INDEX="registry.redhat.io/redhat-marketplace-index:v${OCP_RELEASE}"
 
 podman_login() {
-podman login --tls-verify=false $LOCAL_REGISTRY --username {{ provisioner_cluster_registry_user }} --password {{ provisioner_cluster_registry_password }}
+REGISTRY_AUTH_FILE= podman login --tls-verify=false $LOCAL_REGISTRY --username {{ provisioner_cluster_registry_user }} --password {{ provisioner_cluster_registry_password }}
 }
 
 podman_login

@@ -39,7 +39,7 @@ metadata:
   namespace: openshift-marketplace
 spec:
   sourceType: grpc
-  image: {{ provisioner_cluster_registry_var }}/ocpmetal/assisted-service-index:latest
+  image: {{ provisioner_cluster_registry }}/ocpmetal/assisted-service-index:latest
 ---
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
