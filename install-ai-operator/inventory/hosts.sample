@@ -14,17 +14,19 @@ provisioner_ipv6_suffix=64
 default_libvirt_range=192.168.122.0/24
 provisioner_cluster_version=4.8
 provisioner_cluster_version_minor=0
+provisioner_cluster_registy=mirror_hostname:5000
+provisioner_cluster_registry_user=dummy
+provisioner_cluster_registry_password=dummy
+disconnected_http_server=http_hostname
 
 # vars for the mirror, need to be pinned to 4.7 for the moment
 mirror_version=4.7
 mirror_version_minor=8
-mirror_version_spoke_release=ocp-release-nightly:4.8.0-0.nightly-2021-03-16-221720
+mirror_version_spoke_release=4.8.0-fc.3-x86_64
 
 # set it to a disk that has a minimum of 350gb, for mirroring
 provisioner_cluster_libvirt_pool=/pool
-# if you use your own cluster, provide kubeconfig credentials. if not, the settings
-# for the default ipv6 cluster that is created with the playbooks will be used
-#provisioner_cluster_kubeconfig=/root/.kcli/clusters/test-operator/auth/kubeconfig
+provisioner_cluster_kubeconfig=/root/.kcli/clusters/test-operator/auth/kubeconfig
 # url for the rhcos image that will be mirrored into our installer
 rhcos_remote_url=https://releases-art-rhcos.svc.ci.openshift.org/art/storage/releases/rhcos-4.8/48.83.202103221318-0/x86_64/rhcos-48.83.202103221318-0-live.x86_64.iso
 # paths for the disks on masters, that will be used for local storage

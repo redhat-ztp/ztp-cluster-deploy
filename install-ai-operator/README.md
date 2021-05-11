@@ -18,20 +18,18 @@ in a disconnected way, assuming ipv6 networking.
 2. go to `install-ai-operator` dir
 3. You need make a copy `inventory/hosts.sample` file and name it `hosts` under same directory.
 4. Modify the [all:vars] section at `inventory/hosts` file based on your env.
-5. If you want that the playbook creates the initial provisioner cluster for you, please do not set
-the provisioner_cluster_kubeconfig var. If you don't do it, the playbook will create a cluster
-with the name, domain and version settings from the inventory.If not, please just provide the kubeconfig
-path of an already provisioned cluster.
+5. If you want that the playbook creates the initial provisioner cluster for you, please run the
+create-provisioner-cluster tag. It will generate a cluster, then you can copy the kubeconfig file
+from /root/ocp/auth/kubeconfig installer vm into your local provisioner host. You can set that
+on the inventory, for next steps.
 6. Start the deployment with `prepare-environment` tag:
 
       ```console
       $ sudo ansible-playbook playbook.yml -vvv -i inventory/hosts --tags=prepare-environment
       ```
 
-7. Create the OpenShift disconnected mirror if needed. You may use another pre-created mirror, by
-providing the provisioner_cluster_registry var into inventory/hosts. If not, please run this playbook,
-and it will create a mirror on a virtual machine connected to the provisioner cluster that was created
-before:
+7. Create the OpenShift disconnected mirror if needed, by running the create-olm-mirror and
+mirror-ai-images tags.
 
       ```console
       $ sudo ansible-playbook playbook.yml -vvv -i inventory/hosts --tags=offline-mirror-olm
@@ -46,8 +44,8 @@ disconnected registry, but you can provide your own using the `disconnected_http
       $ sudo ansible-playbook playbook.yml -vvv -i inventory/hosts --tags=mirror-ai-images
       ```
     
-9. Finally install the Assisted Installer operator. It will be installing in the default provisioner cluster,
-but you can provide your own by setting de `provisioner_cluster_kubeconfig` var in inventory:
+9. Finally install the Assisted Installer operator. You need to set the
+`provisioner_cluster_kubeconfig` var in inventory:
 
       ```console
       $ sudo ansible-playbook playbook.yml -vvv -i inventory/hosts --tags=install-assisted-installer

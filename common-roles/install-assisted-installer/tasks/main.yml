@@ -40,9 +40,6 @@
   template:
     src: "templates/{{ item }}"
     dest: "{{ temporary_directory.path }}/{{ item | replace('.j2', '') }}"
-  vars:
-    provisioner_cluster_registry_var: "{% if provisioner_cluster_registry is defined and provisioner_cluster_registry|length > 0 %}{{ provisioner_cluster_registry }}{% else %}{{ provisioner_cluster_name }}-installer.{{ provisioner_cluster_domain }}:5000{% endif %}"
-    disconnected_http_server_var: "{% if disconnected_http_server is defined and disconnected_http_server|length > 0 %}{{ disconnected_http_server }}{% else %}http://{{ provisioner_cluster_name }}-installer.{{ provisioner_cluster_domain }}:80{% endif %}"
   with_items:
     - add-local-storage-operator.yaml.j2
     - local-volume.yaml.j2
