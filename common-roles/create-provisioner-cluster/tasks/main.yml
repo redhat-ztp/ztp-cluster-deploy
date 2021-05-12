@@ -58,6 +58,11 @@
     cmd: "kcli delete plan --yes plan_{{ provisioner_cluster_name }}"
   ignore_errors: true
 
+- name: Create the kcli host
+  ansible.builtin.shell:
+    cmd: "kcli create host kvm -H 127.0.0.1 local"
+  ignore_errors: true
+
 - name: Deploy the cluster
   ansible.builtin.shell:
     cmd: "kcli create plan --paramfile {{ temporary_path }}//kcli_{{ provisioner_cluster_name }}/kcli_parameters.yml plan_{{ provisioner_cluster_name }}"
@@ -66,12 +71,16 @@
 - name: Get IP of the registry vm
   shell: "kcli info vm {{ provisioner_cluster_name }}-installer -f ip -v"
   register: disconnecter_vm
+  retries: 5
+  delay: 30
+  until: disconnecter_vm.stdout|ipaddr('bool') == True
 
 - name: Add entry into /etc/hosts
   ansible.builtin.lineinfile:
     path: /etc/hosts
     regexp: "^(.*) {{ provisioner_cluster_name }}-installer.{{ provisioner_cluster_domain }}$"
     line: "{{ disconnecter_vm.stdout }} {{ provisioner_cluster_name }}-installer.{{ provisioner_cluster_domain }}"
+  when: disconnecter_vm.stdout|ipaddr('bool') == True
 
 - name: Copy certificate to trusted certs path
   shell: "kcli scp root@{{ provisioner_cluster_name }}-installer:/opt/registry/certs/domain.crt /etc/pki/ca-trust/source/anchors/"

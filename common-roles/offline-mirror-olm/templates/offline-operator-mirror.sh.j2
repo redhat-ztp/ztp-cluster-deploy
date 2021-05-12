@@ -38,7 +38,7 @@ opm index prune \
 -i registry.redhat.io/openshift4/ose-operator-registry:v${OCP_RELEASE} \
 -t $LOCAL_REGISTRY/olm/redhat-operator-index:v${OCP_RELEASE}
 
-podman push --tls-verify=false $LOCAL_REGISTRY/olm/redhat-operator-index:v${OCP_RELEASE}
+REGISTRY_AUTH_FILE= podman push --tls-verify=false $LOCAL_REGISTRY/olm/redhat-operator-index:v${OCP_RELEASE}
 
 # mirror the operator catalog
 oc adm catalog mirror \
@@ -59,7 +59,7 @@ opm index prune \
 -p hive-operator \
 -t $LOCAL_REGISTRY/olm/community-operator-index:v${OCP_RELEASE}
 
-podman push --tls-verify=false $LOCAL_REGISTRY/olm/community-operator-index:v${OCP_RELEASE}
+REGISTRY_AUTH_FILE= podman push --tls-verify=false $LOCAL_REGISTRY/olm/community-operator-index:v${OCP_RELEASE}
 
 # mirror the operator catalog
 oc adm catalog mirror \
