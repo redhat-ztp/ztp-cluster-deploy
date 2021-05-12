@@ -23,13 +23,17 @@
 
 - name: Download oc binary
   ansible.builtin.unarchive:
-    src: "https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp-dev-preview/latest-{{ provisioner_cluster_version }}/{{ item }}"
+    src: "https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp-dev-preview/latest-{{ provisioner_cluster_version }}/openshift-client-linux.tar.gz"
     dest: /usr/bin/
     remote_src: yes
-    creates: /usr/bin/{{ item }}
-  with_items:
-    - openshift-client-linux.tar.gz
-    - opm-linux.tar.gz
+    creates: /usr/bin/oc
+
+- name: Download opm binary
+  ansible.builtin.unarchive:
+    src: "https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp-dev-preview/latest-{{ provisioner_cluster_version }}/opm-linux.tar.gz"
+    dest: /usr/bin/
+    remote_src: yes
+    creates: /usr/bin/opm
 
 - name: Copy template to temporary path
   template:

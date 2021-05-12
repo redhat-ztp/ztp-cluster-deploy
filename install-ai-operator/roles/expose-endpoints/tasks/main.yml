@@ -1,14 +1,14 @@
-- name: debug
-  debug:
-    var: redfish_ips
+- name: Copy local kubeconfig to remote server if set
+  ansible.builtin.copy:
+    src: "{{ provisioner_cluster_kubeconfig }}"
+    dest: "{{ temporary_path }}/kubeconfig"
 
-- name: Get IP of the registry vm
-  shell: "kcli info vm {{ provisioner_cluster_name }}-installer -f ip -v"
-  register: disconnecter_vm
-
-- name: Get IP of master vms
-  shell: "kcli info vm {{ provisioner_cluster_name }}-master-0 -f ip -v ;  kcli info vm {{ provisioner_cluster_name }}-master-1 -f ip -v;  kcli info vm {{ provisioner_cluster_name }}-master-2 -f ip -v"
-  register: master_vms
+- name: Get IP of master nodes
+  ansible.builtin.shell:
+    cmd: oc get nodes  -o jsonpath='{ $.items[*].status.addresses[?(@.type=="InternalIP")].address }' | tr " " "\n"
+  register: master_nodes
+  environment:
+    KUBECONFIG: "{{ temporary_path }}/kubeconfig"
 
 - name: Create tmp directory for haproxy
   tempfile:
@@ -21,8 +21,8 @@
     dest: "{{ tempdiroutput.path }}/create_haproxy.sh"
     mode: 0755
   vars:
-    master_ips: "{{ master_vms.stdout_lines }}"
+    master_ips: "{{ master_nodes.stdout_lines }}"
 
 - name: Install haproxy
   ansible.builtin.shell:
-    cmd: "ssh root@{{ disconnecter_vm.stdout }} 'bash -s' < {{ tempdiroutput.path }}/create_haproxy.sh"
+    cmd: "bash {{ tempdiroutput.path }}/create_haproxy.sh"
