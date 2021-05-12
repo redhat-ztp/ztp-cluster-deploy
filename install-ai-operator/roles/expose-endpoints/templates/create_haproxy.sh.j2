@@ -93,6 +93,19 @@ backend 443-devscripts2ipv6-be
     server master{{ loop.index0 }} [{{ master_ip }}]:443 check inter 1s
     {% endfor %}
 
+frontend ironic_iso_endpoint
+    bind :::{{ ironic_iso_endpoint_port | default('6180') }} v4v6
+    mode tcp
+    default_backend ironic_iso_endpoint
+
+backend ironic_iso_endpoint
+    mode tcp
+    balance source
+    {% for master_ip in master_ips %}
+    server master{{ loop.index0 }} [{{ master_ip }}]:6180 check inter 1s
+
+    {% endfor %}
+
 {% for redfish_ip in redfish_ips %}
 frontend redfish_ip_frontend_{{ loop.index0 }}
     bind :::{{ redfish_ip.target_port }} v4v6

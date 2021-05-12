@@ -35,7 +35,10 @@ mirror_version_spoke_release=4.8.0-fc.3-x86_64
 provisioner_cluster_libvirt_pool=/pool
 provisioner_cluster_kubeconfig=/root/.kcli/clusters/test-operator/auth/kubeconfig
 # url for the rhcos image that will be mirrored into our installer
-rhcos_remote_url=https://releases-art-rhcos.svc.ci.openshift.org/art/storage/releases/rhcos-4.8/48.83.202103221318-0/x86_64/rhcos-48.83.202103221318-0-live.x86_64.iso
+rhcos_remote_iso=https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/4.8.0-fc.3/rhcos-4.8.0-fc.3-x86_64-live.x86_64.iso
+rhcos_remote_rootfs=https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/4.8.0-fc.3/rhcos-live-rootfs.x86_64.img
+controller_image=quay.io/ocpmetal/assisted-installer-controller@sha256:bbcfa4f0e5b15f76582cc1ec3db0ba98c282b305fb782e33f7c28c66a6aa0fb5
+
 # paths for the disks on masters, that will be used for local storage
 device_paths=[ '/dev/vda', '/dev/vdb' ]
 

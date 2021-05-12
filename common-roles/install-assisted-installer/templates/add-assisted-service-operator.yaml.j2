@@ -50,6 +50,18 @@ spec:
   targetNamespaces:
   - assisted-installer
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: assisted-service-config
+  namespace: "assisted-installer"
+  labels:
+    app: assisted-service
+data:
+  OPENSHIFT_VERSIONS: '{"4.8":{"display_name":"4.8", "release_version":"4.8", "rhcos_image":"{{ disconnected_http_server }}/{{ rhcos_remote_iso | basename }}", "rhcos_rootfs":"{{ disconnected_http_server }}/{{ rhcos_remote_rootfs | basename }}", "rhcos_version": "{{ rhcos_remote_iso | basename | splitext | first | splitext | first }}", "support_level":"production", "default": true}}'
+  CONTROLLER_IMAGE: quay.io/ocpmetal/assisted-installer-controller@sha256:93f193d97556711dce20b2f11f9e2793ae26eb25ad34a23b93d74484bc497ecc
+  LOG_LEVEL: "debug"
+---
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
@@ -64,7 +76,7 @@ spec:
   config:
     env:
     - name: OPENSHIFT_VERSIONS
-      value: '{"4.8":{"display_name":"4.8","rhcos_image":"{{ disconnected_http_server }}/{{ rhcos_remote_url | basename }}","rhcos_version":"{{ rhcos_remote_url | basename | splitext | first | splitext | first }}","support_level":"production"}}'
+      value: '{"4.8":{"display_name":"4.8", "release_version":"4.8", "rhcos_image":"{{ disconnected_http_server }}/{{ rhcos_remote_iso | basename }}", "rhcos_rootfs":"{{ disconnected_http_server }}/{{ rhcos_remote_rootfs | basename }}", "rhcos_version": "{{ rhcos_remote_iso | basename | splitext | first | splitext | first }}", "support_level":"production", "default": true}}'
     - name: IPV6_SUPPORT
       value: "true"
     - name: DEPLOY_TARGET
@@ -93,4 +105,4 @@ spec:
       requests:
         storage: 20Gi
   mirrorRegistryRef:
-    name: 'assisted-service-config'
+    name: 'mirror-registry-config'
