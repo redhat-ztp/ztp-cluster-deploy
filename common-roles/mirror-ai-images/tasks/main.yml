@@ -21,7 +21,6 @@
   ignore_errors: true
   with_items:
     - quay.io/ocpmetal/s3server
-    - quay.io/jparrill/s3server
     - quay.io/ocpmetal/assisted-service
     - quay.io/ocpmetal/assisted-installer
     - quay.io/ocpmetal/assisted-installer-agent
@@ -38,20 +37,9 @@
     - quay.io/ocpmetal/assisted-ignition-generator:stable.24.09.2020-22.20
     - quay.io/ocpmetal/connectivity_check
     - quay.io/ocpmetal/inventory
-    - quay.io/sameersbn/squid
     - quay.io/coreos/coreos-installer:release
-    - quay.io/ohadlevy/kexec
-    - quay.io/bitnami/wildfly
     - quay.io/ocpmetal/assisted-installer-controller-ocp:latest
-    - quay.io/mavazque/s3cmd
-    - quay.io/jparrill/assisted-service-operator-bundle:0.0.1
-    - quay.io/jparrill/assisted-service-index:0.0.1
-    - quay.io/openshift/origin-cli:latest
-    - registry.access.redhat.com/ubi8/ubi-minimal:latest
-    - quay.io/ocpmetal/assisted-service-operator-bundle:latest
-    - quay.io/ocpmetal/assisted-service-index:latest
-    - k8s.gcr.io/pause:3.5
-    - quay.io/ocpmetal/assisted-installer-controller:latest
+    - "{{ controller_image }}"
 
 - name: Copy local kubeconfig to remote server if set
   ansible.builtin.copy:

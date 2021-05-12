@@ -4,7 +4,10 @@
 
 - name: Download image to temporary directory
   uri:
-    url: "{{ rhcos_remote_url }}"
-    dest: "{{ http_server_path | default('/var/www/html/') }}/{{ rhcos_remote_url | basename }}"
-    creates: "{{ http_server_path | default('/var/www/html/') }}/{{ rhcos_remote_url | basename }}"
+    url: "{{ item }}"
+    dest: "{{ http_server_path | default('/var/www/html/') }}/{{ item | basename }}"
+    creates: "{{ http_server_path | default('/var/www/html/') }}/{{ item | basename }}"
+  with_items:
+  - "{{ rhcos_remote_iso }}"
+  - "{{ rhcos_remote_rootfs }}"
   delegate_to: "{{ groups['http_mirror'][0] }}"

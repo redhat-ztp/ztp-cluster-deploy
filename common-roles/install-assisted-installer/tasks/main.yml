@@ -55,7 +55,7 @@
     - local-volume.yaml.j2
     - add-hive-operator.yaml.j2
     - add-assisted-service-operator.yaml.j2
-    - add-cluster-imageset.yaml
+    - add-cluster-imageset.yaml.j2
 
 - name: Query for existing storage class
   ansible.builtin.shell:
@@ -153,9 +153,9 @@
   retries: 100
   delay: 30
 
-- name: Downscale the operator
+- name: Downscale the bm operator
   ansible.builtin.shell:
-    cmd: "oc scale --replicas=0 deployment/assisted-service-operator -n assisted-installer"
+    cmd: "oc scale --replicas=0 deployment.apps/cluster-baremetal-operator -n openshift-machine-api"
   environment:
     KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
 
