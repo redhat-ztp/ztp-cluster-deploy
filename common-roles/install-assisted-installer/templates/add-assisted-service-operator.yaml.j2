@@ -64,7 +64,7 @@ spec:
   config:
     env:
     - name: OPENSHIFT_VERSIONS
-      value: '{"4.8":{"display_name":"4.8","rhcos_image":"{{ disconnected_http_server_var }}/{{ rhcos_remote_url | basename }}","rhcos_version":"{{ rhcos_remote_url | basename | splitext | first | splitext | first }}","support_level":"production"}}'
+      value: '{"4.8":{"display_name":"4.8","rhcos_image":"{{ disconnected_http_server }}/{{ rhcos_remote_url | basename }}","rhcos_version":"{{ rhcos_remote_url | basename | splitext | first | splitext | first }}","support_level":"production"}}'
     - name: IPV6_SUPPORT
       value: "true"
     - name: DEPLOY_TARGET
@@ -77,6 +77,8 @@ kind: AgentServiceConfig
 metadata:
   namespace: assisted-installer
   name: agent
+  annotations:
+    unsupported.agent-install.openshift.io/assisted-service-configmap: 'assisted-service-config'
 spec:
   databaseStorage:
     accessModes:
@@ -90,3 +92,5 @@ spec:
     resources:
       requests:
         storage: 20Gi
+  mirrorRegistryRef:
+    name: 'assisted-service-config'

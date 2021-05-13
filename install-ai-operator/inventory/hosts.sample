@@ -17,11 +17,19 @@ provisioner_cluster_version_minor=0
 provisioner_cluster_registy=mirror_hostname:5000
 provisioner_cluster_registry_user=dummy
 provisioner_cluster_registry_password=dummy
-disconnected_http_server=http_hostname
+disconnected_http_server=http://http_hostname
+disconnected_http_server=http://dhcp-38.cnfdt11.private.lab
+http_server_path=/var/www/html/
+
+# set those only if you need to expose the redfish endpoints
+# internally, and the cluster endpoints externally
+redfish_ips = [{ 'ip': '10.46.61.138:443', 'target_port': '8443' }]
+haproxy_http_port=8080
+haproxy_https_port=8081
 
 # vars for the mirror, need to be pinned to 4.7 for the moment
 mirror_version=4.7
-mirror_version_minor=8
+mirror_version_minor=10
 mirror_version_spoke_release=4.8.0-fc.3-x86_64
 
 # set it to a disk that has a minimum of 350gb, for mirroring
@@ -39,3 +47,13 @@ device_paths=[ '/dev/vda', '/dev/vdb' ]
 # host from where the installation is performed
 10.46.55.25 ansible_connection=ssh ansible_user=root
 #localhost ansible_connection=local
+#
+# set it to copy the iso images to a related http server
+[http_mirror]
+#localhost ansible_connection=local ansible_user=root
+10.46.55.25 ansible_connection=ssh ansible_user=root
+
+# set it to install haproxy to expose endpoints
+[haproxy]
+#localhost ansible_connection=local ansible_user=root
+10.46.55.25 ansible_connection=ssh ansible_user=root

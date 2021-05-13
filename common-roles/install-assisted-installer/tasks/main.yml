@@ -7,35 +7,45 @@
   ansible.builtin.copy:
     src: "{{ provisioner_cluster_kubeconfig }}"
     dest: "{{ temporary_directory.path }}/kubeconfig"
-  when: provisioner_cluster_kubeconfig is defined and provisioner_cluster_kubeconfig|length > 0
-
-- name: If not set, download with kcli
-  ansible.builtin.shell:
-    cmd: "kcli scp root@test-operator-installer:/root/ocp/auth/kubeconfig {{ temporary_directory.path }}/kubeconfig"
-  when: provisioner_cluster_kubeconfig is not defined
 
 - block:
   - name: Retrieve the private registry crt
     ansible.builtin.shell:
-      cmd: "kcli ssh {{ provisioner_cluster_name }}-installer 'cat /etc/pki/ca-trust/source/anchors/domain.crt'"
+      cmd: |
+        {% set mirror_without = provisioner_cluster_registry.split(':') %}oc get cm/image-registry-certificates -n openshift-image-registry -o json | jq .data.\"{{ mirror_without[0] }}..{{ mirror_without[1] }}\" | sed -e 's/"//g' | sed -e 's/\\n/\n/g' | tr -s '\n'
     register: cert_result
 
-  - name: Set fact for crt
+  - name: Set fact for private registry, if we need it
     set_fact:
       private_registry_crt: "{{ cert_result.stdout }}"
-  when: private_registry_crt is not defined or private_registry_crt|length <=0
+  when: (private_registry_crt is not defined or private_registry_crt|length <=0) and provisioner_cluster_registry is defined
 
 - block:
-  - name: Retrieve registries.conf file, if we are provisioning the mirror
+  - name: Retrieve the registries.conf from one of the masters
     ansible.builtin.shell:
-      cmd: "kcli ssh core@{{ provisioner_cluster_name }}-master-0 'cat /etc/containers/registries.conf'"
-    register: registries_conf_data
+      cmd: oc get nodes  -o jsonpath='{ $.items[0].status.addresses[?(@.type=="InternalIP")].address }'
+    register: master_ip
 
-  - name: Set fact for file
+  - name: Retrieve the registries.conf file from it
+    ansible.builtin.shell:
+      cmd: "ssh core@{{ master_ip.stdout }} 'sudo cat /etc/containers/registries.conf'"
+    ignore_errors: true
+    when: master_ip.stdout|length > 0
+    register: registries_output
+
+  - name: Set fact
     set_fact:
-      registries_conf_file: "{{ registries_conf_data.stdout | b64encode }}"
-  when: provisioner_cluster_kubeconfig is not defined or provisioner_cluster_kubeconfig|length<=0
+      registries_conf: "{{ registries_output.stdout|default('') }}"
+    when: registries_output.stdout|length > 0 
 
+  when: (registries_conf is not defined or registries_conf|length <=0) and provisioner_cluster_registry is defined
+
+- name: Create registry configmap just if needed
+  template:
+    src: "templates/add-configmap-registry.yaml.j2"
+    dest: "{{ temporary_directory.path }}/add-configmap-registry.yaml"
+  when: private_registry_crt is defined
+    
 - name: Copy template to temporary path
   template:
     src: "templates/{{ item }}"
@@ -45,8 +55,6 @@
     - local-volume.yaml.j2
     - add-hive-operator.yaml.j2
     - add-assisted-service-operator.yaml.j2
-    - add-configmap-registry.yaml.j2
-    - assisted-service-volumes-patch.yaml.j2
     - add-cluster-imageset.yaml
 
 - name: Query for existing storage class
@@ -75,7 +83,6 @@
     until: result.rc == 0
     retries: 100
     delay: 30
-    ignore_errors: yes
 
   - name: wait until provisioner pods are created
     ansible.builtin.shell:
@@ -124,6 +131,7 @@
     chdir: "{{ temporary_directory.path }}"
   environment:
     KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+  when: private_registry_crt is defined
 
 - name: wait until ai pods are created
   ansible.builtin.shell:
@@ -148,12 +156,6 @@
 - name: Downscale the operator
   ansible.builtin.shell:
     cmd: "oc scale --replicas=0 deployment/assisted-service-operator -n assisted-installer"
-  environment:
-    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
-
-- name: Patch the deployment to add the extra volume
-  ansible.builtin.shell:
-    cmd: 'oc patch deployment assisted-service --patch "$(cat {{ temporary_directory.path }}/assisted-service-volumes-patch.yaml)" -n assisted-installer'
   environment:
     KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
 
