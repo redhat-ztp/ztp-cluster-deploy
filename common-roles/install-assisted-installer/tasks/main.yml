@@ -54,6 +54,7 @@
     - add-local-storage-operator.yaml.j2
     - local-volume.yaml.j2
     - add-hive-operator.yaml.j2
+    - add-hive-config.yaml.j2
     - add-assisted-service-operator.yaml.j2
     - add-cluster-imageset.yaml.j2
 
@@ -117,6 +118,13 @@
   until: hive_pods.stdout|int == 1
   retries: 100
   delay: 30
+
+- name: Create hive configuration
+  ansible.builtin.shell:
+    cmd: oc apply -f ./add-hive-config.yaml
+    chdir: "{{ temporary_directory.path }}"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
 
 - name: Create assisted service operator
   ansible.builtin.shell:
