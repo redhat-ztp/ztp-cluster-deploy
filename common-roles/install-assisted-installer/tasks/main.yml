@@ -57,6 +57,7 @@
     - add-hive-operator.yaml.j2
     - add-hive-config.yaml.j2
     - add-assisted-service-operator.yaml.j2
+    - add-agent-service-config.yaml.j2
     - add-cluster-imageset.yaml.j2
 
 - name: Query for existing storage class
@@ -151,6 +152,13 @@
   until: ai_pods.stdout|int == 1
   retries: 100
   delay: 30
+
+- name: Add agent service config
+  ansible.builtin.shell:
+    cmd: oc apply -f ./add-agent-service-config.yaml
+    chdir: "{{ temporary_directory.path }}"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
 
 - name: wait until assisited-service deployment is created
   ansible.builtin.shell:
