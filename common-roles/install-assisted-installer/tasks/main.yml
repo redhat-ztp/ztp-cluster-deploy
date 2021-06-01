@@ -9,15 +9,23 @@
     dest: "{{ temporary_directory.path }}/kubeconfig"
 
 - block:
-  - name: Retrieve the private registry crt
+  - name: Retrieve the registries.conf from one of the masters
     ansible.builtin.shell:
-      cmd: |
-        {% set mirror_without = provisioner_cluster_registry.split(':') %}oc get cm/image-registry-certificates -n openshift-image-registry -o json | jq .data.\"{{ mirror_without[0] }}..{{ mirror_without[1] }}\" | sed -e 's/"//g' | sed -e 's/\\n/\n/g' | tr -s '\n'
-    register: cert_result
+      cmd: oc get nodes  -o jsonpath='{ $.items[0].status.addresses[?(@.type=="InternalIP")].address }'
+    register: master_ip
+
+  - name: Retrieve the domain.crt file from it
+    ansible.builtin.shell:
+      cmd: "ssh core@{{ master_ip.stdout }} 'sudo cat /etc/pki/ca-trust/source/anchors/openshift-config-user-ca-bundle.crt'"
+    ignore_errors: true
+    when: master_ip.stdout|length > 0
+    register: ca_output
 
   - name: Set fact for private registry, if we need it
     set_fact:
-      private_registry_crt: "{{ cert_result.stdout }}"
+      private_registry_crt: "{{ ca_output.stdout|default('') }}"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
   when: (private_registry_crt is not defined or private_registry_crt|length <=0) and provisioner_cluster_registry is defined
 
 - block:
