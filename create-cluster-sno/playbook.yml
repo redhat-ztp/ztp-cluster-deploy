@@ -1,5 +1,5 @@
 ---
-- name: Deploy single node using manivests
+- name: Deploy single node using manifests
   hosts: provisioner
   environment:
     PATH: "/usr/bin/:/usr/local/bin/:{{ ansible_env.PATH }}"

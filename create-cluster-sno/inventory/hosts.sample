@@ -1,8 +1,9 @@
 [all:vars]
 
 kubeconfig_path=/tmp/kubeconfig
-cluster_name=test_sno
+cluster_name=test-sno
 cluster_domain=cluster.testing
+cluster_imageset=openshift-4.8
 bmc_user=root
 bmc_pass=calvin
 bmc_bootmac_address="0C:42:A1:8A:74:EC"
@@ -14,6 +15,7 @@ machine_network_cidr=1001:db8::
 machine_network_sufix=64
 service_network_cidr=1001:db7::
 service_network_sufix=64
+ssh_pubkey="<ssh key>"
 
 # uncomment if you need to pass an nmstate definition for the host
 #nmstate_path=./files/nmstate.yaml
