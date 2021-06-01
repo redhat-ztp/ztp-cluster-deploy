@@ -3,7 +3,7 @@
 # Variables to set, suit to your installation
 
 export OCP_REGISTRY=quay.io/openshift-release-dev/ocp-release
-export OCP_RELEASE={{ mirror_version }}
+export OCP_RELEASE={{ operators_mirror_version }}
 export ARCHITECTURE=x86_64
 export SIGNATURE_BASE64_FILE="signature-sha256-$OCP_RELEASE.yaml"
 export OCP_PULLSECRET_AUTHFILE='{{ pull_secret_path }}'
