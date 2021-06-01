@@ -21,6 +21,8 @@
   ignore_errors: true
   with_items:
     - quay.io/ocpmetal/s3server
+    - quay.io/ocpmetal/assisted-service-index
+    - quay.io/ocpmetal/assisted-service-operator-bundle
     - quay.io/ocpmetal/assisted-service
     - quay.io/ocpmetal/assisted-installer
     - quay.io/ocpmetal/assisted-installer-agent
