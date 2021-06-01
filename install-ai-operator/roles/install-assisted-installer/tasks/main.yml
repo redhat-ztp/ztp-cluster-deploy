@@ -28,7 +28,7 @@
     dest: "{{ temporary_directory.path }}/ai_secrets.yaml"
   vars:
     dockerconfigjson: "{{ merged_creds.stdout | trim }}"
-    ssh_private_key: "{{ privkey.stdout | indent( width=4, indentfirst=True) }}"
+    ssh_private_key: "{{ privkey.stdout|indent(4, True) }}"
 
 - name: Copy local kubeconfig to remote server if set
   ansible.builtin.copy:
