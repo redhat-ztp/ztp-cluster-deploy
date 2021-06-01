@@ -37,7 +37,8 @@
     set_fact:
       registries_conf: "{{ registries_output.stdout|default('') }}"
     when: registries_output.stdout|length > 0 
-
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
   when: (registries_conf is not defined or registries_conf|length <=0) and provisioner_cluster_registry is defined
 
 - name: Create registry configmap just if needed
