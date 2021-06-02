@@ -8,6 +8,8 @@ install_namespace=test-sno-installer
 cluster_name=test-sno
 cluster_domain=cluster.testing
 cluster_imageset=openshift-4.8
+# uncomment it if you manually need to give hostname
+#hostname=test-sno.clus2.t5g.lab.eng.bos.redhat.com
 bmc_user=root
 bmc_pass=calvin
 # MAC address of the primary NIC in the system
