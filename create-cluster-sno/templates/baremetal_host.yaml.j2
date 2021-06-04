@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ cluster_name }}-bmh-secret
-  namespace: assisted-installer
+  namespace: {{ install_namespace }}
 data:
   username: {{ bmc_user | b64encode }}
   password: {{ bmc_pass | b64encode }}
@@ -13,7 +13,7 @@ apiVersion: metal3.io/v1alpha1
 kind: BareMetalHost
 metadata:
   name: {{ cluster_name }}-bmh
-  namespace: assisted-installer
+  namespace: {{ install_namespace }}
   labels:
     infraenvs.agent-install.openshift.io: "{{ cluster_name }}-installenv"
   annotations:
@@ -23,9 +23,9 @@ metadata:
 spec:
   online: true
   automatedCleaningMode: disabled
-  bootMACAddress: {{ bmc_bootmac_address }}
+  bootMACAddress: {{ primary_mac_address }}
   bmc:
-    address: {{ bmc_redfish_endpoint }}
+    address: "{{ bmc_redfish_endpoint }}"
     credentialsName: {{ cluster_name }}-bmh-secret
     disableCertificateVerification: true
 {% if root_device_hints is defined and root_device_hints|length > 0 %}  rootDeviceHints:

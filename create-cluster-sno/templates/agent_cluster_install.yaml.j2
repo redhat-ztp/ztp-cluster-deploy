@@ -3,20 +3,30 @@ apiVersion: extensions.hive.openshift.io/v1beta1
 kind: AgentClusterInstall
 metadata:
   name: {{ cluster_name }}
-  namespace: assisted-installer
+  namespace: {{ install_namespace }}
 spec:
   clusterDeploymentRef:
     name: {{ cluster_name }}-deployment
   imageSetRef:
     name: {{ cluster_imageset }}
+{% if cluster_extra_manifests is defined and cluster_extra_manifests|length > 0 %}
+  manifestsConfigMapRef:
+    name: {{ cluster_name }}-extra-install-manifests
+{% endif %}
   networking:
+{% if cluster_network_cidr is defined and cluster_network_cidr|length > 0 %}
     clusterNetwork:
-      - cidr: "{{ cluster_network_cidr }}/{{ cluster_network_sufix }}" 
+      - cidr: "{{ cluster_network_cidr }}/{{ cluster_network_sufix }}"
         hostPrefix: {{ cluster_network_host_prefix }}
+{% endif %}
+{% if service_network_cidr is defined and service_network_cidr|length > 0 %}
     serviceNetwork:
       - "{{ service_network_cidr }}/{{ service_network_sufix }}"
+{% endif %}
+{% if machine_network_cidr is defined and machine_network_cidr|length > 0 %}
     machineNetwork:
       - cidr: "{{ machine_network_cidr }}/{{ machine_network_sufix }}"
+{% endif %}
     networkType: OVNKubernetes
   provisionRequirements:
     controlPlaneAgents: 1

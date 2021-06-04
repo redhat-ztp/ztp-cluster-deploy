@@ -2,11 +2,11 @@ apiVersion: agent-install.openshift.io/v1beta1
 kind: InfraEnv
 metadata:
   name: {{ cluster_name }}-installenv
-  namespace: assisted-installer
+  namespace: {{ install_namespace }}
 spec:
   clusterRef:
     name: {{ cluster_name }}-deployment
-    namespace: assisted-installer
+    namespace: {{ install_namespace }}
   agentLabelSelector:
     matchLabels:
       agent-label: du-sno
@@ -21,5 +21,5 @@ spec:
 {% if nmstate_path is defined %}
   nmStateConfigLabelSelector:
     matchLabels:
-      nmstate-label: du-sno
+      nmstate-label: {{ cluster_name }}-nmstate
 {% endif %}

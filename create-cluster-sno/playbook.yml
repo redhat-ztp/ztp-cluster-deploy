@@ -19,11 +19,17 @@
       - infra_env.yaml
       - baremetal_host.yaml
 
-    - name: Copy file to temporary path
-      copy:
+    - name: Parse nmstate template into temporary path
+      template:
         src: "{{ nmstate_path }}"
         dest: "{{ temp_directory.path }}/nmstate.yaml"
       when: nmstate_path is defined
+
+    - name: Parse extra manifests template into temporary path
+      template:
+        src: "{{ cluster_extra_manifests }}"
+        dest: "{{ temp_directory.path }}/extra-manifests.yaml"
+      when: cluster_extra_manifests is defined
 
     - name: Apply nmstate if exists
       ansible.builtin.shell:
@@ -31,6 +37,13 @@
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
       when: nmstate_path is defined
+
+    - name: Apply extra manifests if defined
+      ansible.builtin.shell:
+        cmd: oc apply -f {{ temp_directory.path }}/extra-manifests.yaml
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      when: cluster_extra_manifests is defined
 
     - name: Apply the cluster deployment and infraenv
       ansible.builtin.shell:
@@ -42,4 +55,5 @@
       - agent_cluster_install.yaml
       - infra_env.yaml
       - baremetal_host.yaml
+
 
