@@ -1,12 +1,17 @@
 [all:vars]
 
+# Path to kubeconfig for Assisted Service operator (deployment) cluster
 kubeconfig_path=/tmp/kubeconfig
+# Namespace on installation cluster where installation objects are created
+install_namespace=test-sno-installer
+
 cluster_name=test-sno
 cluster_domain=cluster.testing
 cluster_imageset=openshift-4.8
 bmc_user=root
 bmc_pass=calvin
-bmc_bootmac_address="0C:42:A1:8A:74:EC"
+# MAC address of the primary NIC in the system
+primary_mac_address="0C:42:A1:8A:74:EC"
 bmc_redfish_endpoint=idrac-virtualmedia+https://[1001:db9::51e5]:8443/redfish/v1/Systems/System.Embedded.1
 cluster_network_cidr=1001:db9::
 cluster_network_sufix=64
@@ -17,8 +22,30 @@ service_network_cidr=1001:db7::
 service_network_sufix=64
 ssh_pubkey="<ssh key>"
 
-# uncomment if you need to pass an nmstate definition for the host
-#nmstate_path=./files/nmstate.yaml
+##############################
+# Extra installation manifests. Uncomment to include additional day-0
+# manifests during installation
+#cluster_extra_manifests=templates/extra_install_manifests.yaml.j2
+#
+##############################
+
+##############################
+# Networking information
+# uncomment if you need to pass an nmstate definition for the
+# host. Other values in this section are ignored if nmstate_path is
+# not set
+#nmstate_path=./files/nmstate.yaml.j2
+#primary_interface=
+# Addresses in CIDR format x.x.x.x/y or x::x/y
+#host_ip=
+#api_ip=
+#app_ip=
+# Host addresses, format x.x.x.x or x::x
+#dns_ip=
+#gateway_ip=
+#
+##############################
+
 
 # uncomment if you need to pass root device hints
 #root_device_hints="hctl: '0:1:0'"
