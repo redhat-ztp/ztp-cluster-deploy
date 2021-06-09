@@ -1,0 +1,3 @@
+---
+management_workload_name: "management"
+management_workload_cpuset: ""

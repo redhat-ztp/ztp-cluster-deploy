@@ -1,0 +1,60 @@
+---
+- name: Create temporary path
+  ansible.builtin.tempfile:
+    state: directory
+  register: temp_directory
+
+- name: Check for custom manifests
+  find:
+    path: "{{ manifests_path }}"
+  register: manifest_files
+
+- name: Apply custom manifests for this cluster
+  template:
+    src: "extra_install_manifests.yaml.j2"
+    dest: "{{ temp_directory.path }}/extra-manifests.yaml"
+  register: cluster_extra_manifests
+  when: manifest_files.matched|int != 0
+
+- name: Parse templates to temporary path
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ temp_directory.path }}/{{ item }}"
+  with_items:
+  - agent_cluster_install.yaml
+  - cluster_deployment.yaml
+  - infra_env.yaml
+  - baremetal_host.yaml
+
+- name: Parse nmstate template into temporary path
+  template:
+    src: "{{ nmstate_path }}"
+    dest: "{{ temp_directory.path }}/nmstate.yaml"
+  when: nmstate_path is defined
+
+- name: Apply nmstate if exists
+  ansible.builtin.shell:
+    cmd: oc apply -f {{ temp_directory.path }}/nmstate.yaml
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+  when: nmstate_path is defined
+
+- name: Apply extra manifests if defined
+  ansible.builtin.shell:
+    cmd: oc apply -f {{ temp_directory.path }}/extra-manifests.yaml
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+  when: cluster_extra_manifests is defined
+
+- name: Apply the cluster deployment and infraenv
+  ansible.builtin.shell:
+    cmd: oc apply -f {{ temp_directory.path }}/{{ item }}
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+  with_items:
+  - cluster_deployment.yaml
+  - agent_cluster_install.yaml
+  - infra_env.yaml
+  - baremetal_host.yaml
+
+
