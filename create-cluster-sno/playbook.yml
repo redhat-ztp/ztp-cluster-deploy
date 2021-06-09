@@ -3,57 +3,8 @@
   hosts: provisioner
   environment:
     PATH: "/usr/bin/:/usr/local/bin/:{{ ansible_env.PATH }}"
-  tasks:
-    - name: Create temporary path
-      ansible.builtin.tempfile:
-        state: directory
-      register: temp_directory
-
-    - name: Parse templates to temporary path
-      template:
-        src: "{{ item }}.j2"
-        dest: "{{ temp_directory.path }}/{{ item }}"
-      with_items:
-      - agent_cluster_install.yaml
-      - cluster_deployment.yaml
-      - infra_env.yaml
-      - baremetal_host.yaml
-
-    - name: Parse nmstate template into temporary path
-      template:
-        src: "{{ nmstate_path }}"
-        dest: "{{ temp_directory.path }}/nmstate.yaml"
-      when: nmstate_path is defined
-
-    - name: Parse extra manifests template into temporary path
-      template:
-        src: "{{ cluster_extra_manifests }}"
-        dest: "{{ temp_directory.path }}/extra-manifests.yaml"
-      when: cluster_extra_manifests is defined
-
-    - name: Apply nmstate if exists
-      ansible.builtin.shell:
-        cmd: oc apply -f {{ temp_directory.path }}/nmstate.yaml
-      environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
-      when: nmstate_path is defined
-
-    - name: Apply extra manifests if defined
-      ansible.builtin.shell:
-        cmd: oc apply -f {{ temp_directory.path }}/extra-manifests.yaml
-      environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
-      when: cluster_extra_manifests is defined
-
-    - name: Apply the cluster deployment and infraenv
-      ansible.builtin.shell:
-        cmd: oc apply -f {{ temp_directory.path }}/{{ item }}
-      environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
-      with_items:
-      - cluster_deployment.yaml
-      - agent_cluster_install.yaml
-      - infra_env.yaml
-      - baremetal_host.yaml
-
+  roles:
+    - role: enable-workload-partitioning
+    - role: chrony_day0
+    - role: deploy_cluster
 

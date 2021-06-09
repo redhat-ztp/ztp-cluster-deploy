@@ -1,0 +1,6 @@
+---
+- name: Create the chrony NTP manifest
+  template:
+    src: templates/03-chrony-ntp.yaml
+    dest: "{{ manifests_path }}/03-chrony-ntp.yaml"
+  when: ntp_server != ''

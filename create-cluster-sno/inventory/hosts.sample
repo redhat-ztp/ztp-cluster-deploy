@@ -23,9 +23,11 @@ service_network_sufix=64
 ssh_pubkey="<ssh key>"
 
 ##############################
-# Extra installation manifests. Uncomment to include additional day-0
-# manifests during installation
-#cluster_extra_manifests=templates/extra_install_manifests.yaml.j2
+# Extra installation manifests. Any manifests in this path will be
+# included as additional day-0 manifests during installation
+manifests_path=extra_manifests
+#management_workload_cpuset="0-1,32-33"
+#ntp_server=pool.ntp.org
 #
 ##############################
 
