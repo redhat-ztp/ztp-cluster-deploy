@@ -1,6 +1,28 @@
-- name: mirror assisted installer images
-  include_role:
-    name: "{{ playbook_dir }}/../common-roles/mirror-ai-images"
+- name: Create temporary directory
+  tempfile:
+    state: directory
+  register: temporary_directory
+
+- name: Login to private registry
+  shell: "podman login --username {{ provisioner_cluster_registry_user }} --password {{ provisioner_cluster_registry_password }} --tls-verify=false"
+
+- name: Copy pull secret
+  ansible.builtin.copy:
+    content: "{{ pull_secret }}"
+    dest: "{{ temporary_directory.path }}/pull_secret"
+
+- name: Generate merged credentials
+  ansible.builtin.shell:
+    cmd: "jq -s '.[0] * .[1]' {{ temporary_directory.path }}/pull_secret $XDG_RUNTIME_DIR/containers/auth.json > {{ temporary_directory.path }}/merged_creds.json"
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/0"
+
+- name: Mirror release image for spoke clusters
+  ansible.builtin.shell:
+    cmd: "oc adm -a {{ temporary_directory.path }}/merged_creds.json release new --from-release=quay.io/openshift-release-dev/ocp-release:{{ mirror_version_spoke_release }} --mirror={{ provisioner_cluster_registry }}/ocp4 --to-image={{ provisioner_cluster_registry }}/ocp4:{{ mirror_version_spoke_release }}"
+  ignore_errors: true
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
 
 - name: Download image to temporary directory
   uri:

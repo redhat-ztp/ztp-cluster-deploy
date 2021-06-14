@@ -1,0 +1,58 @@
+- name: Copy pull secret
+  ansible.builtin.copy:
+    content: "{{ pull_secret }}"
+    dest: "{{ temporary_path }}/pull_secret"
+
+- name: Login to private registry
+  shell: "podman login --username {{ provisioner_cluster_registry_user }} --password {{ provisioner_cluster_registry_password }} --tls-verify=false"
+
+- name: Generate merged credentials
+  ansible.builtin.shell:
+    cmd: "jq -s '.[0] * .[1]' {{ temporary_path }}/pull_secret $XDG_RUNTIME_DIR/containers/auth.json > {{ temporary_path }}/merged_creds.json"
+
+- name: Copy ACM registry index
+  ansible.builtin.shell:
+    cmd: "skopeo copy --format=v2s2 --authfile {{ temporary_path }}/pull_secret --dest-authfile ${XDG_RUNTIME_DIR}/containers/auth.json --all --dest-tls-verify=false docker://quay.io/acm-d/acm-custom-registry:{{ acm_snapshot }} docker://{{ provisioner_cluster_registry }}/rhacm2/acm-custom-registry:{{ acm_snapshot }}"
+
+- name: Copy ACM bundle images
+  ansible.builtin.shell:
+    cmd: "skopeo copy --format=v2s2 --authfile {{ temporary_path }}/pull_secret --dest-authfile ${XDG_RUNTIME_DIR}/containers/auth.json --all --dest-tls-verify=false docker://quay.io/acm-d/acm-operator-bundle:{{ acm_operator_bundle }} docker://{{ provisioner_cluster_registry }}/rhacm2/acm-operator-bundle:{{ acm_operator_bundle }}"
+
+- name: Create temporary build folder
+  ansible.builtin.tempfile:
+    state: directory
+  register: temporary_build_directory
+
+- name: Extract mapping
+  ansible.builtin.shell:
+    cmd: "oc adm -a {{ temporary_path }}/merged_creds.json catalog mirror quay.io/acm-d/acm-custom-registry:{{ acm_snapshot }} {{ provisioner_cluster_registry }} --manifests-only --to-manifests={{ temporary_build_directory.path }}"
+
+- name: Replace with downstream mirror
+  ansible.builtin.shell:
+    cmd: "sed -i s#registry.redhat.io/rhacm2/#quay.io/acm-d/# {{ temporary_build_directory.path }}/mapping.txt"
+
+- name: Mirror the images into your registry
+  ansible.builtin.shell:
+    cmd: "oc image mirror -f {{ temporary_build_directory.path }}/mapping.txt -a {{ temporary_path }}/merged_creds.json --filter-by-os=.* --keep-manifest-list --continue-on-error=true"
+  ignore_errors: true
+
+- name: Create temporary directory
+  tempfile:
+    state: directory
+  register: temporary_directory
+
+- name: Copy local kubeconfig to remote server if set
+  ansible.builtin.copy:
+    src: "{{ provisioner_cluster_kubeconfig }}"
+    dest: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: Copy template to temporary path
+  template:
+    src: "templates/icsp.yaml.j2"
+    dest: "{{ temporary_directory.path }}/icsp.yaml"
+
+- name: Apply the ICSP
+  ansible.builtin.shell:
+    cmd: "oc apply -f {{ temporary_directory.path }}/icsp.yaml"
+  environment:
+    KUBECONFIG: "{{ temporary_path }}/kubeconfig"

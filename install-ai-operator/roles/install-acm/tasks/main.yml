@@ -1,0 +1,39 @@
+- name: Create temporary directory
+  tempfile:
+    state: directory
+  register: temporary_directory
+
+- name: Copy local kubeconfig to remote server if set
+  ansible.builtin.copy:
+    src: "{{ provisioner_cluster_kubeconfig }}"
+    dest: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: Copy pull secret
+  ansible.builtin.copy:
+    content: "{{ pull_secret }}"
+    dest: "{{ temporary_directory.path }}/pull_secret"
+
+- name: Clone the ACM project
+  ansible.builtin.git:
+    repo: https://github.com/open-cluster-management/deploy
+    dest: "{{ temporary_directory.path }}/acm"
+
+- name: Create version file
+  ansible.builtin.shell:
+    cmd: "echo '{{ acm_snapshot }}' > {{ temporary_directory.path }}/acm/snapshot.ver"
+
+- name: Copy template to temporary path
+  template:
+    src: "templates/pull-secret.yaml.j2"
+    dest: "{{ temporary_directory.path }}/acm/prereqs/pull-secret.yaml"
+
+- name: Execute with the right parameters
+  ansible.builtin.shell:
+    cmd: "{{ temporary_directory.path }}/acm/start.sh --silent"
+    chdir: "{{ temporary_directory.path }}/acm"
+  environment:
+    CUSTOM_REGISTRY_REPO: "{{ provisioner_cluster_registry }}/rhacm2"
+    COMPOSITE_BUNDLE: "true"
+    QUAY_TOKEN: "{{ quay_token }}"
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+    DEBUG: true

@@ -1,7 +1,3 @@
-- name: Install assisted installer pods
-  include_role:
-    name: "{{ playbook_dir }}/../common-roles/install-assisted-installer"
-
 - name: Create temporary directory
   tempfile:
     state: directory
@@ -11,11 +7,18 @@
   ansible.builtin.copy:
     content: "{{ pull_secret }}"
     dest: "{{ temporary_directory.path }}/pull_secret"
+
+- name: Copy local kubeconfig to remote server if set
+  ansible.builtin.copy:
+    src: "{{ provisioner_cluster_kubeconfig }}"
+    dest: "{{ temporary_directory.path }}/kubeconfig"
     
 - name: Generate credentials file
   ansible.builtin.shell:
     cmd: "jq -s '.[0] * .[1]' {{ temporary_directory.path }}/pull_secret $XDG_RUNTIME_DIR/containers/auth.json"
   register: merged_creds
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/0"
 
 - name: Generate privkey for AI
   ansible.builtin.shell:
@@ -30,14 +33,99 @@
     dockerconfigjson: "{{ merged_creds.stdout | trim }}"
     ssh_private_key: "{{ privkey.stdout|indent(4, True) }}"
 
-- name: Copy local kubeconfig to remote server if set
-  ansible.builtin.copy:
-    src: "{{ provisioner_cluster_kubeconfig }}"
-    dest: "{{ temporary_path }}/kubeconfig"
-
 - name: Apply the secrets
   ansible.builtin.shell:
     cmd: oc apply -f ./ai_secrets.yaml
     chdir: "{{ temporary_directory.path }}"
   environment:
     KUBECONFIG: "{{ temporary_path }}/kubeconfig"
+
+- block:
+  - name: Retrieve the private registry crt
+    ansible.builtin.shell:
+      cmd: |
+        {% set mirror_without = provisioner_cluster_registry.split(':') %}oc get cm/image-registry-certificates -n openshift-image-registry -o json | jq .data.\"{{ mirror_without[0] }}..{{ mirror_without[1] }}\" | sed -e 's/"//g' | sed -e 's/\\n/\n/g' | tr -s '\n'
+    register: cert_result
+
+  - name: Set fact for private registry, if we need it
+    set_fact:
+      private_registry_crt: "{{ cert_result.stdout }}"
+  when: (private_registry_crt is not defined or private_registry_crt|length <=0) and provisioner_cluster_registry is defined
+
+- block:
+  - name: Retrieve the registries.conf from one of the masters
+    ansible.builtin.shell:
+      cmd: oc get nodes  -o jsonpath='{ $.items[0].status.addresses[?(@.type=="InternalIP")].address }'
+    register: master_ip
+
+  - name: Retrieve the registries.conf file from it
+    ansible.builtin.shell:
+      cmd: "ssh core@{{ master_ip.stdout }} 'sudo cat /etc/containers/registries.conf'"
+    ignore_errors: true
+    when: master_ip.stdout|length > 0
+    register: registries_output
+
+  - name: Set fact
+    set_fact:
+      registries_conf: "{{ registries_output.stdout|default('') }}"
+    when: registries_output.stdout|length > 0 
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+  when: (registries_conf is not defined or registries_conf|length <=0) and provisioner_cluster_registry is defined
+
+- name: Create registry configmap just if needed
+  template:
+    src: "templates/add-configmap-registry.yaml.j2"
+    dest: "{{ temporary_directory.path }}/add-configmap-registry.yaml"
+  when: private_registry_crt is defined
+
+- name: Copy template to temporary path
+  template:
+    src: "templates/{{ item }}"
+    dest: "{{ temporary_directory.path }}/{{ item | replace('.j2', '') }}"
+  with_items:
+    - add-assisted-service-config.yaml.j2
+    - add-agent-service-config.yaml.j2
+    - add-cluster-imageset.yaml.j2
+
+- name: Create configmap for crt
+  ansible.builtin.shell:
+    cmd: oc apply -f ./add-configmap-registry.yaml
+    chdir: "{{ temporary_directory.path }}"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+  when: private_registry_crt is defined
+
+- name: Downscale the bm operator
+  ansible.builtin.shell:
+    cmd: "oc scale --replicas=0 deployment.apps/cluster-baremetal-operator -n openshift-machine-api"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: Patch the provisioning to monitor all namespaces
+  ansible.builtin.shell:
+    cmd: |
+      oc patch provisioning provisioning-configuration --type merge -p '{"spec":{"watchAllNamespaces": true}}'
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: Add assisted service config
+  ansible.builtin.shell:
+    cmd: oc apply -f ./add-assisted-service-config.yaml
+    chdir: "{{ temporary_directory.path }}"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: Add agent service config
+  ansible.builtin.shell:
+    cmd: oc apply -f ./add-agent-service-config.yaml
+    chdir: "{{ temporary_directory.path }}"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: Add cluster imageset
+  ansible.builtin.shell:
+    cmd: oc apply -f ./add-cluster-imageset.yaml
+    chdir: "{{ temporary_directory.path }}"
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
