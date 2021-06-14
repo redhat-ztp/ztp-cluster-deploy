@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: assisted-service-config
+  namespace: open-cluster-management
+  labels:
+    app: assisted-service
+data:
+  OPENSHIFT_VERSIONS: '{"4.8":{"display_name":"4.8", "release_version":"4.8", "rhcos_image":"{{ disconnected_http_server }}/{{ rhcos_remote_iso | basename }}", "rhcos_rootfs":"{{ disconnected_http_server }}/{{ rhcos_remote_rootfs | basename }}", "rhcos_version": "{{ rhcos_remote_iso | basename | splitext | first | splitext | first }}", "support_level":"production", "default": true}}'
+  CONTROLLER_IMAGE: quay.io/ocpmetal/assisted-installer-controller@sha256:93f193d97556711dce20b2f11f9e2793ae26eb25ad34a23b93d74484bc497ecc
+  LOG_LEVEL: "debug"
+

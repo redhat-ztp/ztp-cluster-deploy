@@ -12,6 +12,10 @@
       become: yes
     - role: create-olm-mirror
       tags: create-olm-mirror
+    - role: mirror-acm
+      tags: mirror-acm
+    - role: install-acm
+      tags: install-acm
     - role: mirror-ai-images
       tags: mirror-ai-images
     - role: install-assisted-installer
