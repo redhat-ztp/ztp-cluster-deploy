@@ -18,6 +18,9 @@ spec:
     {% if https_proxy is defined and https_proxy|length > 0 %}httpsProxy: {{ https_proxy }}{% endif %}
 {% endif %}
   sshAuthorizedKey: '{{ ssh_pubkey }}'
+{% if ignition_config_override is defined and ignition_config_override|length > 0 %}
+  ignitionConfigOverride: '{{ ignition_config_override }}'
+{% endif %}
 {% if nmstate_path is defined %}
   nmStateConfigLabelSelector:
     matchLabels:
