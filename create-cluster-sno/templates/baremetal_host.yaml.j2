@@ -29,6 +29,6 @@ spec:
     credentialsName: {{ cluster_name }}-bmh-secret
     disableCertificateVerification: true
 {% if root_device_hints is defined and root_device_hints|length > 0 %}  rootDeviceHints:
-{{ root_device_hints|indent(width=8, indentfirst=True) }}
+{{ root_device_hints|indent(width=8) }}
 {% endif %}
 

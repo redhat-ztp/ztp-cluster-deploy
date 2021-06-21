@@ -21,6 +21,7 @@
     src: "{{ item }}.j2"
     dest: "{{ temp_directory.path }}/{{ item }}"
   with_items:
+  - namespace.yaml
   - agent_cluster_install.yaml
   - cluster_deployment.yaml
   - infra_env.yaml
@@ -31,6 +32,12 @@
     src: "{{ nmstate_path }}"
     dest: "{{ temp_directory.path }}/nmstate.yaml"
   when: nmstate_path is defined
+
+- name: Apply namespace
+  ansible.builtin.shell:
+    cmd: oc apply -f {{ temp_directory.path }}/namespace.yaml
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
 
 - name: Apply nmstate if exists
   ansible.builtin.shell:
