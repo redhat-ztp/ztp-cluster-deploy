@@ -20,3 +20,8 @@ spec:
         storage: 20Gi
   mirrorRegistryRef:
     name: 'mirror-registry-config'
+  osImages:
+    - openshiftVersion: "{{ mirror_version_spoke_release | regex_replace('^([0-9])\\.([0-9]*).*', '\\1.\\2') }}"
+      version: "{{ mirror_version_spoke_release }}"
+      url: "{{ disconnected_http_server }}/{{ rhcos_remote_iso | basename }}"
+      rootFSUrl: "{{ disconnected_http_server }}/{{ rhcos_remote_rootfs | basename }}"

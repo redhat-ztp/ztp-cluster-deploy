@@ -44,13 +44,15 @@
   - name: Retrieve the private registry crt
     ansible.builtin.shell:
       cmd: |
-        {% set mirror_without = provisioner_cluster_registry.split(':') %}oc get cm/image-registry-certificates -n openshift-image-registry -o json | jq .data.\"{{ mirror_without[0] }}..{{ mirror_without[1] }}\" | sed -e 's/"//g' | sed -e 's/\\n/\n/g' | tr -s '\n'
+        {% set mirror_without = provisioner_cluster_registry.split(':') %}oc get cm/user-ca-bundle -n openshift-config -o json | jq .data[] | sed -e 's/"//g' | sed -e 's/\\n/\n/g' | tr -s '\n'
     register: cert_result
 
   - name: Set fact for private registry, if we need it
     set_fact:
       private_registry_crt: "{{ cert_result.stdout }}"
   when: (private_registry_crt is not defined or private_registry_crt|length <=0) and provisioner_cluster_registry is defined
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
 
 - block:
   - name: Retrieve the registries.conf from one of the masters
