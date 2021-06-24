@@ -24,6 +24,8 @@
   - namespace.yaml
   - agent_cluster_install.yaml
   - cluster_deployment.yaml
+  - managed_cluster.yaml
+  - klusterlet_addon_config.yaml
   - infra_env.yaml
   - baremetal_host.yaml
 
@@ -60,8 +62,8 @@
     KUBECONFIG: "{{ kubeconfig_path }}"
   with_items:
   - cluster_deployment.yaml
+  - klusterlet_addon_config.yaml
+  - managed_cluster.yaml
   - agent_cluster_install.yaml
   - infra_env.yaml
   - baremetal_host.yaml
-
-

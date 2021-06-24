@@ -4,7 +4,7 @@ metadata:
   name: nmstate-sno
   namespace: open-cluster-management
   labels:
-    nmstate-label: du-sno
+    nmstate-label: test-sno-nmstate
 spec:
   config:
     interfaces:
@@ -24,7 +24,7 @@ spec:
         search:
         - clus2.t5g.lab.eng.bos.redhat.com
         server:
-        - 2620:52:0:1310:ce29:8e60:eb92:e5f6
+        - 2620:52:0:1310::1f6 
     routes:
       config:
       - destination: ::/0 

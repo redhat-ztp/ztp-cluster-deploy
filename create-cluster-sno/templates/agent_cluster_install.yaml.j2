@@ -6,7 +6,7 @@ metadata:
   namespace: {{ install_namespace }}
 spec:
   clusterDeploymentRef:
-    name: {{ cluster_name }}-deployment
+    name: {{ cluster_name }}
   imageSetRef:
     name: {{ cluster_imageset }}
 {% if manifest_files.matched|int != 0 %}
