@@ -2,7 +2,7 @@ apiVersion: agent-install.openshift.io/v1beta1
 kind: NMStateConfig
 metadata:
   name: nmstate-sno
-  namespace: assisted-installer
+  namespace: open-cluster-management
   labels:
     nmstate-label: du-sno
 spec:
