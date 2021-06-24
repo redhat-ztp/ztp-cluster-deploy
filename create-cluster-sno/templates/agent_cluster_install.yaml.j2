@@ -3,10 +3,10 @@ apiVersion: extensions.hive.openshift.io/v1beta1
 kind: AgentClusterInstall
 metadata:
   name: {{ cluster_name }}
-  namespace: {{ install_namespace }}
+  namespace: {{ cluster_name }}
 spec:
   clusterDeploymentRef:
-    name: {{ cluster_name }}-deployment
+    name: {{ cluster_name }}
   imageSetRef:
     name: {{ cluster_imageset }}
 {% if manifest_files.matched|int != 0 %}

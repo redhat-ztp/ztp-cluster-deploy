@@ -2,8 +2,6 @@
 
 # Path to kubeconfig for Assisted Service operator (deployment) cluster
 kubeconfig_path=/tmp/kubeconfig
-# Namespace on installation cluster where installation objects are created
-install_namespace=test-sno-installer
 
 cluster_name=test-sno
 cluster_domain=cluster.testing
@@ -16,12 +14,12 @@ bmc_pass=calvin
 primary_mac_address="0C:42:A1:8A:74:EC"
 bmc_redfish_endpoint=idrac-virtualmedia+https://[1001:db9::51e5]:8443/redfish/v1/Systems/System.Embedded.1
 cluster_network_cidr=1001:db9::
-cluster_network_sufix=64
-cluster_network_host_prefix=121
+cluster_network_sufix=48
+cluster_network_host_prefix=64
 machine_network_cidr=1001:db8::
 machine_network_sufix=64
 service_network_cidr=1001:db7::
-service_network_sufix=64
+service_network_sufix=112
 ssh_pubkey="<ssh key>"
 # uncomment that to inject extra ign customizations
 #ignition_config_override='{"ignition": {"version": "3.1.0"}, "storage": {"files": [{"path": "/etc/someconfig", "contents": {"source": "data:text/plain;base64,aGVscGltdHJhcHBlZGluYXN3YWdnZXJzcGVj"}}]}}'

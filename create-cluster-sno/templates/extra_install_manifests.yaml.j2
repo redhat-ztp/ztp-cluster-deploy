@@ -2,7 +2,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: {{ cluster_name }}-extra-install-manifests
-  namespace: {{ install_namespace }}
+  namespace: {{ cluster_name }}
 data:
 {% for extra in manifest_files.files %}
   {{ extra.path | basename }}: |
