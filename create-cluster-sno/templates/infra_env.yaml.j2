@@ -1,15 +1,15 @@
 apiVersion: agent-install.openshift.io/v1beta1
 kind: InfraEnv
 metadata:
-  name: {{ cluster_name }}-installenv
-  namespace: {{ install_namespace }}
+  name: {{ cluster_name }}
+  namespace: {{ cluster_name }}
 spec:
   clusterRef:
-    name: {{ cluster_name }}-deployment
-    namespace: {{ install_namespace }}
+    name: {{ cluster_name }}
+    namespace: {{ cluster_name }}
   agentLabelSelector:
     matchLabels:
-      agent-label: du-sno
+      cluster_name: {{ cluster_name }}
   pullSecretRef:
     name: assisted-deployment-pull-secret
 {% if http_proxy is defined and http_proxy|length > 0 and https_proxy is defined and https_proxy|length > 0 is defined %}

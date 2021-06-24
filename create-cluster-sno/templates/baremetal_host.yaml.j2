@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{ cluster_name }}-bmh-secret
-  namespace: {{ install_namespace }}
+  namespace: {{ cluster_name }}
 data:
   username: {{ bmc_user | b64encode }}
   password: {{ bmc_pass | b64encode }}
@@ -13,9 +13,9 @@ apiVersion: metal3.io/v1alpha1
 kind: BareMetalHost
 metadata:
   name: {{ cluster_name }}-bmh
-  namespace: {{ install_namespace }}
+  namespace: {{ cluster_name }}
   labels:
-    infraenvs.agent-install.openshift.io: "{{ cluster_name }}-installenv"
+    infraenvs.agent-install.openshift.io: "{{ cluster_name }}"
   annotations:
     inspect.metal3.io: disabled
 {% if hostname is defined and hostname|length > 0 %}    bmac.agent-install.openshift.io/hostname: {{ hostname }}

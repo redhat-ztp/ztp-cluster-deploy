@@ -24,6 +24,8 @@
   - namespace.yaml
   - agent_cluster_install.yaml
   - cluster_deployment.yaml
+  - managed_cluster.yaml
+  - klusterlet_addon_config.yaml
   - infra_env.yaml
   - baremetal_host.yaml
 
@@ -36,6 +38,12 @@
 - name: Apply namespace
   ansible.builtin.shell:
     cmd: oc apply -f {{ temp_directory.path }}/namespace.yaml
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Copy pull secret to namespace
+  ansible.builtin.shell:
+    cmd: "oc get secret assisted-deployment-pull-secret --namespace=open-cluster-management -o yaml | sed 's/namespace: .*/namespace: {{ cluster_name }}/' | oc apply -f - "
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}"
 
@@ -60,8 +68,8 @@
     KUBECONFIG: "{{ kubeconfig_path }}"
   with_items:
   - cluster_deployment.yaml
+  - klusterlet_addon_config.yaml
+  - managed_cluster.yaml
   - agent_cluster_install.yaml
   - infra_env.yaml
   - baremetal_host.yaml
-
-
