@@ -15,7 +15,7 @@ metadata:
   name: {{ cluster_name }}-bmh
   namespace: {{ install_namespace }}
   labels:
-    infraenvs.agent-install.openshift.io: "{{ cluster_name }}-installenv"
+    infraenvs.agent-install.openshift.io: "{{ cluster_name }}"
   annotations:
     inspect.metal3.io: disabled
 {% if hostname is defined and hostname|length > 0 %}    bmac.agent-install.openshift.io/hostname: {{ hostname }}

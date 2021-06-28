@@ -67,3 +67,10 @@
   - agent_cluster_install.yaml
   - infra_env.yaml
   - baremetal_host.yaml
+
+- name: Copy pull secret to namespace
+  ansible.builtin.shell:
+    cmd: "oc get secret assisted-deployment-pull-secret --namespace=open-cluster-management -o yaml | sed 's/namespace: .*/namespace: {{ cluster_name }}/' | oc apply -f -"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
