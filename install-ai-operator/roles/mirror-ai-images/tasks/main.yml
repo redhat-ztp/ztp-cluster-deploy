@@ -13,13 +13,13 @@
 
 - name: Generate merged credentials
   ansible.builtin.shell:
-    cmd: "jq -s '.[0] * .[1]' {{ temporary_directory.path }}/pull_secret $XDG_RUNTIME_DIR/containers/auth.json > {{ temporary_directory.path }}/merged_creds.json"
+    cmd: "jq -s '.[0] * .[1]' $XDG_RUNTIME_DIR/containers/auth.json {{ temporary_directory.path }}/pull_secret > {{ temporary_directory.path }}/merged_creds.json"
   environment:
     XDG_RUNTIME_DIR: "/run/user/0"
 
 - name: Mirror release image for spoke clusters
   ansible.builtin.shell:
-    cmd: "oc adm -a {{ temporary_directory.path }}/merged_creds.json release new --from-release=quay.io/openshift-release-dev/ocp-release:{{ mirror_version_spoke_release }} --mirror={{ provisioner_cluster_registry }}/ocp4 --to-image={{ provisioner_cluster_registry }}/ocp4:{{ mirror_version_spoke_release }}"
+    cmd: "oc adm release mirror -a {{ temporary_directory.path }}/merged_creds.json --from=quay.io/openshift-release-dev/ocp-release:{{ mirror_version_spoke_release }} --to={{ provisioner_cluster_registry }}/ocp4 --to-release-image={{ provisioner_cluster_registry }}/ocp4:{{ mirror_version_spoke_release }}"
   ignore_errors: true
   environment:
     KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
