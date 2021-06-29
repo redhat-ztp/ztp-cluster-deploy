@@ -9,7 +9,7 @@ spec:
     namespace: {{ cluster_name }}
   agentLabelSelector:
     matchLabels:
-      cluster_name: {{ cluster_name }}
+      cluster-name: {{ cluster_name }}
   pullSecretRef:
     name: assisted-deployment-pull-secret
 {% if http_proxy is defined and http_proxy|length > 0 and https_proxy is defined and https_proxy|length > 0 is defined %}
