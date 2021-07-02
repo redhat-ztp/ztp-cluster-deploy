@@ -1,14 +1,13 @@
 - name: Unmount SuperMicro ISO
   uri:
-    url: "https://{{ bmc_address }}/redfish/v1/Managers/1/VirtualMedia/CD1/Actions/VirtualMedia.EjectMedia"
-    status_code: 200,400
+    url: "https://{{ bmc_address }}/redfish/v1/Managers/1/VM1/CfgCD/Actions/IsoConfig.UnMount"
     user: "{{ bmc_user }}"
     password: "{{ bmc_password }}"
     method: POST
     headers:
       content-type: application/json
       Accept: application/json
-    body: {"Image": "http://{{ smb_host }}/{{ smb_path }}/{{ iso_name }}"}
+    body: {}
     body_format: json
     validate_certs: no
     force_basic_auth: yes
@@ -16,18 +15,32 @@
 
 - name: Patching Host and Path for Mounting ISO
   uri:
-    url: "https://{{ bmc_address }}/redfish/v1/Managers/1/VirtualMedia/CD1/Actions/VirtualMedia.InsertMedia"
-    status_code: 200,202
+    url: "https://{{ bmc_address }}/redfish/v1/Managers/1/VM1/CfgCD"
+    user: "{{ bmc_user }}"
+    password: "{{ bmc_password }}"
+    method: PATCH
+    headers:
+      content-type: application/json
+      Accept: application/json
+    body: "{\"Host\": \"{{ smb_host }}\", \"Path\": \"\\\\{{ smb_path}}\\\\{{ iso_name }}\"}"
+    body_format: json
+    force_basic_auth: yes
+    validate_certs: no
+    return_content: yes
+
+- name: Mount SuperMicro ISO
+  uri:
+    url: "https://{{ bmc_address }}/redfish/v1/Managers/1/VM1/CfgCD/Actions/IsoConfig.Mount"
     user: "{{ bmc_user }}"
     password: "{{ bmc_password }}"
     method: POST
     headers:
       content-type: application/json
       Accept: application/json
-    body: {"Image": "http://{{ smb_host }}/{{ smb_path }}/{{ iso_name }}"}
+    body: {}
     body_format: json
-    force_basic_auth: yes
     validate_certs: no
+    force_basic_auth: yes
     return_content: yes
 
 - name: SuperMicro Power ON

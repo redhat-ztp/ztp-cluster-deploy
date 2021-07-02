@@ -52,6 +52,11 @@ assisted_tag=v1.0.18.3
 #haproxy_http_port=8008
 #haproxy_https_port=8443
 
+# Parameters for a Restricted Network installation
+#use_mirror= False
+#mirror_certificate="{{ lookup('file', './mirror_certificate.txt') }}"
+#mirror_registry=infra.ldc-griffintown.rdc-mtl.ran.lan:5000
+
 [provisioner]
 # host from where the installation is performed
 localhost ansible_connection=local
