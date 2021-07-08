@@ -2,5 +2,5 @@
 - name: Create the workload-partitioning MachineConfig manifest
   template:
     src: templates/02-master-workload-partitioning.yaml
-    dest: "{{ manifests_path }}/02-master-workload-partitioning.yaml"
+    dest: "{{ manifests_path }}/02-master-management-workload-pinning.yaml"
   when: management_workload_cpuset != ''

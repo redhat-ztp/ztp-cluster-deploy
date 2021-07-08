@@ -3,7 +3,7 @@ kind: MachineConfig
 metadata:
   labels:
     machineconfiguration.openshift.io/role: master
-  name: 02-master-workload-partitioning
+  name: 02-master-management-workload-pinning
 spec:
   config:
     ignition:
@@ -14,7 +14,7 @@ spec:
           source: data:text/plain;charset=utf-8;base64,{{ lookup('template', 'templates/crio.conf', convert_data=False) | string | b64encode }}
         mode: 420
         overwrite: true
-        path: /etc/crio/crio.conf.d/01-workload-partitioning
+        path: /etc/crio/crio.conf.d/01-workload-pinning
         user:
           name: root
       - contents:
