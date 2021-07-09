@@ -33,6 +33,13 @@
     dockerconfigjson: "{{ merged_creds.stdout | trim }}"
     ssh_private_key: "{{ privkey.stdout|indent(4, True) }}"
 
+- name: Patch hiveconfig feature gate
+  ansible.builtin.shell:
+    cmd: |
+      oc patch hiveconfig hive --type merge -p '{"spec":{"targetNamespace":"hive","logLevel":"debug","featureGates":{"custom":{"enabled":["AlphaAgentInstallStrategy"]},"featureSet":"Custom"}}}'
+  environment:
+    KUBECONFIG: "{{ temporary_path }}/kubeconfig"
+
 - name: Apply the secrets
   ansible.builtin.shell:
     cmd: oc apply -f ./ai_secrets.yaml
