@@ -26,3 +26,9 @@ spec:
     matchLabels:
       nmstate-label: {{ cluster_name }}-nmstate
 {% endif %}
+{% if ntp_sources is defined and ntp_sources|length > 0 %}
+  additionalNTPSources:
+{% for item in ntp_sources %}
+  - {{ item }}
+{% endfor %}
+{% endif %}

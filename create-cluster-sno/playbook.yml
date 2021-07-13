@@ -5,6 +5,7 @@
     PATH: "/usr/bin/:/usr/local/bin/:{{ ansible_env.PATH }}"
   roles:
     - role: enable-workload-partitioning
+      when: manifests_path is defined and manifests_path|length>0
     - role: chrony_day0
+      when: manifests_path is defined and manifests_path|length>0
     - role: deploy_cluster
-
