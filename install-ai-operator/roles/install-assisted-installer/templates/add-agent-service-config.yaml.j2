@@ -20,3 +20,9 @@ spec:
         storage: 20Gi
   mirrorRegistryRef:
     name: 'mirror-registry-config'
+  osImages:
+  - openshiftVersion: "{{ provisioner_cluster_version }}"
+    version: "{{ provisioner_cluster_version_minor }}"
+    url: "{{ disconnected_http_server }}/{{ rhcos_remote_iso | basename }}"
+    rootFSUrl: "{{ disconnected_http_server }}/{{ rhcos_remote_rootfs | basename }}"
+
