@@ -15,7 +15,7 @@
     src: "extra_install_manifests.yaml.j2"
     dest: "{{ temp_directory.path }}/extra-manifests.yaml"
   register: cluster_extra_manifests
-  when: manifests_files is defined and manifest_files.matched|int != 0
+  when: manifests_path is defined and manifest_files.matched|int != 0
 
 - name: Parse templates to temporary path
   template:
@@ -55,15 +55,13 @@
     KUBECONFIG: "{{ kubeconfig_path }}"
   when: nmstate_path is defined
 
-- debug:
-    var: cluster_extra_manifests
 
 - name: Apply extra manifests if defined
   ansible.builtin.shell:
     cmd: oc apply -f {{ temp_directory.path }}/extra-manifests.yaml
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}"
-  when: cluster_extra_manifests|bool == True
+  when: manifests_path is defined and manifest_files.matched|int != 0
 
 - name: Apply the cluster deployment and infraenv
   ansible.builtin.shell:

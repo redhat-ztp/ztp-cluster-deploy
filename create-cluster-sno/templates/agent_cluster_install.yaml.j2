@@ -9,7 +9,7 @@ spec:
     name: {{ cluster_name }}
   imageSetRef:
     name: {{ cluster_imageset }}
-{% if manifest_files.matched|int != 0 %}
+{% if  manifests_path is defined and manifest_files.matched|int != 0 %}
   manifestsConfigMapRef:
     name: {{ cluster_name }}-extra-install-manifests
 {% endif %}
