@@ -1,9 +1,13 @@
 provisioning_enable: false
-version: nightly
-pool: default
+{% if provisioner_cluster_channel is defined and provisioner_cluster_channel|length > 0 %}
+version: {{ provisioner_cluster_channel }}
+{% endif %}
+pool: {{ provisioner_cluster_pool | default('default') }}
 dualstack: false
 disconnected: true
-tag: "{{ provisioner_cluster_version }}"
+{% if provisioner_cluster_tag is defined and provisioner_cluster_tag|length > 0 }}
+tag: "{{ provisioner_cluster_tag }}"
+{% endif %}
 virtual_masters: true
 virtual_workers: false
 launch_steps: true 
@@ -12,22 +16,42 @@ extra_disks: [20, 20]
 cluster: {{ provisioner_cluster_name }}
 domain: {{ provisioner_cluster_domain }}
 uefi_legacy: true
-openshift_image: quay.io/openshift-release-dev/ocp-release:4.8.0-fc.1-x86_64
-baremetal_net: baremetal
+{% if provisioner_cluster_openshift_image is defined and provisioner_cluster_openshift_image|length > 0 %}
+openshift_image: {{ provisioner_cluster_openshift_image }}
+{% endif %}
+baremetal_net: {{ provisioner_cluster_network }}
 baremetal_macs:
-- aa:aa:aa:aa:bb:01
-- aa:aa:aa:aa:bb:02
-- aa:aa:aa:aa:bb:03
-installer_mac: aa:aa:aa:aa:bb:04
-virtual_masters_memory: 16384
-virtual_masters_numcpus: 8
+- {{ baremetal_mac_master_0 | default('aa:aa:aa:aa:bb:01') }}
+- {{ baremetal_mac_master_1 | default('aa:aa:aa:aa:bb:02') }}
+- {{ baremetal_mac_master_2 | default('aa:aa:aa:aa:bb:03')}}
+installer_mac: {{ installer_mac | default('aa:aa:aa:aa:bb:04') }}
+virtual_masters_memory: {{ virtual_masters_memory | default('20480') }}
+virtual_masters_numcpus: {{ virtual_masters_numcpus | default('16') }}
 virtual_workers_deploy: false
-disk_size: 80
+disk_size: {{ virtual_masters_disk_size | default('80') }}
 baremetal_cidr: {{ provisioner_cidr }}
-api_ip: {{ provisioner_cidr | ansible.netcommon.nthhost('250') }}
-ingress_ip: {{ provisioner_cidr | ansible.netcommon.nthhost('251') }}
+api_ip: {{ provisioner_api_ip }}
+ingress_ip: {{ provisioner_ingress_ip }}
 ipmi_user: root
 ipmi_password: calvin
 disconnected_reuse: true
 disconnected_origin: quay.io
-disconnected_disk_size: 400
+ipv6: true
+ntp: true
+ntp_server: {{ provisioner_cluster_ntp_server }}
+vmrules:
+- {{ provisioner_cluster_name }}-installer:
+    disk_size: {{ installer_disk_size | default('220') }}
+    memory: {{ installer_memory | default('16384') }}
+    domain: {{ provisioner_cluster_domain }}
+    nets:
+     - name: {{ provisioner_cluster_network }}
+       ipv6: true
+       mac: {{ installer_mac }}
+     - default
+    cmds:
+    - nmcli conn mod 'System eth0' ipv6.dhcp-iaid mac
+    - nmcli conn mod 'System eth0' ipv6.dhcp-duid ll
+    - nmcli conn mod 'System eth0' ipv4.addresses ""
+    - hostnamectl set-hostname '{{ provisioner_cluster_name }}-installer.{{ provisioner_cluster_name }}.{{ provisioner_cluster_domain }}'
+    - nmcli conn up 'System eth0'
