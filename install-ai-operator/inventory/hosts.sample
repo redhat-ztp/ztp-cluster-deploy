@@ -10,6 +10,9 @@ temporary_path=/tmp
 provisioner_cluster_name=test-operator
 provisioner_cluster_domain=cluster.testing
 provisioner_cidr=1001:db9::/64
+provisioner_api_ip=1001:db9::1
+provisioner_ingress_ip=1001:db9::2
+provisioner_cluster_ntp_server=1001:db9::4
 default_libvirt_range=192.168.122.0/24
 provisioner_cluster_version=4.8
 provisioner_cluster_version_minor=0
@@ -19,12 +22,28 @@ provisioner_cluster_registry_password=dummy
 disconnected_http_server=http://http_hostname
 disconnected_http_server=http://dhcp-38.cnfdt11.private.lab
 http_server_path=/var/www/html/
+# uncomment if you need specific options
+# provisioner_cluster_channel=stable|nightly
+# provisioner_cluster_tag=4.8.0
+# provisioner_cluster_pool=default
+provisioner_cluster_openshift_image=quay.io/openshift-release-dev/ocp-release:4.8.0-x86_64
+provisioner_cluster_network=baremetal
+
+# uncomment to modify mac adddresses
+#baremetal_mac_master_0=aa:aa:aa:aa:bb:01
+#baremetal_mac_master_1=aa:aa:aa:aa:bb:02
+#baremetal_mac_master_2=aa:aa:aa:aa:bb:03
+#installer_mac=aa:aa:aa:aa:bb:04
+#virtual_masters_memory=20480
+#virtual_masters_numcpus=16
+#virtual_masters_disk_size=80
 
 # set those only if you need to expose the redfish endpoints
 # internally, and the cluster endpoints externally
 redfish_ips = [{ 'ip': '10.46.61.138:443', 'target_port': '8443' }]
 haproxy_http_port=8080
 haproxy_https_port=8081
+
 
 # vars for the mirror, need to be pinned to 4.7 for the moment
 mirror_version=4.7
