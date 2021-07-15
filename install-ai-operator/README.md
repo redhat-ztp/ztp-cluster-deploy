@@ -109,3 +109,70 @@ hostname is set properly:
       ```
 5. With those modifications, your cluster will be properly resolving the api/apps endpoints, thanks
 to your custom name server, and there is no need to have an integrated dhcp6/dns service in the lab.
+
+## Deploy with DHCP ##
+
+1. In order to deploy the cluster via DHCP, the provisioner host where master vms are
+hosted need to be accepting route advertisements, for the desired network range.
+In order to achieve that, radvd service needs to be started and configured properly.
+
+You will need to place the following content in /etc/radvd.conf file, pointing
+to your baremetal bridge:
+
+      ```
+	interface baremetal
+	{
+		AdvManagedFlag on;
+		AdvDefaultPreference high;
+		prefix 2620:52:0:1310::/64
+		{
+			AdvValidLifetime 2592000;
+			AdvPreferredLifetime 604800;
+			AdvAutonomous off;
+			AdvRouterAddr on;
+		};
+		route ::/0 {
+			AdvRouteLifetime 1800;
+			AdvRoutePreference high;
+		};
+	};
+      ```
+
+2. Be sure that you are getting the right ips via dhcp, and that the names are resolving
+properly. You need to get IPs for mirror virtual machine, bootstrap and master nodes,
+and there must be name resolution for all the needed endpoints. Please look at
+`https://docs.openshift.com/container-platform/4.7/installing/installing_bare_metal_ipi/ipi-install-prerequisites.html`
+to get all the DHCP requirements.
+
+3. Under some specific DHCP configurations, ovn is having issues when
+creating routes. If the DHCP ip addresses come with a different mask than
+the expected routes, OVN is not routing properly. In order to deploy bypassing this
+problem, the following needs to be done, after the cluster is deployed:
+
+      ```
+      oc get pods -n openshift-ovn-kubernetes  | grep master
+      oc -n openshift-ovn-kubernetes exec -it ovnkube-master-<active_pod> -c ovnkube-master -- ovn-nbctl find  Logical_Router_Port | grep -A1 rtoe-GR
+      ```
+Please execute that on the ovnkube-master pods, the result is just going to be returned from the active one:
+
+      ```
+	oc -n openshift-ovn-kubernetes exec -it ovnkube-master-8l4zz -c ovnkube-master -- ovn-nbctl find  Logical_Router_Port | grep -A1 rtoe-GR
+	name                : rtoe-GR_master-2.clus2.t5g.lab.eng.bos.redhat.com
+	networks            : ["2620:52:0:1310::13/128"]
+	--
+	  name                : rtoe-GR_master-0.clus2.t5g.lab.eng.bos.redhat.com
+	networks            : ["2620:52:0:1310::11/64"]
+	--
+	  name                : rtoe-GR_master-1.clus2.t5g.lab.eng.bos.redhat.com
+	networks            : ["2620:52:0:1310::12/64"]
+      ```
+
+Observe the wrong route, created with /128 mask instead of 64. Fix it:
+
+      ```
+      oc -n  openshift-ovn-kubernetes exec -ti ovnkube-master-8l4zz -c ovnkube-master -- ovn-nbctl set Logical_Router_Port  rtoe-GR_master-2.clus2.t5g.lab.eng.bos.redhat.com networks='["2620:52:0:1310::13/64"]'
+      ```
+
+Do this for all the failing routes, on the active ovnkube-master pod. This task may need to be executed several times,
+once for each reboot, until the cluster is totally deployed.
+
