@@ -4,6 +4,9 @@
 kubeconfig_path=/tmp/kubeconfig
 
 cluster_name=test-sno
+cluster_namespace=test-sno
+cluster_type=sno
+cluster_profile=du
 cluster_domain=cluster.testing
 cluster_imageset=openshift-4.8
 # uncomment it if you manually need to give hostname

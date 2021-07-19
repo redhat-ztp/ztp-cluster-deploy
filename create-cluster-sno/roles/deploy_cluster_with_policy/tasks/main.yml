@@ -1,0 +1,39 @@
+---
+- name: Create temporary path
+  ansible.builtin.tempfile:
+    state: directory
+  register: temp_directory
+
+
+- name: Parse templates
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ temp_directory.path }}/{{ item }}"
+  with_items:
+  - site_config.yaml
+  - secret.yaml
+
+- name: Apply policy generator
+  ansible.builtin.shell:
+    cmd: ./kustomize/plugin/policyGenerator/v1/policygenerator/PolicyGenerator "" {{ temp_directory.path }}/ {{ temporary_path }}/cnf-features-deploy/ztp/source-cluster-crs/ {{ temp_directory.path }}/site_manifests true false true
+    chdir: "{{ temporary_path }}/cnf-features-deploy/ztp/ztp-policy-generator/"
+
+- name: Apply the final results
+  ansible.builtin.shell:
+    cmd: "oc apply -f {{ temp_directory.path }}/site_manifests/customResource/{{ cluster_name }}/{{ cluster_name }}.yaml "
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Copy pull secret to namespace
+  ansible.builtin.shell:
+    cmd: "oc get secret assisted-deployment-pull-secret --namespace=open-cluster-management -o yaml | sed 's/namespace: .*/namespace: {{ cluster_name }}/' | oc apply -f - "
+  ignore_errors: True
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Apply secrets
+  ansible.builtin.shell:
+   cmd: "oc apply -f {{ temp_directory.path }}/secret.yaml"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
