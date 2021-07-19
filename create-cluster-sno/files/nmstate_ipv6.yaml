@@ -1,36 +1,25 @@
-apiVersion: agent-install.openshift.io/v1beta1
-kind: NMStateConfig
-metadata:
-  name: nmstate-sno
-  namespace: test-sno
-  labels:
-    nmstate-label: test-sno-nmstate
-spec:
+interfaces:
+  - name: eno1
+    type: ethernet
+    state: up
+    macAddress: "0C:42:A1:8A:74:EC"
+    ipv4:
+      enabled: false
+    ipv6:
+      enabled: true
+      address:
+      - ip: 2620:52::10e7:e42:a1ff:fe8a:900
+        prefix-length: 64
+dns-resolver:
   config:
-    interfaces:
-      - name: eno1
-        type: ethernet
-        state: up
-        mac-address: 0C:42:A1:8A:74:EC
-        ipv4:
-          enabled: false
-        ipv6:
-          enabled: true
-          address:
-          - ip: 2620:52::10e7:e42:a1ff:fe8a:900
-            prefix-length: 64
-    dns-resolver:
-      config:
-        search:
-        - clus2.t5g.lab.eng.bos.redhat.com
-        server:
-        - 2620:52:0:1310::1f6 
-    routes:
-      config:
-      - destination: ::/0 
-        next-hop-interface: eno1
-        next-hop-address: 2620:52:0:10e7::fc
-        table-id: 254
-  interfaces:
-    - name: "eno1"
-      macAddress: "0C:42:A1:8A:74:EC"
+    search:
+    - clus2.t5g.lab.eng.bos.redhat.com
+    server:
+    - 2620:52:0:1310::1f6 
+routes:
+  config:
+  - destination: ::/0 
+    next-hop-interface: eno1
+    next-hop-address: 2620:52:0:10e7::fc
+    table-id: 254
+

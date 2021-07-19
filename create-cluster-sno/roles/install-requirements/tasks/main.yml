@@ -1,0 +1,10 @@
+---
+- name: Clone policy generator repo
+  ansible.builtin.git:
+    repo: https://github.com/openshift-kni/cnf-features-deploy
+    dest: "{{ temporary_path }}/cnf-features-deploy"
+
+- name: Build the policy generator binary
+  ansible.builtin.shell:
+    cmd: go build -o PolicyGenerator || err "Failed to build PolicyGenerator"
+    chdir: "{{ temporary_path }}/cnf-features-deploy/ztp/ztp-policy-generator/kustomize/plugin/policyGenerator/v1/policygenerator/"

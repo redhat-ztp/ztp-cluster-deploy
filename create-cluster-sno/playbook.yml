@@ -4,8 +4,13 @@
   environment:
     PATH: "/usr/bin/:/usr/local/bin/:{{ ansible_env.PATH }}"
   roles:
+    - role: install-requirements
+      tags: install-requirements
     - role: enable-workload-partitioning
       when: manifests_path is defined and manifests_path|length>0
+      tags: generate-manifests
     - role: chrony_day0
+      tags: generate-manifests
       when: manifests_path is defined and manifests_path|length>0
-    - role: deploy_cluster
+    - role: deploy_cluster_with_policy
+      tags: deploy-cluster-with-policy

@@ -1,0 +1,54 @@
+apiVersion: ran.openshift.io/v1
+kind: SiteConfig
+metadata:
+  name: "{{ cluster_name }}"
+  namespace: "{{ cluster_namespace }}"
+spec:
+  baseDomain: "{{ cluster_domain }}"
+  pullSecretRef:
+    name: "assisted-deployment-pull-secret"
+  clusterImageSetNameRef: "{{ cluster_imageset }}"
+  sshPublicKey: "{{ ssh_pubkey }}"
+  clusters:
+  - clusterName: "{{ cluster_name }}"
+    clusterType: "{{ cluster_type }}"
+    clusterProfile: "{{ cluster_profile }}"
+    clusterLabels:
+      group-du-sno: ""
+      common: true
+      sites : "{{ cluster_name }}"
+    clusterNetwork:
+      - cidr: {{ cluster_network_cidr }}/{{ cluster_network_sufix }}
+        hostPrefix: {{ cluster_network_host_prefix }}
+    machineNetwork:
+      - cidr: {{ machine_network_cidr }}/{{ machine_network_sufix }}
+    serviceNetwork:
+      - {{ service_network_cidr }}/{{ service_network_sufix }}
+    additionalNTPSources:
+{% for item in ntp_sources %}
+      - {{ item }}
+{% endfor %}
+{% if ignition_config_override is defined and ignition_config_override|length > 0 %}
+    ignitionConfigOverride: "{{ ignition_config_override }}"
+{% endif %}
+    nodes:
+      - {% if hostname is defined and hostname|length > 0 %}hostName: "{{ hostname }}"
+{% endif %}
+        bmcAddress: "{{ bmc_redfish_endpoint }}"
+        bmcCredentialsName:
+          name: "{{ cluster_name }}-bmh-secret"
+        bootMACAddress: "{{ primary_mac_address }}"
+        bootMode: "UEFI"
+{% if root_device_hints is defined and root_device_hints|length > 0 %}        rootDeviceHints:
+          {{ root_device_hints|indent(width=8) }}
+{% endif %}
+        cpuset: "{{ management_workload_cpuset }}"
+        nodeNetwork:
+          interfaces:
+{% filter indent(width=12, first=True) %}
+{% include nmstate_interfaces_path %}
+{% endfilter %}
+          config:
+{% filter indent(width=12, first=True) %}
+{% include nmstate_config_path %}
+{% endfilter %}
