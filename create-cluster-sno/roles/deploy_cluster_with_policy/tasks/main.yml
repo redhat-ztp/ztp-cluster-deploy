@@ -1,0 +1,15 @@
+---
+- name: Create temporary path
+  ansible.builtin.tempfile:
+    state: directory
+  register: temp_directory
+
+- name: Parse site config template
+  template:
+    src: "site_config.yaml.j2"
+    dest: "{{ temp_directory.path }}/site_config.yaml"
+
+- name: Apply policy generator
+  ansible.builtin.shell:
+    cmd: ./kustomize/plugin/policyGenerator/v1/policygenerator/PolicyGenerator "" {{ temp_directory.path }}/ {{ temporary_path }}/cnf-features-deploy/ztp/source-cluster-crs/ {{ temp_directory.path }}/site_manifests true false true
+    chdir: "{{ temporary_path }}/cnf-features-deploy/ztp/ztp-policy-generator/"

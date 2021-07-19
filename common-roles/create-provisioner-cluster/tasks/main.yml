@@ -18,6 +18,7 @@
 
 - name: Delete cluster if already existed
   shell: "kcli delete cluster -y {{ provisioner_cluster_name }}"
+  ignore_errors: true
 
 - name: Create default pool if not already exists
   shell: "kcli create pool default -p {{ provisioner_cluster_libvirt_pool | default('/var/lib/libvirt/images') }}"
