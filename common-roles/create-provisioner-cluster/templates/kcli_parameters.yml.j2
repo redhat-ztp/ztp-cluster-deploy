@@ -5,7 +5,7 @@ version: {{ provisioner_cluster_channel }}
 pool: {{ provisioner_cluster_pool | default('default') }}
 dualstack: false
 disconnected: true
-{% if provisioner_cluster_tag is defined and provisioner_cluster_tag|length > 0 }}
+{% if provisioner_cluster_tag is defined and provisioner_cluster_tag|length > 0 %}
 tag: "{{ provisioner_cluster_tag }}"
 {% endif %}
 virtual_masters: true
@@ -16,6 +16,7 @@ extra_disks: [20, 20]
 cluster: {{ provisioner_cluster_name }}
 domain: {{ provisioner_cluster_domain }}
 uefi_legacy: true
+patch_rhcos_image: true
 {% if provisioner_cluster_openshift_image is defined and provisioner_cluster_openshift_image|length > 0 %}
 openshift_image: {{ provisioner_cluster_openshift_image }}
 {% endif %}
@@ -38,7 +39,9 @@ disconnected_reuse: true
 disconnected_origin: quay.io
 ipv6: true
 ntp: true
+{% if provisioner_cluster_ntp_server is defined and provisioner_cluster_ntp_server|length > 0 %}
 ntp_server: {{ provisioner_cluster_ntp_server }}
+{% endif %}
 vmrules:
 - {{ provisioner_cluster_name }}-installer:
     disk_size: {{ installer_disk_size | default('220') }}
