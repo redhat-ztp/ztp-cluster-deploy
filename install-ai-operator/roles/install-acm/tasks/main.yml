@@ -13,6 +13,20 @@
     content: "{{ pull_secret }}"
     dest: "{{ temporary_directory.path }}/pull_secret"
 
+- name: Retrieve the registries.conf from one of the masters
+  ansible.builtin.shell:
+    cmd: oc get nodes -o jsonpath='{ $.items[*].status.addresses[?(@.type=="InternalIP")].address }'
+  register: master_ips
+  environment:
+    KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"
+
+- name: Modify the registries.conf file and restart services
+  ansible.builtin.shell:
+    cmd: |
+      ssh core@{{ item }} "sudo  sed -i 's#mirror-by-digest-only = true#mirror-by-digest-only = false#g' /etc/containers/registries.conf && sudo systemctl restart crio && sudo systemctl restart kubelet"
+  with_items: "{{ master_ips.stdout.split(' ') }}"
+  ignore_errors: true
+
 - name: Clone the ACM project
   ansible.builtin.git:
     repo: https://github.com/open-cluster-management/deploy
@@ -32,7 +46,7 @@
     cmd: "{{ temporary_directory.path }}/acm/start.sh --silent"
     chdir: "{{ temporary_directory.path }}/acm"
   environment:
-    CUSTOM_REGISTRY_REPO: "{{ provisioner_cluster_registry }}/rhacm2"
+    CUSTOM_REGISTRY_REPO: "{% if provisioner_cluster_registry is defined and provisioner_cluster_registry|length > 0 %}{{ provisioner_cluster_registry }}/rhacm2{% endif %}"
     COMPOSITE_BUNDLE: "true"
     QUAY_TOKEN: "{{ quay_token }}"
     KUBECONFIG: "{{ temporary_directory.path }}/kubeconfig"

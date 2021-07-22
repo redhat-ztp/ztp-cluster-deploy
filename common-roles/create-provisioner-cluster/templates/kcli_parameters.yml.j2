@@ -44,7 +44,8 @@ ntp_server: {{ provisioner_cluster_ntp_server }}
 {% endif %}
 vmrules:
 - {{ provisioner_cluster_name }}-installer:
-    disk_size: {{ installer_disk_size | default('220') }}
+    disks:
+      - {{ installer_disk_size | default('220') }}
     memory: {{ installer_memory | default('16384') }}
     domain: {{ provisioner_cluster_domain }}
     nets:
