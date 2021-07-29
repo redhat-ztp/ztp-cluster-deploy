@@ -1,0 +1,28 @@
+---
+- name: Create temporary directory for plan
+  tempfile:
+    state: directory
+  register: plan_directory
+
+- name: Parse templates
+  template:
+    src: "kcli_plan.yml.j2"
+    dest: "{{ plan_directory.path }}/kcli_plan.yml"
+
+- name: Delete previous plan
+  ansible.builtin.shell:
+    cmd: kcli delete plan -y {{ cluster_name }}
+  ignore_errors: true
+
+- name: Create default pool if not already exists
+  shell: "kcli create pool {{ cluster_pool | default('default') }}  -p {{ cluster_pool_path  | default('/var/lib/libvirt/images') }}"
+  ignore_errors: true
+
+- name: Create default network for vms
+  shell: "kcli create network -c {{ default_libvirt_range }} --domain default default"
+  ignore_errors: true
+
+- name: Create plan again
+  ansible.builtin.shell:
+    cmd: kcli create plan {{ cluster_name }}
+    chdir: "{{ plan_directory.path }}"

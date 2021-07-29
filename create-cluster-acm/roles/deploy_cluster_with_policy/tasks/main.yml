@@ -1,0 +1,60 @@
+---
+- name: Create temporary path
+  ansible.builtin.tempfile:
+    state: directory
+  register: temp_directory
+
+- name: For each of the vms, generate a dict entry with the id
+  include_tasks: generate_vm_ids.yml
+  loop: "{{ vms | dict2items }}"
+
+- name: Set bmc endpoint
+  set_fact:
+    bmc_endpoint: "[{{ hostvars[inventory_hostname]['ansible_default_ipv6']['address'] }}]:8080/redfish/v1/Systems/"
+
+- name: Parse templates
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ temporary_path }}/{{ item }}"
+  with_items:
+  - namespace.yaml
+  - secret.yaml
+
+- name: Apply generated resources
+  ansible.builtin.shell:
+    cmd: "oc apply -f {{ temporary_path }}/{{ item }}"
+  with_items:
+  - namespace.yaml
+  - secret.yaml
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Parse site config
+  template:
+    src: "site_config.yaml.j2"
+    dest: "{{ temp_directory.path }}/site_config.yaml"
+
+- name: Apply policy generator
+  ansible.builtin.shell:
+    cmd: ./kustomize/plugin/policyGenerator/v1/policygenerator/PolicyGenerator "" {{ temp_directory.path }}/ {{ temporary_path }}/cnf-features-deploy/ztp/source-crs {{ temp_directory.path }}/site_manifests true
+    chdir: "{{ temporary_path }}/cnf-features-deploy/ztp/ztp-policy-generator/"
+
+- name: Apply the final results
+  ansible.builtin.shell:
+    cmd: "oc apply -f {{ temp_directory.path }}/site_manifests/customResource/{{ cluster_name }}/{{ cluster_name }}.yaml "
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Copy pull secret to namespace
+  ansible.builtin.shell:
+    cmd: "oc get secret assisted-deployment-pull-secret --namespace=open-cluster-management -o yaml | sed 's/namespace: .*/namespace: {{ cluster_name }}/' | oc apply -f - "
+  ignore_errors: True
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Apply secrets
+  ansible.builtin.shell:
+   cmd: "oc apply -f {{ temp_directory.path }}/secret.yaml"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+

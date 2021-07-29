@@ -1,0 +1,12 @@
+apiVersion: v1
+items:
+- apiVersion: hive.openshift.io/v1
+  kind: ClusterImageSet
+  metadata:
+    name: openshift-v{{ release_image_version.split("-")[:-1]|join("-") }}
+  spec:
+    releaseImage: {{ disconnected_registry }}/ocp4:{{ release_image_version }}
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

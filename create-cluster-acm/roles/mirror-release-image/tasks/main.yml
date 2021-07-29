@@ -1,0 +1,24 @@
+---
+- name: Copy pull secret
+  ansible.builtin.copy:
+    content: "{{ pull_secret }}"
+    dest: "{{ temporary_path }}/pull_secret"
+
+- name: Mirror release image for spoke clusters
+  ansible.builtin.shell:
+    cmd: "oc adm release mirror -a {{ temporary_path }}/pull_secret --from={{ release_image_mirror }}:{{ release_image_version }} --to={{ disconnected_registry }}/ocp4 --to-release-image={{ disconnected_registry }}/ocp4:{{ release_image_version }}"
+  ignore_errors: true
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Parse imageset template
+  template:
+    src: "imageset.yaml.j2"
+    dest: "{{ temporary_path }}/imageset.yaml"
+
+- name: Create imageset
+  shell: "oc apply -f {{ temporary_path }}/imageset.yaml"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+  ignore_errors: true
+
