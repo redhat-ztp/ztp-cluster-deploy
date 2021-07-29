@@ -1,0 +1,43 @@
+apiVersion: agent-install.openshift.io/v1beta1
+kind: NMStateConfig
+metadata:
+  name: {{ cluster_name }}-nmstate
+  namespace: {{ cluster_name }}
+  labels:
+    nmstate-label: {{ cluster_name }}-nmstate
+spec:
+  config:
+    interfaces:
+      - name: {{ primary_interface }}
+        type: ethernet
+        state: up
+        mac-address: {{ primary_mac_address }}
+        ipv4:
+          enabled: true
+          address:
+{% if host_ip is defined and host_ip|length > 0 %}
+            - ip: {{ host_ip.split("/")[0] }}
+              prefix-length: {{ host_ip.split("/")[1] }}
+{% endif %}
+{% if api_ip is defined and api_ip|length > 0 %}
+            - ip: {{ api_ip.split("/")[0] }}
+              prefix-length: {{ api_ip.split("/")[1] }}
+{% endif %}
+{% if app_ip is defined and app_ip|length > 0 %}
+            - ip: {{ app_ip.split("/")[0] }}
+              prefix-length: {{ app_ip.split("/")[1] }}
+{% endif %}
+          dhcp: false
+    dns-resolver:
+      config:
+        server:
+          - {{ dns_ip }}
+    routes:
+      config:
+        - destination: 0.0.0.0/0
+          next-hop-address: {{ gateway_ip }}
+          next-hop-interface: {{ primary_interface }}
+          table-id: 254
+  interfaces:
+    - name: {{ primary_interface }}
+      macAddress: {{ primary_mac_address }}

@@ -1,0 +1,43 @@
+---
+- name: Clone policy generator repo
+  ansible.builtin.git:
+    repo: https://github.com/openshift-kni/cnf-features-deploy
+    dest: "{{ temporary_path }}/cnf-features-deploy"
+
+- name: Build the policy generator binary
+  ansible.builtin.shell:
+    cmd: go build -o PolicyGenerator || err "Failed to build PolicyGenerator"
+    chdir: "{{ temporary_path }}/cnf-features-deploy/ztp/ztp-policy-generator/kustomize/plugin/policyGenerator/v1/policygenerator/"
+  environment:
+    PATH: "/usr/local/go/bin/"
+
+- name: Enable Copr repository
+  command:
+      cmd: dnf copr enable -y karmab/kcli
+      creates: /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:karmab:kcli.repo
+
+- name: Install needed packages
+  yum:
+    name:
+      - kcli
+      - '@virt'
+    state: latest
+
+- name: Install sushy package
+  pip:
+    name: sushy-tools
+
+- name: Create service
+  template:
+    src: "sushy.service.j2"
+    dest: "/usr/lib/systemd/system/sushy.service"
+
+- name: Create config file
+  template:
+    src: "sushy.conf.j2"
+    dest: "/etc/sushy.conf"
+
+- name: Enable sushy service
+  ansible.builtin.service:
+    name: sushy
+    state: started

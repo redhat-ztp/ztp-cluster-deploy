@@ -1,0 +1,56 @@
+---
+apiVersion: ran.openshift.io/v1
+kind: SiteConfig
+metadata:
+  name: "{{ cluster_name }}"
+  namespace: "{{ cluster_name }}"
+spec:
+  baseDomain: "{{ cluster_domain }}"
+  pullSecretRef:
+    name: "assisted-deployment-pull-secret"
+  clusterImageSetNameRef: "openshift-v{{ release_image_version.split("-")[:-1]|join("-") }}"
+  sshPublicKey: "{{ ssh_pubkey }}"
+  clusters:
+  - clusterName: "{{ cluster_name }}"
+    clusterType: "{{ cluster_type }}"
+    clusterProfile: "{{ cluster_profile }}"
+    numMasters: {% if cluster_type == "standard" %}3
+{% else %}1
+{% endif %}
+    clusterLabels:
+      common: true
+      sites : "{{ cluster_name }}"
+    clusterNetwork:
+      - cidr: {{ cluster_network_cidr }}/{{ cluster_network_suffix }}
+        hostPrefix: {{ cluster_network_prefix }}
+    serviceNetwork:
+      - {{ service_network_cidr }}/{{ service_network_suffix }}
+    {% if cluster_type == "sno" %}
+    machineNetwork:
+      - cidr: {{ machine_network_cidr }}/{{ machine_network_suffix }}
+    {% endif %}
+additionalNTPSources:
+{% for item in ntp_sources %}
+      - {{ item }}
+{% endfor %}
+{% if ignition_config_override is defined and ignition_config_override|length > 0 %}
+    ignitionConfigOverride: "{{ ignition_config_override }}"
+{% endif %}
+    nodes:
+{% for key, vm in vms.items() %}
+      - hostName: "{{ key }}.{{ cluster_domain }}"
+        bmcAddress: "redfish-virtualmedia+http://{{ bmc_endpoint }}/{{ vm_ids[key] }}"
+        bmcCredentialsName:
+          name: "{{ cluster_name }}-{{ key }}-bmh-secret"
+        bootMACAddress: "{{ vm.mac }}"
+        bootMode: "UEFI"
+{% if vm.root_device_hints is defined and vm.root_device_hints|length > 0 %}        rootDeviceHints:
+          {{ vm.root_device_hints|indent(width=8) }}
+{% endif %}
+{% if vm.cpuset is defined and vm.cpuset|length > 0 %}        cpuset: "{{ vm.cpuset }}"
+{% endif %}
+        nodeNetwork:
+          interfaces:
+          - name: eno1
+            macAddress: "{{ vm.mac }}"
+{% endfor %}

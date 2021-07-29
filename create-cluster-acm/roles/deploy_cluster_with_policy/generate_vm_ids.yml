@@ -1,0 +1,8 @@
+---
+- ansible.builtin.shell:
+    cmd: "kcli info vm {{ item.key }} -f id -v"
+  register: vm_id
+
+- set_fact:
+    vm_ids: "{{ vm_ids | default({}) | combine( { item.key : vm_id.stdout } ) }}"
+
