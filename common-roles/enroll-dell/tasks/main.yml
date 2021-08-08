@@ -1,9 +1,59 @@
-- name: Copy template racadm
-  template:
-    src: templates/racadm.sh
-    dest: /root/racadm.sh
-    owner: root
-    mode: 700
+- name: Power on System
+  uri:
+    url: "https://{{bmc_address}}/redfish/v1/Managers/iDRAC.Embedded.1/VirtualMedia/CD/Actions/VirtualMedia.EjectMedia"
+    validate_certs: no
+    method: POST
+    user: "{{ bmc_user }}"
+    password: "{{ bmc_password }}"
+    headers:
+      content-type: application/json
+      accept: application/json
+    body_format: json
+    body: "{}"
+    status_code: 204
+  ignore_errors: true
 
-- name: Run racadm
-  shell: "/root/racadm.sh {{ bmc_user }} {{ bmc_password }} {{ bmc_address }} {{ iso_url }} {{ iso_name }}" 
+- name: Mount ISO
+  community.general.redfish_command:
+        category: Manager
+        command: VirtualMediaInsert
+        baseuri: "{{bmc_address}}"
+        username: "{{ bmc_user }}"
+        password: "{{ bmc_password }}"
+        virtual_media:
+           image_url: "{{ iso_url }}/{{ iso_name }}"
+           media_types:
+              - CD
+              - DVD
+
+- name: Set Boot once
+  idrac_redfish_config:
+      category: Manager
+      command:
+        - SetManagerAttributes
+      manager_attribute_name:  VirtualMedia.1.BootOnce
+      manager_attribute_value: Enabled
+      baseuri: "{{bmc_address}}"
+      username: "{{ bmc_user }}"
+      password: "{{ bmc_password }}"
+
+- name: Set Boot Override to VirtualMedia
+  idrac_redfish_config:
+      category: Manager
+      command:
+        - SetManagerAttributes
+      manager_attribute_name:  ServerBoot.1.FirstBootDevice
+      manager_attribute_value: "VCD-DVD"
+      baseuri: "{{bmc_address}}"
+      username: "{{ bmc_user }}"
+      password: "{{ bmc_password }}"
+
+- name: Reboot
+  redfish_command:
+    category: Systems
+    command: PowerReboot
+    baseuri: "{{bmc_address}}"
+    username: "{{ bmc_user }}"
+    password: "{{ bmc_password }}"
+  register: result
+  ignore_errors: True
