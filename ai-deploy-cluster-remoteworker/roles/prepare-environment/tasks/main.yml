@@ -28,4 +28,5 @@
         - "PUBLIC_CONTAINER_REGISTRIES=quay.io,registry.svc.ci.openshift.org"
         - "RHCOS_BASE_ISO={{ rhcos_base_iso }}"
         - "AUTH_TYPE=none"
+        - "AGENT_DOCKER_IMAGE=quay.io/ocpmetal/assisted-installer-agent:v1.0.24.2"
 
