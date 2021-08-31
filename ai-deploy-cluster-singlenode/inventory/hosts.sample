@@ -13,6 +13,7 @@ cluster_name="test-aut"
 cluster_domain="cluster.testing"
 # OVN Kubernetes by default, uncomment if you need to change it
 #cluster_sdn="OpenShiftSDN"
+machine_network_cidr="10.46.55.0/24"
 
 # OpenShift versions that will be used by AI 
 # Be careful with changing rhcos_base_iso without changing the equivalent cluster_version.
