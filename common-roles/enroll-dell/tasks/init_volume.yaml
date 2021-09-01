@@ -1,0 +1,19 @@
+- name: Extract the volume name
+  set_fact:
+    volume_fqdd: "{{ item.split('/')[-1] }}"
+
+- name: Initialize the volume
+  command: 
+    argv:
+    - python3 
+    - "{{playbook_dir}}/../common-roles/enroll-dell/templates/init-vol.py"
+    - "-ip" 
+    - "{{ bmc_address }}"
+    - "-u" 
+    - "{{ bmc_user }}"
+    - "-p"
+    - "{{ bmc_password }}"
+    - "-V"
+    - "{{ volume_fqdd }}"
+    - "--init"
+    - Fast

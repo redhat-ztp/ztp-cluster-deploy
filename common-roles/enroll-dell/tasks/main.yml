@@ -1,4 +1,5 @@
-- name: Power on System
+
+- name: Eject media
   uri:
     url: "https://{{bmc_address}}/redfish/v1/Managers/iDRAC.Embedded.1/VirtualMedia/CD/Actions/VirtualMedia.EjectMedia"
     validate_certs: no
@@ -12,6 +13,47 @@
     body: "{}"
     status_code: 204
   ignore_errors: true
+
+- name: Get storage controllers
+  uri:
+    url: "https://{{bmc_address}}/redfish/v1/Systems/System.Embedded.1/Storage"
+    validate_certs: no
+    method: GET
+    return_content: yes
+    user: "{{ bmc_user }}"
+    password: "{{ bmc_password }}"
+    headers:
+      content-type: application/json
+      accept: application/json
+  register: controllers_response
+  ignore_errors: true
+
+- name: Get storage controllers
+  set_fact:
+    controllers: "{{ controllers_response | json_query('json.Members[*][\"@odata.id\"]') }}"
+
+- name: Get virtual disks
+  uri:
+    url: "https://{{bmc_address}}{{ item }}/Volumes"
+    validate_certs: no
+    method: GET
+    return_content: yes
+    user: "{{ bmc_user }}"
+    password: "{{ bmc_password }}"
+    headers:
+      content-type: application/json
+      accept: application/json
+  register: volumes_responses
+  ignore_errors: true
+  with_items: "{{ controllers }}"
+
+- name: Get virtual volumes
+  set_fact:
+    volumes: "{{ volumes_responses | json_query('results[*].json.Members[*][\"@odata.id\"]') | flatten}}"
+
+- name: Initialize volume
+  include_tasks: init_volume.yaml
+  with_items: "{{ volumes }}"
 
 - name: Mount ISO
   community.general.redfish_command:
