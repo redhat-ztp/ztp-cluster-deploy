@@ -30,12 +30,12 @@
         body_format: json
         status_code: 201
 
-    - name: Set the machine network cidr
-      uri:
+    - name: Patch machine_network_cidr
+      uri: 
         url: "{{ ai_url }}/api/assisted-install/v1/clusters/{{ cluster_id.stdout }}"
         method: PATCH
-        body: '"{\"machine_network_cidr\": \"{{ machine_network_cidr }}\"}"'
         body_format: json
+        body: "{{ lookup('template', 'patch-machine-nw-cidr.json.j2') | to_json }}"
         status_code: 201
   environment:
     AI_URL: "{{ ai_url }}"

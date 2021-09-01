@@ -18,10 +18,10 @@ machine_network_cidr="10.46.55.0/24"
 # OpenShift versions that will be used by AI 
 # Be careful with changing rhcos_base_iso without changing the equivalent cluster_version.
 cluster_version=4.8
-sno_image="quay.io/openshift-release-dev/ocp-release-nightly:4.8.0-0.nightly-2021-03-16-141734"
-display_name="single-node-4.8.0"
-rhcos_image="https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.7/latest/rhcos-4.7.0-x86_64-live.x86_64.iso"
-rhcos_version="47.83.202102090044-0"
+sno_image="registry.ci.openshift.org/ocp/release:4.8.2"
+display_name="single-node-4.8.2"
+rhcos_image="https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.8/4.8.2/rhcos-4.8.2-x86_64-live.x86_64.iso"
+rhcos_version="48.84.202107202156-0"
 support_level="beta"
 
 ### AI versions to deploy: ###
