@@ -17,18 +17,21 @@ machine_network_cidr="10.46.55.0/24"
 
 # OpenShift versions that will be used by AI 
 # Be careful with changing rhcos_base_iso without changing the equivalent cluster_version.
-cluster_version=4.8
-sno_image="registry.ci.openshift.org/ocp/release:4.8.2"
-display_name="single-node-4.8.2"
-rhcos_image="https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.8/4.8.2/rhcos-4.8.2-x86_64-live.x86_64.iso"
-rhcos_version="48.84.202107202156-0"
+cluster_version=4.9
+sno_image="quay.io/openshift-release-dev/ocp-release:4.9.0-fc.0-x86_64"
+display_name="4.9.0"
+rhcos_image="https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/4.9.0-fc.0/rhcos-4.9.0-fc.0-x86_64-live.x86_64.iso"
+rhcos_version="49.84.202108192337-0"
+rhcos_rootfs="https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/4.9.0-fc.0/rhcos-4.9.0-fc.0-x86_64-live-rootfs.x86_64.img"
 support_level="beta"
 
 ### AI versions to deploy: ###
 # Set as "HEAD" to use main latest, or as the specific commit hash:
 ai_version="ac59176add3f1a5f89fe47e1df021d9c9ab7589c"
 
-assisted_tag=v1.0.18.3
+# Set as "latest" for latest quay image
+# assisted_tag=v1.0.18.3
+assisted_tag=latest
 
 ### BMC variables. Set according to your server' hardware ###
 bmc_address=10.46.61.142

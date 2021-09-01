@@ -19,13 +19,27 @@
       "display_name": "{{ display_name }}",
       "rhcos_image": "{{ rhcos_image }}",
       "rhcos_version": "{{ rhcos_version }}",
+      "rhcos_rootfs": "{{ rhcos_rootfs }}",
       "support_level": "{{ support_level | default("beta") }}"
 }
 }'
 
+- name: Set release_images json dict
+  ansible.builtin.set_fact:
+    release_images_dict: '[{"openshift_version":"{{ cluster_version }}",
+  "cpu_architecture":"x86_64",
+  "url":"{{ sno_image }}",
+  "version":"{{ display_name }}"}]'
+
+
+
 - name: Set openshift_versions json object
   ansible.builtin.set_fact:
     openshift_versions: "{{ openshift_versions_dict | to_json }}"
+
+- name: Set release_images json object
+  ansible.builtin.set_fact:
+    release_images: "{{ release_images_dict | to_json }}"
 
 - name: Set rhcos_base_iso to rhcos_image to avoid duplication
   ansible.builtin.set_fact:
@@ -49,6 +63,9 @@
         - "SERVICE_BASE_URL={{ ai_url }}"
         - "HW_VALIDATOR_MIN_DISK_SIZE_GIB=50"
         - "OPENSHIFT_VERSIONS={{ openshift_versions }}"
+        - "RELEASE_IMAGES={{ release_images }}"
         - "OPENSHIFT_INSTALL_RELEASE_IMAGE={{ sno_image }}"
         - "PUBLIC_CONTAINER_REGISTRIES=quay.io,registry.svc.ci.openshift.org"
         - "RHCOS_BASE_ISO={{ rhcos_base_iso }}"
+        - "RHCOS_ROOTFS={{ rhcos_rootfs }}"
+
