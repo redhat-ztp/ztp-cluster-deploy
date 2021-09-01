@@ -93,7 +93,7 @@
 - name: Reboot
   redfish_command:
     category: Systems
-    command: PowerReboot
+    command: PowerForceRestart
     baseuri: "{{bmc_address}}"
     username: "{{ bmc_user }}"
     password: "{{ bmc_password }}"
