@@ -25,8 +25,7 @@ spec:
         hostPrefix: {{ cluster_network_prefix }}
     serviceNetwork:
       - {{ service_network_cidr }}/{{ service_network_suffix }}
-    {% if cluster_type == "sno" %}
-    machineNetwork:
+    {% if cluster_type == "sno" %}machineNetwork:
       - cidr: {{ machine_network_cidr }}/{{ machine_network_suffix }}
     {% endif %}
 additionalNTPSources:

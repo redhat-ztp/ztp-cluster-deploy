@@ -1,4 +1,6 @@
-This playbook will install a sample 3-node spoke cluster.
+This playbook will install virtualized clusters with the
+desired amount of nodes, and desired cluster type (sno or
+standard). You will find inventory samples for both types.
 Please fill the inventory vars as needed.
 
 You need to wait until you retrieve Installed on :
