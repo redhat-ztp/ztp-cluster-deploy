@@ -54,7 +54,7 @@
 
 - name: Apply secrets
   ansible.builtin.shell:
-   cmd: "oc apply -f {{ temp_directory.path }}/secret.yaml"
+   cmd: "oc apply -f {{ temporary_path }}/secret.yaml"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}"
 

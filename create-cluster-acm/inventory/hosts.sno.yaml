@@ -1,0 +1,35 @@
+all:
+  vars:
+    temporary_path: /tmp
+
+    # list of vms
+    vms: {
+        'spoke-master-0': {'mac': 'aa:aa:aa:aa:bb:04', 'memory': 20480, 'numcpus': 16, 'role': 'master', 'bmc_user': 'root', 'bmc_pass': 'calvin' },
+    }
+
+    cluster_name: spoke-cluster
+    cluster_domain: karmalabs.com
+    cluster_network: lab-net
+    cluster_type: "sno"
+    cluster_profile: "du"
+    cluster_network_cidr: "fd01::"
+    cluster_network_suffix: 48
+    cluster_network_prefix: 64
+    service_network_cidr: "fd02::/112"
+    service_network_suffix: 64
+    cluster_pool: images
+    cluster_pool_path: /images
+    manifests_path: extra_manifests
+    ntp_sources: ["2620:52:0:822:e42:a1ff:fef4:d620",]
+
+    pull_secret: 'pull'
+    release_image_mirror: quay.io/openshift-release-dev/ocp-release
+    release_image_version: 4.8.10-x86_64
+    disconnected_registry: lab-installer.karmalabs.com:5000
+    kubeconfig_path: /tmp/kubeconfig
+    default_libvirt_range: 192.168.122.0/24
+    ssh_pubkey: "ssh-rsa ..."
+  children:
+    provisioner:
+      hosts:
+         localhost:
