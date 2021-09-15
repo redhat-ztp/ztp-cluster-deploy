@@ -37,7 +37,7 @@ additionalNTPSources:
 {% endif %}
     nodes:
 {% for key, vm in vms.items() %}
-      - hostName: "{{ key }}.{{ cluster_domain }}"
+      - hostName: "{{ key }}.{{ cluster_name }}.{{ cluster_domain }}"
         bmcAddress: "redfish-virtualmedia+http://{{ bmc_endpoint }}/{{ vm_ids[key] }}"
         bmcCredentialsName:
           name: "{{ cluster_name }}-{{ key }}-bmh-secret"
@@ -52,4 +52,26 @@ additionalNTPSources:
           interfaces:
           - name: eno1
             macAddress: "{{ vm.mac }}"
+            config:
+{% if vm.nmstate_config_path is defined and vm.nmstate_config_path|length > 0 %}
+{% filter indent(width=12, first=True) %}
+{% include vm.nmstate_config_path %}
+{% endfilter %}
+
+{% else %}
+            interfaces:
+            - name: eno1
+              macAddress: "{{ vm.mac }}"
+              type: ethernet
+               state: up
+               ipv6:
+                 enabled: true
+                 dhcp: true
+                 auto-dns: true
+                 auto-gateway: true
+                 auto-routes: true
+                 autoconf: false
+               ipv4:
+                 enabled: false
+{% endif %}
 {% endfor %}

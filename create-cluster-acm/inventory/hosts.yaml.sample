@@ -4,9 +4,9 @@ all:
 
     # list of vms
     vms: {
-        'spoke-master-0': {'mac': 'aa:aa:aa:aa:bb:04', 'memory': 20480, 'numcpus': 16, 'role': 'master', 'bmc_user': 'root', 'bmc_pass': 'calvin' },
-        'spoke-master-1': {'mac': 'aa:aa:aa:aa:bb:05', 'memory': 20480, 'numcpus': 16, 'role': 'master', 'bmc_user': 'root', 'bmc_pass': 'calvin' },
-        'spoke-master-2': {'mac': 'aa:aa:aa:aa:bb:06', 'memory': 20480, 'numcpus': 16, 'role': 'master', 'bmc_user': 'root', 'bmc_pass': 'calvin' }
+        'spoke-master-0': {'mac': 'aa:aa:aa:aa:bb:04', 'memory': 20480, 'numcpus': 16, 'role': 'master', 'bmc_user': 'root', 'bmc_pass': 'calvin', 'nmstate_config_path': 'files/nmstate_ipv6_master_0.yaml' },
+        'spoke-master-1': {'mac': 'aa:aa:aa:aa:bb:05', 'memory': 20480, 'numcpus': 16, 'role': 'master', 'bmc_user': 'root', 'bmc_pass': 'calvin', 'nmstate_config_path': 'files/nmstate_ipv6_master_1.yaml' },
+        'spoke-master-2': {'mac': 'aa:aa:aa:aa:bb:06', 'memory': 20480, 'numcpus': 16, 'role': 'master', 'bmc_user': 'root', 'bmc_pass': 'calvin', 'nmstate_config_path': 'files/nmstate_ipv6_master_2.yaml' }
     }
 
     cluster_name: spoke-cluster
@@ -19,6 +19,8 @@ all:
     cluster_network_prefix: 64
     service_network_cidr: "fd02::"
     service_network_suffix: 112
+    cluster_api_vip: 2620:52:0:1302::121
+    cluster_ingress_vip: 2620:52:0:1302::122
     cluster_pool: images
     cluster_pool_path: /images
     manifests_path: extra_manifests
