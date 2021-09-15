@@ -15,8 +15,8 @@ all:
     cluster_network_cidr: "fd01::"
     cluster_network_suffix: 48
     cluster_network_prefix: 64
-    service_network_cidr: "fd02::/112"
-    service_network_suffix: 64
+    service_network_cidr: "fd02::"
+    service_network_suffix: 112
     cluster_pool: images
     cluster_pool_path: /images
     manifests_path: extra_manifests
