@@ -34,6 +34,25 @@
     src: "site_config.yaml.j2"
     dest: "{{ temp_directory.path }}/site_config.yaml"
 
+- name: Remove old manifests in cnf-features-deploy
+  ansible.builtin.shell:
+    cmd: "rm -rf {{ temporary_path }}/cnf-features-deploy/ztp/source-crs/extra-manifest"
+
+- name: Re-add the extra ones
+  ansible.builtin.shell:
+    cmd: "git checkout --"
+    chdir: "{{ temporary_path }}/cnf-features-deploy/ztp/source-crs/"
+
+- name: Create additional directory if not exists
+  ansible.builtin.file:
+    path: "{{ temporary_path }}/cnf-features-deploy/ztp/source-crs/extra-manifest"
+    state: directory
+    mode: '0755'
+
+- name: Copy the additional manifests
+  ansible.builtin.shell:
+    cmd: "cp -R {{ manifests_path }}/* {{ temporary_path }}/cnf-features-deploy/ztp/source-crs/extra-manifest/"
+
 - name: Apply policy generator
   ansible.builtin.shell:
     cmd: ./kustomize/plugin/policyGenerator/v1/policygenerator/PolicyGenerator "" {{ temp_directory.path }}/ {{ temporary_path }}/cnf-features-deploy/ztp/source-crs {{ temp_directory.path }}/site_manifests true
