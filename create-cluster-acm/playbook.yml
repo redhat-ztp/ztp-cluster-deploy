@@ -11,6 +11,9 @@
     - role: chrony_day0
       tags: generate-manifests
       when: manifests_path is defined and manifests_path|length>0
+    - role: create_extra_partition
+      tags: create-extra-partition
+      when: manifests_path is defined and manifests_path|length>0
     - role: mirror-release-image
       tags: mirror-release-image
     - role: deploy_cluster_with_policy
