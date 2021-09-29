@@ -1,0 +1,10 @@
+---
+- name: Ensure extra manifests path exists
+  file:
+    path: "{{ manifests_path }}"
+    state: directory
+
+- name: Create the chrony NTP manifest
+  template:
+    src: templates/create_partition.yaml.j2
+    dest: "{{ manifests_path }}/04-create-partition.yaml"
