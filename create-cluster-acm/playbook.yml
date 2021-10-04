@@ -15,3 +15,11 @@
       tags: mirror-release-image
     - role: deploy_cluster_with_policy
       tags: deploy-cluster-with-policy
+      vars:
+        add_extra_workers: false
+    - role: add-extra-workers
+      tags: add-extra-workers
+    - role: deploy_cluster_with_policy
+      vars:
+        add_extra_workers: true
+      tags: add-extra-workers        
