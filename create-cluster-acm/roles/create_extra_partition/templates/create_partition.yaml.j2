@@ -1,0 +1,22 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 03-chrony-ntp
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    storage:
+      disks:
+      - device: /dev/sda
+        partitions:
+        - sizeMiB: {{ (backup_partition_size|default(50)*1024)|int }}
+          startMiB: {{ (disk_size|default(120)*1024)|int - ((backup_partition_size|default(50)+0.1)*1024)|int }}
+          label: recovery
+      filesystems:
+        - path: /var/recovery
+          device: /dev/disk/by-partlabel/recovery
+          label: recovery
+          format: xfs
