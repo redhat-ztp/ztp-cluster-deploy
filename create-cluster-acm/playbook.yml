@@ -22,7 +22,9 @@
         add_extra_workers: false
     - role: add-extra-workers
       tags: add-extra-workers
+      when: worker_vms is defined
     - role: deploy_cluster_with_policy
       vars:
         add_extra_workers: true
-      tags: add-extra-workers        
+      tags: add-extra-workers    
+      when: worker_vms is defined    

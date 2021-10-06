@@ -6,10 +6,10 @@
 
 - name: Build the policy generator binary
   ansible.builtin.shell:
-    cmd: go build -o PolicyGenerator || err "Failed to build PolicyGenerator"
-    chdir: "{{ temporary_path }}/cnf-features-deploy/ztp/ztp-policy-generator/kustomize/plugin/policyGenerator/v1/policygenerator/"
+    cmd: make build
+    chdir: "{{ temporary_path }}/cnf-features-deploy/ztp/policygenerator"
   environment:
-    PATH: "/usr/local/go/bin/"
+    PATH: "/usr/bin/:/usr/local/go/bin/"
 
 - name: Enable Copr repository
   command:
