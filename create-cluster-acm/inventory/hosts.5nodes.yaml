@@ -1,0 +1,42 @@
+all:
+  vars:
+    temporary_path: /tmp
+
+    # list of vms
+    vms: {
+        'master-0': {'mac': 'aa:aa:aa:aa:bb:04', 'memory': 20480, 'numcpus': 16, 'role': 'master', 'bmc_user': 'root', 'bmc_pass': 'calvin', 'nmstate_config_path': 'files/nmstate_ipv6_master_0.yaml', 'hostname': 'master-0.spoke-cluster.karmalabs.com', 'interface': 'eno1' },
+        'master-1': {'mac': 'aa:aa:aa:aa:bb:05', 'memory': 20480, 'numcpus': 16, 'role': 'master', 'bmc_user': 'root', 'bmc_pass': 'calvin', 'nmstate_config_path': 'files/nmstate_ipv6_master_1.yaml', 'hostname': 'master-0.spoke-cluster.karmalabs.com', 'interface': 'eno1' },
+        'master-2': {'mac': 'aa:aa:aa:aa:bb:06', 'memory': 20480, 'numcpus': 16, 'role': 'master', 'bmc_user': 'root', 'bmc_pass': 'calvin', 'nmstate_config_path': 'files/nmstate_ipv6_master_2.yaml', 'hostname': 'master-0.spoke-cluster.karmalabs.com', 'interface': 'eno1' },
+        'worker-0': {'mac': 'aa:aa:aa:aa:bb:07', 'memory': 20480, 'numcpus': 16, 'bmc_user': 'root', 'bmc_pass': 'calvin', 'nmstate_config_path': 'files/nmstate_ipv6_worker_0.yaml', 'hostname': 'worker-0.spoke-cluster.karmalabs.com', 'interface': 'eno1' },
+        'worker-1': {'mac': 'aa:aa:aa:aa:bb:08', 'memory': 20480, 'numcpus': 16, 'bmc_user': 'root', 'bmc_pass': 'calvin', 'nmstate_config_path': 'files/nmstate_ipv6_worker_1.yaml', 'hostname': 'worker-1.spoke-cluster.karmalabs.com', 'interface': 'eno1' },
+    }
+
+    cluster_name: spoke-cluster
+    cluster_domain: karmalabs.com
+    cluster_network: lab-net
+    cluster_type: "standard"
+    cluster_profile: "cu-du"
+    cluster_network_cidr: "fd01::"
+    cluster_network_suffix: 48
+    cluster_network_prefix: 64
+    service_network_cidr: "fd02::"
+    service_network_suffix: 112
+    cluster_api_vip: 2620:52:0:1302::121
+    cluster_ingress_vip: 2620:52:0:1302::122
+    cluster_pool: images
+    cluster_pool_path: /images
+    manifests_path: /opt/ztp-cluster-deploy/create-cluster-acm/extra_manifests
+    ntp_sources: ["2620:52:0:822:e42:a1ff:fef4:d620",]
+
+    pull_secret: '{"auths": ...}'
+    release_image_mirror: quay.io/openshift-release-dev/ocp-release
+    release_image_version: 4.8.13-x86_64
+    disconnected_registry: lab-installer.karmalabs.com:5000
+    kubeconfig_path: /tmp/kubeconfig
+    default_libvirt_range: 192.168.122.0/24
+    ssh_pubkey: "ssh-rsa ..."
+  children:
+    provisioner:
+      hosts:
+         localhost:
+
