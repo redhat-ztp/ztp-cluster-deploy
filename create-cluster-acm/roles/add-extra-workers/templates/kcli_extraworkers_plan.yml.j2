@@ -1,0 +1,15 @@
+{% for key, vm in worker_vms.items()  %}
+{{ key }}:
+   pool: {{ cluster_pool | default('default') }}
+   numcpus: {{ vm.numcpus | default('16') }}
+   start: false
+   cloudinit: false
+   uefi_legacy: True
+   memory: {{ vm.memory | default('20480') }}
+   nets:
+   - name: {{ cluster_network }}
+     mac: {{ vm.mac }}
+   disks:
+   - size: {{ vm.disk_size | default('120') }}
+     interface: scsi
+{% endfor %}

@@ -70,10 +70,12 @@
   ignore_errors: True
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}"
+  when: add_extra_workers|bool == False
 
 - name: Apply secrets
   ansible.builtin.shell:
    cmd: "oc apply -f {{ temporary_path }}/secret.yaml"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}"
+  when: add_extra_workers|bool == False
 

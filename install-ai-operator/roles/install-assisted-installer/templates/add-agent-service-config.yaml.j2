@@ -22,7 +22,8 @@ spec:
     name: 'mirror-registry-config'
   osImages:
   - openshiftVersion: "{{ provisioner_cluster_version }}"
-    version: "{{ provisioner_cluster_version_minor }}"
+    version: "{{ assisted_image_version }}"
+    cpuArchitecture: "x86_64"
     url: "{{ disconnected_http_server }}/{{ rhcos_remote_iso | basename }}"
     rootFSUrl: "{{ disconnected_http_server }}/{{ rhcos_remote_rootfs | basename }}"
 

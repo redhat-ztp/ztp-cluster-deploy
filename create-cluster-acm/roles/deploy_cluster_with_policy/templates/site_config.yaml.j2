@@ -75,3 +75,47 @@ additionalNTPSources:
                  enabled: false
 {% endif %}
 {% endfor %}
+
+{% if add_extra_workers is defined and add_extra_workers|bool == True %}
+{% for key, vm in worker_vms.items() %}
+      - hostName: "{{ key }}.{{ cluster_name }}.{{ cluster_domain }}"
+        role: worker
+        bmcAddress: "redfish-virtualmedia+http://{{ bmc_endpoint }}/{{ vm_ids[key] }}"
+        bmcCredentialsName:
+          name: "{{ cluster_name }}-{{ key }}-bmh-secret"
+        bootMACAddress: "{{ vm.mac }}"
+        bootMode: "UEFI"
+{% if vm.root_device_hints is defined and vm.root_device_hints|length > 0 %}        rootDeviceHints:
+          {{ vm.root_device_hints|indent(width=8) }}
+{% endif %}
+{% if vm.cpuset is defined and vm.cpuset|length > 0 %}        cpuset: "{{ vm.cpuset }}"
+{% endif %}
+        nodeNetwork:
+          interfaces:
+          - name: "{{ vm.interface }}"
+            macAddress: "{{ vm.mac }}"
+          config:
+{% if vm.nmstate_config_path is defined and vm.nmstate_config_path|length > 0 %}
+{% filter indent(width=12, first=True) %}
+{% include vm.nmstate_config_path %}
+{% endfilter %}
+
+{% else %}
+            interfaces:
+            - name: eno1
+              macAddress: "{{ vm.mac }}"
+              type: ethernet
+               state: up
+               ipv6:
+                 enabled: true
+                 dhcp: true
+                 auto-dns: true
+                 auto-gateway: true
+                 auto-routes: true
+                 autoconf: false
+               ipv4:
+                 enabled: false
+{% endif %}
+{% endfor %}
+{% endif %}
+
