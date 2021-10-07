@@ -55,8 +55,8 @@
 
 - name: Apply policy generator
   ansible.builtin.shell:
-    cmd: ./kustomize/plugin/policyGenerator/v1/policygenerator/PolicyGenerator "" {{ temp_directory.path }}/ {{ temporary_path }}/cnf-features-deploy/ztp/source-crs {{ temp_directory.path }}/site_manifests true
-    chdir: "{{ temporary_path }}/cnf-features-deploy/ztp/ztp-policy-generator/"
+    cmd: ./policygenerator "" {{ temp_directory.path }}/ {{ temporary_path }}/cnf-features-deploy/ztp/source-crs {{ temp_directory.path }}/site_manifests true
+    chdir: "{{ temporary_path }}/cnf-features-deploy/ztp/policygenerator/"
 
 - name: Apply the final results
   ansible.builtin.shell:
