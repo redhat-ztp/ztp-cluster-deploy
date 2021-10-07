@@ -17,6 +17,15 @@ spec:
     numMasters: {% if cluster_type == "standard" %}3
 {% else %}1
 {% endif %}
+{% if cluster_type == "standard" %}
+{% if vms|length > 3 %}
+    numWorkers: {{ vms|length - 3 }}
+{% endif %}
+{% else %}
+{% if vms|length > 1 %}
+    numWorkers: {{ vms|length - 1 }}
+{% endif %}
+{% endif %}
     clusterLabels:
       common: true
       sites : "{{ cluster_name }}"
@@ -38,6 +47,7 @@ additionalNTPSources:
     nodes:
 {% for key, vm in vms.items() %}
       - hostName: "{{ key }}.{{ cluster_name }}.{{ cluster_domain }}"
+        role: "{{ vm.role | default('master') }}"
         bmcAddress: "redfish-virtualmedia+http://{{ bmc_endpoint }}/{{ vm_ids[key] }}"
         bmcCredentialsName:
           name: "{{ cluster_name }}-{{ key }}-bmh-secret"
