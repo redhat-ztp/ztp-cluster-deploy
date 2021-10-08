@@ -11,7 +11,7 @@ The available tags are :
 
     TASK TAGS: [ install-requirements, create-vms, generate-manifests, create-extra-partition, mirror-release-image, deploy-cluster-with-policy, add-extra-workers]
 
-* install-requirements role consists of building policygenrator and installing few packages including sushy-tools
+* install-requirements role consists of building policygenerator and installing few packages including sushy-tools
 
 * create-vms role creates VM with desired cpu, memory, network and disk requirements
 
@@ -26,11 +26,11 @@ The available tags are :
 * add-extra-workers role adds extra workers on the cluster if required
 
 
-You can launch the playbook to provision a spoke cluster as:
+Copy the inventory/hosts.sno.yaml.sample to inventory/hosts.sno.yaml and launch the playbook to provision a spoke cluster as:
 
-    ansible-playbook -i inventory/hosts.sno.yaml.sample playbook.yml
+    ansible-playbook -i inventory/hosts.sno.yaml playbook.yml
 
-The successful execution of playbook will create the virtual machine and will generate and apply the final manifests for creating the cluster. Once the cluster installation is initiated, you will see that as “Creating” on the ACM clusters section.
+The successful execution of the playbook will create the virtual machine and will generate and apply the final manifests for creating the cluster. Once the cluster installation is initiated, you will see that as “Creating” on the ACM clusters section.
 
 You need to wait until you retrieve Installed to true on :
 
@@ -40,7 +40,7 @@ Once finished, you can retrieve the secrets from:
 
     oc get secret ${CLUSTER_NAME}-admin-kubeconfig -n ${CLUSTER_NAME} -o json | jq -r '.data.kubeconfig' | base64 -d > /tmp/sno_spoke_kubeconfig
 
-Afterwards, you can export configuration file and can do relevant checks by following commands:
+Afterwards, you can export the configuration file and can do relevant checks by following commands:
 
     export KUBECONFIG=/tmp/sno_spoke_kubeconfig
 
@@ -52,4 +52,12 @@ Afterwards, you can export configuration file and can do relevant checks by foll
 
 ## Deploying 3 Node standard clusters 
 
-You can use **hosts.yaml.sample** file under /inventory to create 3 node clusters, the available tags are the same as mentioned above. For **Day 2** operations, you can use the **hosts.extraworkers.yaml.sample** file to add extra workers as needed. Additionally, for example, if you want to have 3 masters and 2 workers node, you can utilize **hosts.5nodes.yaml** file to launch the cluster deployment
+You can use **hosts.yaml.sample** file under /inventory to create 3 node clusters, the available tags are the same as mentioned above. Additionally, you can launch 5 node cluster deployment by **hosts.5nodes.yaml** file, where the VMs need to have master/worker roles. For example,
+**hosts.5nodes.yaml** file represents the configuration of deploying for 3 master and 2 worker nodes.
+
+## Deploying additional workers on Day 2
+
+For **Day 2** operations, you need to a deploy standard cluster, and wait until the cluster is completely deployed and imported into ACM. Then, you need to copy **hosts.extraworkers.yaml.sample** file to **hosts.extraworkers.yaml** and fill the information for new workers and then execute the playbook with the appropriate tag as:
+
+
+    ansible-playbook -i inventory/hosts.extraworkers.yaml --tags=add_extra_workers
