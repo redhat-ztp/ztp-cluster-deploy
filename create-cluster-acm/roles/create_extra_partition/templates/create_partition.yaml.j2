@@ -3,7 +3,7 @@ kind: MachineConfig
 metadata:
   labels:
     machineconfiguration.openshift.io/role: master
-  name: 03-chrony-ntp
+  name: 04-create-extra-partition
 spec:
   config:
     ignition:
@@ -12,11 +12,20 @@ spec:
       disks:
       - device: /dev/sda
         partitions:
-        - sizeMiB: {{ (backup_partition_size|default(50)*1024)|int }}
-          startMiB: {{ (disk_size|default(120)*1024)|int - ((backup_partition_size|default(50)+0.1)*1024)|int }}
-          label: recovery
+        - sizeMiB: {{ (root_backup_partition_size|default(50)*1000)|int }}
+          startMiB: {{ ((disk_size|default(120)*1000)|int - (((root_backup_partition_size|default(50))|int+5+(boot_backup_partition_size|default(0.5)))*1000|int)|int) }}
+          wipePartitionEntry: true
+          label: ROOT-REC
+        - sizeMib: {{ (boot_backup_partition_size|default(0.5)*1000)|int }}
+          startMiB: {{ ((disk_size|default(120)*1000)|int - ((boot_backup_partition_size|default(0.5)+1)*1000)|int)|int }}
+          label: BOOT-REC
+          wipePartitionEntry: true
       filesystems:
-        - path: /var/recovery
-          device: /dev/disk/by-partlabel/recovery
-          label: recovery
+        - path: /var/root_recovery
+          device: /dev/disk/by-partlabel/ROOT-REC
           format: xfs
+          wipeFilesystem: true
+        - path: /var/boot_recovery
+          device: /dev/disk/by-partlabel/BOOT-REC
+          format: ext4
+          wipeFilesystem: true

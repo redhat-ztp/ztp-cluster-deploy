@@ -7,7 +7,8 @@ all:
         'spoke-master-0': {'mac': 'aa:aa:aa:aa:bb:04', 'memory': 20480, 'numcpus': 16, 'role': 'master', 'bmc_user': 'root', 'bmc_pass': 'calvin', 'nmstate_config_path': 'files/nmstate_ipv6.yaml', 'hostname': 'master-0.spoke-cluster.karmalabs.com'},
     }
 
-    backup_partition_size: 50
+    root_backup_partition_size: 50
+    boot_backup_partition_size: 0.5
     cluster_name: spoke-cluster
     cluster_domain: karmalabs.com
     cluster_network: lab-net
